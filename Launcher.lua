@@ -173,7 +173,7 @@ local function Game()
 			print(Score)
 		end
 		if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-			Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
+			--Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
 		end
 		if Number % 1500 == 0 and Niceness ~= 1 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
 			Niceness = Niceness - 1

@@ -118,4 +118,8 @@
   "StartStopSpace": true,
   "Path": "AllPowers",
   "Name": "AllPowers"
+}, {
+  "StartStopSpace": false,
+  "Path": "Collision",
+  "Name": "Collision"
 } ]
