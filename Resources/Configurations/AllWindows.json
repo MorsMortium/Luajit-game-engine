@@ -1,0 +1,10 @@
+[ {
+  "OpenGLWindow": true,
+  "Flags": [ "WINDOW_OPENGL", "WINDOW_RESIZABLE" ],
+  "Height": 500,
+  "WindowRenderer": "TestOpenGL",
+  "Title": "Asteroids",
+  "Width": 500,
+  "X": "WINDOWPOS_UNDEFINED",
+  "Y": "WINDOWPOS_UNDEFINED"
+} ]

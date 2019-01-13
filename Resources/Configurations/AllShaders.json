@@ -1,0 +1,14 @@
+[ {
+  "IfPath": true,
+  "Name": "TestVertexShader",
+  "String": "./Resources/Shaders/SimpleTransformVertexShader.txt",
+  "ShaderType": "GL_VERTEX_SHADER",
+  "Inputs": [ "Position", "ColorV" ],
+  "Uniforms": [ "Matrices" ]
+}, {
+  "IfPath": true,
+  "Name": "TestFragmentShader",
+  "String": "./Resources/Shaders/SingleColorFragmentShader.txt",
+  "ShaderType": "GL_FRAGMENT_SHADER",
+  "Uniforms": [ ]
+} ]

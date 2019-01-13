@@ -1,0 +1,43 @@
+#version 330
+
+uniform mat4 VP;
+
+uniform mat3 MD;
+
+in vec4 Position;
+
+void main()
+{
+    gl_Position = VP *
+//Translation
+    mat4(
+    vec4(       1,        0,        0, 0),
+    vec4(       0,        1,        0, 0),
+    vec4(       0,        0,        1, 0),
+    vec4(MD[0][0], MD[1][0], MD[2][0], 1)) *
+//Rotation
+    mat4(
+    vec4(1,              0,             0, 0),
+    vec4(0,  cos(MD[0][1]), sin(MD[0][1]), 0),
+    vec4(0, -sin(MD[0][1]), cos(MD[0][1]), 0),
+    vec4(0,              0,             0, 1)) *
+
+    mat4(
+    vec4(cos(MD[1][1]), 0, -sin(MD[1][1]), 0),
+    vec4(            0, 1,              0, 0),
+    vec4(sin(MD[1][1]), 0,  cos(MD[1][1]), 0),
+    vec4(            0, 0,              0, 1)) *
+
+    mat4(
+    vec4( cos(MD[2][1]), sin(MD[2][1]),  0, 0),
+    vec4(-sin(MD[2][1]), cos(MD[2][1]),  0, 0),
+    vec4(             0,             0,  1, 0),
+    vec4(             0,             0,  0, 1)) *
+//Scale
+    mat4(
+    vec4(MD[0][2],        0,        0, 0),
+    vec4(       0, MD[1][2],        0, 0),
+    vec4(       0,        0, MD[2][2], 0),
+    vec4(       0,        0,        0, 1)) *
+    Position;
+}

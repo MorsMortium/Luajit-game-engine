@@ -1,0 +1,12 @@
+#version 330 core
+
+// Input Vertex Data, different for All executions of this Shader.
+layout(location = 0) in vec3 VertexPosition_modelspace;
+
+// Output Data ; will be interpolated for each Fragment.
+out vec2 UV;
+
+void main(){
+	gl_Position =  vec4(VertexPosition_modelspace,1);
+	UV = (VertexPosition_modelspace.xy+vec2(1,1))/2.0;
+}

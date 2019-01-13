@@ -1,0 +1,7 @@
+{
+  "OpenGLVersion": {
+    "Major": 3,
+    "Minor": 3
+  },
+  "glew": true
+}

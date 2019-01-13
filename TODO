@@ -1,0 +1,18 @@
+collision reaction
+RENDERER_SOFTWARE only if there are opengl Windows?
+-collision functions
+-no collision check if no movement (dirty)
+-More Opengl Context?
+-Work Out deprecation
+-check SDLInit and OpenGLInit variables before trying to Use functions (or Start module)
+-finish TODOs
+-WindowRender Render.ChangeFrom, Render.ChangeTo
+-error messages where needed (but no exit if not needed)
+performance: Pass Objects only once and Delete when deleted, send when new
+             checking everything, but only once (not runtime?)
+             multicore Physics
+             multicore rendering?
+looks: documentation
+       shorter lines
+functions: sound
+           network

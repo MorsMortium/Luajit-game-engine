@@ -1,0 +1,48 @@
+{
+  "Objects": [ {
+    "Mass": 1,
+    "ObjectRenderer": "SomeSides",
+    "PhysicsLayers": "All",
+    "Translation": [ 0, 0, 0 ],
+    "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
+    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "Rotation": [ 0, 0, 0 ],
+    "Scale": [ 5, 5, 5 ],
+    "VisualLayers": [ "All" ],
+    "Fixed": true
+  }, {
+    "Mass": 1,
+    "ObjectRenderer": "SomeSides",
+    "PhysicsLayers": "All",
+    "Translation": [ 0, 0, 0 ],
+    "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ 1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
+    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "Rotation": [ 0, 0, 0 ],
+    "Scale": [ 5, 5, 5 ],
+    "VisualLayers": [ "All" ],
+    "Fixed": true
+  }, {
+    "Mass": 1,
+    "ObjectRenderer": "SomeSides",
+    "PhysicsLayers": "All",
+    "Translation": [ 0, 0, 0 ],
+    "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, 1, 1 ] ],
+    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "Rotation": [ 0, 0, 0 ],
+    "Scale": [ 5, 5, 5 ],
+    "VisualLayers": [ "All" ],
+    "Fixed": true
+  }, {
+    "Mass": 1,
+    "ObjectRenderer": "SomeSides",
+    "PhysicsLayers": "All",
+    "Translation": [ 0, 0, 0 ],
+    "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ 1, 0, 0, 1 ], [ 0, 0, 1, 1 ] ],
+    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "Rotation": [ 0, 0, 0 ],
+    "Scale": [ 5, 5, 5 ],
+    "VisualLayers": [ "All" ],
+    "Fixed": true
+  } ],
+  "FixedJoints": [ [ 1, 1, 2, 1 ], [ 1, 1, 3, 1 ], [ 1, 1, 4, 1 ] ]
+}

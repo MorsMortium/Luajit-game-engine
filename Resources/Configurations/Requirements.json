@@ -1,0 +1,121 @@
+[ {
+  "StartStopSpace": false,
+  "Path": "ffi",
+  "Name": "ffi"
+}, {
+  "StartStopSpace": false,
+  "Path": "PortAudio",
+  "Name": "PortAudio"
+}, {
+  "StartStopSpace": true,
+  "Path": "Audio",
+  "Name": "Audio"
+}, {
+  "StartStopSpace": false,
+  "Path": "lgsl",
+  "Name": "lgsl"
+}, {
+  "StartStopSpace": false,
+  "Path": "Camera",
+  "Name": "Camera"
+}, {
+  "StartStopSpace": false,
+  "Path": "Main",
+  "Name": "Main"
+}, {
+  "StartStopSpace": false,
+  "Path": "General",
+  "Name": "General"
+}, {
+  "StartStopSpace": false,
+  "Path": "SDL2",
+  "Name": "SDL"
+}, {
+  "StartStopSpace": false,
+  "Path": "luaglew",
+  "Name": "OpenGL"
+}, {
+  "StartStopSpace": false,
+  "Path": "GLU",
+  "Name": "GLU"
+}, {
+  "StartStopSpace": true,
+  "Path": "SDLInit",
+  "Name": "SDLInit"
+}, {
+  "StartStopSpace": true,
+  "Path": "OpenGLInit",
+  "Name": "OpenGLInit"
+}, {
+  "StartStopSpace": false,
+  "Path": "Shader",
+  "Name": "Shader"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllShaders",
+  "Name": "AllShaders"
+}, {
+  "StartStopSpace": false,
+  "Path": "Program",
+  "Name": "Program"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllPrograms",
+  "Name": "AllPrograms"
+}, {
+  "StartStopSpace": true,
+  "Path": "ObjectRender",
+  "Name": "ObjectRender"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllObjectRenders",
+  "Name": "AllObjectRenders"
+}, {
+  "StartStopSpace": false,
+  "Path": "Object",
+  "Name": "Object"
+}, {
+  "StartStopSpace": true,
+  "Path": "WindowRender",
+  "Name": "WindowRender"
+}, {
+  "StartStopSpace": false,
+  "Path": "Window",
+  "Name": "Window"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllWindows",
+  "Name": "AllWindows"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllWindowRenders",
+  "Name": "AllWindowRenders"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllInputs",
+  "Name": "AllInputs"
+}, {
+  "StartStopSpace": true,
+  "Path": "Physics",
+  "Name": "Physics"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllCameras",
+  "Name": "AllCameras"
+}, {
+  "StartStopSpace": false,
+  "Path": "Device",
+  "Name": "Device"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllDevices",
+  "Name": "AllDevices"
+}, {
+  "StartStopSpace": false,
+  "Path": "Power",
+  "Name": "Power"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllPowers",
+  "Name": "AllPowers"
+} ]
