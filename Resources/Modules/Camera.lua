@@ -12,16 +12,11 @@ function GiveBack.Create(GotObject, ffi, ffiGive, General, GeneralGive, lgsl, lg
 		else
 			Object.Direction = {0,-1,0}
 		end
-		Object.UpVector = lgsl.Library.gsl.gsl_vector_alloc(3)
+		Object.UpVector = {}
 		if General.Library.IsVector3(GotObject.UpVector) then
-			for i=1,3 do
-				Object.UpVector.data[i-1] = GotObject.UpVector[i]
-			end
-			--Object.UpVector = GotObject.UpVector
+			Object.UpVector = GotObject.UpVector
 		else
-			Object.UpVector.data[0] = 0
-			Object.UpVector.data[1] = 1
-			Object.UpVector.data[2] = 0
+			Object.UpVector = {0, 1, 0}
 		end
 		if type(GotObject.VisualLayers) == "table" then
 			Object.VisualLayers = GotObject.VisualLayers

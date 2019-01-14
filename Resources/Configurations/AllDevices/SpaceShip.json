@@ -57,8 +57,8 @@
         "Active": false
       }, {
         "Type": "Summon",
-        "Name": "Point",
-        "String": "local Created, Creator, General = ... local Center, v = Creator.Translation, Created.Objects[1] v.MMcalc = true for i=0,2 do v.Translation[i] = Creator.Translation[i] end",
+        "Name": "Default",
+        "String": "local Created, Creator, General = ... local Center, v = Creator.Translation, Created.Objects[1] v.MMcalc = true for i=0,2 do v.Translation[i] = mtv[2][i + 1] end",
         "Active": false
       } ]
 } ],

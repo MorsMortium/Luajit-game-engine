@@ -214,10 +214,8 @@ function GiveBack.QuaternionMultiplication(a, b)
         a[1] * b[4] + a[2] * b[3] - a[3] * b[2] + a[4] * b[1]
     }
 end
-function GiveBack.CrossProduct(u, v, sol)
-  sol.data[0] = u.data[1] * v.data[2] - u.data[2] * v.data[1]
-  sol.data[1] = u.data[2] * v.data[0] - u.data[0] * v.data[2]
-	sol.data[2] = u.data[0] * v.data[1] - u.data[1] * v.data[0]
+function GiveBack.CrossProduct(u, v)
+  return {u[2] * v[3] - u[3] * v[2], u[3] * v[1] - u[1] * v[3], u[1] * v[2] - u[2] * v[1]}
 end
 function GiveBack.RotationMatrix(lgsl, q, Center)
   local sqw = q[1]*q[1]
@@ -272,6 +270,9 @@ function GiveBack.ScaleMatrix(lgsl, Scale)
 end
 function GiveBack.ModelMatrix(Translation, Rotation, Scale, lgsl)
   return GiveBack.TranslationMatrix(lgsl, Translation) * GiveBack.RotationMatrix(lgsl, Rotation) * GiveBack.ScaleMatrix(lgsl, Scale)
+end
+function GiveBack.Normalise(a)
+    return {a[1]/GiveBack.VectorLength(a), a[2]/GiveBack.VectorLength(a), a[3]/GiveBack.VectorLength(a)}
 end
 GiveBack.Requirements = {"ffi", "lgsl"}
 return GiveBack

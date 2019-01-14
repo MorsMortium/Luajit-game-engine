@@ -23,24 +23,15 @@ end
 local function VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 end
-local function VectorAddition(a, b)
-  return {a[1] + b[1], a[2] + b[2], a[3] + b[3]}
-end
-local function CrossProduct(u, v)
-  return {u[2] * v[3] - u[3] * v[2], u[3] * v[1] - u[1] * v[3], u[1] * v[2] - u[2] * v[1]}
-end
 local function VectorCopy(c, o)
   c[1] = o[1]
   c[2] = o[2]
   c[3] = o[3]
 end
-local function normalise(a, General)
-    return {a[1]/General.Library.VectorLength(a), a[2]/General.Library.VectorLength(a), a[3]/General.Library.VectorLength(a)}
-end
 local function VectorNumberMult(v, n)
   return {v[1] * n, v[2] * n, v[3] * n}
 end
-local function vectorequals(a, b)
+local function VectorEqual(a, b)
   return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
 end
 local GiveBack = {}
@@ -55,20 +46,20 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   --  |   /
   --  | /
   --  c
-  local n = CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)); --triangle's normal
+  local n = General.Library.CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)); --triangle's normal
   local AO = MinusVector(a); --direction to origin
   --Determine which feature is closest to origin, make that the new simplex
   simp_dim[1] = 2;
-  if(General.Library.DotProduct(CrossProduct(VectorSubtraction(b, a), n), AO)>0)then --Closest to edge AB
+  if(General.Library.DotProduct(General.Library.CrossProduct(VectorSubtraction(b, a), n), AO)>0)then --Closest to edge AB
     VectorCopy(c, a);
     --simp_dim[1] = 2;
-    VectorCopy(search_dir, CrossProduct(CrossProduct(VectorSubtraction(b, a), AO), VectorSubtraction(b, a)));
+    VectorCopy(search_dir, General.Library.CrossProduct(General.Library.CrossProduct(VectorSubtraction(b, a), AO), VectorSubtraction(b, a)));
     return;
   end
-  if(General.Library.DotProduct(CrossProduct(n, VectorSubtraction(c, a)), AO)>0)then --Closest to edge AC
+  if(General.Library.DotProduct(General.Library.CrossProduct(n, VectorSubtraction(c, a)), AO)>0)then --Closest to edge AC
     VectorCopy(b, a);
     --simp_dim[1] = 2;
-    VectorCopy(search_dir, CrossProduct(CrossProduct(VectorSubtraction(c, a), AO), VectorSubtraction(c, a)));
+    VectorCopy(search_dir, General.Library.CrossProduct(General.Library.CrossProduct(VectorSubtraction(c, a), AO), VectorSubtraction(c, a)));
     return;
   end
   simp_dim[1] = 3;
@@ -93,9 +84,9 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   -- a is peak/tip of pyramid, BCD is the base (counterclockwise winding order)
 	--We know a priori that origin is above BCD and below a
   --Get normals of three new faces
-  local ABC = CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a));
-  local ACD = CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a));
-  local ADB = CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a));
+  local ABC = General.Library.CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a));
+  local ACD = General.Library.CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a));
+  local ADB = General.Library.CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a));
   local AO = MinusVector(a); --dir to origin
   simp_dim[1] = 3; --hoisting this just cause
   --Plane-test origin with 3 faces
@@ -139,26 +130,14 @@ local EPA_MAX_NUM_LOOSE_EDGES = 32
 local EPA_MAX_NUM_ITERATIONS = 64
 function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
   local faces = {}--[EPA_MAX_NUM_FACES][4]; --Array of faces, each with 3 verts and a normal
-  for i=1,EPA_MAX_NUM_FACES do
+  --Init with final simplex from GJK
+  faces[1] = {a, b, c, General.Library.Normalise(General.Library.CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)))}--ABC
+  faces[2] = {a, c, d, General.Library.Normalise(General.Library.CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a)))}--ACD
+  faces[3] = {a, d, b, General.Library.Normalise(General.Library.CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a)))}--ADB
+  faces[4] = {b, d, c, General.Library.Normalise(General.Library.CrossProduct(VectorSubtraction(d, b), VectorSubtraction(c, b)))}--BDC
+  for i=5,EPA_MAX_NUM_FACES do
     faces[i] = {} --[4]
   end
-  --Init with final simplex from GJK
-  faces[1][1] = a;
-  faces[1][2] = b;
-  faces[1][3] = c;
-  faces[1][4] = normalise(CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)), General); --ABC
-  faces[2][1] = a;
-  faces[2][2] = c;
-  faces[2][3] = d;
-  faces[2][4] = normalise(CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a)), General); --ACD
-  faces[3][1] = a;
-  faces[3][2] = d;
-  faces[3][3] = b;
-  faces[3][4] = normalise(CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a)), General); --ADB
-  faces[4][1] = b;
-  faces[4][2] = d;
-  faces[4][3] = c;
-  faces[4][4] = normalise(CrossProduct(VectorSubtraction(d, b), VectorSubtraction(c, b)), General); --BDC
   local num_faces=4;
   local closest_face;
   for iterations=1, EPA_MAX_NUM_ITERATIONS do
@@ -177,7 +156,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
     local p = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)));
     if(General.Library.DotProduct(p, search_dir)-min_dist<EPA_TOLERANCE)then
       --Convergence (new point is not significantly further from origin)
-      return VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(p, search_dir)); --dot vertex with normal to resolve collision along normal!
+      return support1(coll1, faces[closest_face][4]), VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(p, search_dir)); --dot vertex with normal to resolve collision along normal!
     end
     local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2]; --keep track of edges we need to fix after removing faces
     for i=1,EPA_MAX_NUM_LOOSE_EDGES do
@@ -195,7 +174,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
           local found_edge = false;
           local k = 1
           while k <= num_loose_edges do--Check if current edge is already in list
-            if(vectorequals(loose_edges[k][2],current_edge[1]) and vectorequals(loose_edges[k][1], current_edge[2]))then
+            if(VectorEqual(loose_edges[k][2],current_edge[1]) and VectorEqual(loose_edges[k][1], current_edge[2]))then
               --Edge is already in the list, remove it
               --THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES (which should be true)
               --THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which
@@ -236,7 +215,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
       faces[num_faces][1] = loose_edges[i][1];
       faces[num_faces][2] = loose_edges[i][2];
       faces[num_faces][3] = p;
-      faces[num_faces][4] = normalise(CrossProduct(VectorSubtraction(loose_edges[i][1], loose_edges[i][2]), VectorSubtraction(loose_edges[i][1], p)), General);
+      faces[num_faces][4] = General.Library.Normalise(General.Library.CrossProduct(VectorSubtraction(loose_edges[i][1], loose_edges[i][2]), VectorSubtraction(loose_edges[i][1], p)));
       --Check for wrong normal to maintain CCW winding
       local bias = 0.000001; --in case dot result is only slightly < 0 (because origin is on face)
       if(General.Library.DotProduct(faces[num_faces][1], faces[num_faces][4])+bias < 0) then
@@ -249,12 +228,12 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
   end --End for iterations
     print("EPA did not converge");
     --Return most recent closest point
-    return VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(faces[closest_face][1], faces[closest_face][4]))
+    return faces[closest_face][4], VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(faces[closest_face][1], faces[closest_face][4]))
 end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
 --If supplied the EPA will be used to find the vector to separate coll1 from coll2
-function GiveBack.GJK(coll1, coll2, support1, support2, General, mtv)--(Collider* coll1, Collider* coll2, vec3* mtv=NULL);
+function GiveBack.GJK(coll1, coll2, support1, support2, mtv, General)--(Collider* coll1, Collider* coll2, vec3* mtv=NULL);
   local a, b, c, d = {}, {}, {}, {}; --Simplex: just a set of points (a is always most recently added)
   local search_dir = VectorSubtractionFrom0(coll1.Translation, coll2.Translation); --initial search direction between colliders
   --Get initial point for simplex
@@ -263,11 +242,11 @@ function GiveBack.GJK(coll1, coll2, support1, support2, General, mtv)--(Collider
   --Get second point for a line segment simplex
   b = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)));
   if(General.Library.DotProduct(b, search_dir)<0) then return false; end--we didn't reach the origin, won't enclose it
-  search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)); --search perpendicular to line segment towards origin
+  search_dir = General.Library.CrossProduct(General.Library.CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)); --search perpendicular to line segment towards origin
   if(search_dir=={0,0,0})then --origin is on this line segment
     --Apparently any normal search vector will do?
-    search_dir = CrossProduct(c-b, {1,0,0}); --normal with x-axis
-    if(search_dir=={0,0,0}) then search_dir = CrossProduct(c-b, {0,0,-1});end --normal with z-axis
+    search_dir = General.Library.CrossProduct(c-b, {1,0,0}); --normal with x-axis
+    if(search_dir=={0,0,0}) then search_dir = General.Library.CrossProduct(c-b, {0,0,-1});end --normal with z-axis
   end
   local simp_dim = {2}; --simplex dimension
   for iterations=1, GJK_MAX_NUM_ITERATIONS do
@@ -277,7 +256,11 @@ function GiveBack.GJK(coll1, coll2, support1, support2, General, mtv)--(Collider
     if(simp_dim[1]==3) then
       update_simplex3(a,b,c,d,simp_dim,search_dir, General);
     elseif(update_simplex4(a,b,c,d,simp_dim,search_dir, General)) then
-      if mtv then mtv[1] = GiveBack.EPA(a,b,c,d,coll1,coll2, support1, support2, General) end
+      if mtv then
+        local CollisionNormal, Depth = GiveBack.EPA(a,b,c,d,coll1,coll2, support1, support2, General)
+        mtv[1] = Depth
+        mtv[2] = CollisionNormal
+      end
       return true;
     end
   end--endfor

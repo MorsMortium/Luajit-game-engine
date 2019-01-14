@@ -13,24 +13,19 @@ local function ProjectionMatrix(FieldOfView, Aspect, MinimumDistance, MaximumDis
 end
 local function ViewMatrix(Translation, Direction, UpVector, lgsl, General)
   local gsl = lgsl.Library.gsl
-  local Z = gsl.gsl_vector_calloc(3)
+  local Z = {}
   for i=1,3 do
-    Z.data[i - 1] = Translation[i]-Direction[i]
+    Z[i] = Translation[i]-Direction[i]
   end
-  gsl.gsl_vector_scale(Z, 1 / gsl.gsl_blas_dnrm2(Z))
-  local X = gsl.gsl_vector_calloc(3)
-  General.Library.CrossProduct(UpVector, Z, X)
-  gsl.gsl_vector_scale(X, 1 / gsl.gsl_blas_dnrm2(X))
-  local Y = gsl.gsl_vector_calloc(3)
-  General.Library.CrossProduct(Z, X, Y)
+  Z = General.Library.Normalise(Z)
+  local X = General.Library.CrossProduct(UpVector, Z)
+  X = General.Library.Normalise(X)
+  local Y = General.Library.CrossProduct(Z, X)
   local ResultMatrix = lgsl.Library.matrix.def{
-    {X.data[0], Y.data[0], Z.data[0], 0},
-    {X.data[1], Y.data[1], Z.data[1], 0},
-    {X.data[2], Y.data[2], Z.data[2], 0},
+    {X[1], Y[1], Z[1], 0},
+    {X[2], Y[2], Z[2], 0},
+    {X[3], Y[3], Z[3], 0},
     {-General.Library.DotProduct(X, Translation), -General.Library.DotProduct(Y, Translation), -General.Library.DotProduct(Z, Translation), 1}}
-  gsl.gsl_vector_free(X)
-  gsl.gsl_vector_free(Y)
-  gsl.gsl_vector_free(Z)
   gsl.gsl_matrix_transpose(ResultMatrix)
 	return ResultMatrix
 end
@@ -99,10 +94,9 @@ function GiveBack.RenderAllCameras(Space, AllObjectRenders, AllObjectRendersGive
       local Center = {FollowObject.Translation[0], FollowObject.Translation[1], FollowObject.Translation[2]}
       local PointUp = {FollowObject.Transformated.data[(v.FollowPointUpVector-1) * 4], FollowObject.Transformated.data[(v.FollowPointUpVector-1) * 4 + 1], FollowObject.Transformated.data[(v.FollowPointUpVector-1) * 4 + 2]}
       local CenterToPoint = General.Library.PointAToB(Center, v.Direction)
-      local CenterToPointUp = General.Library.PointAToB(Center, PointUp)
+      v.UpVector = General.Library.PointAToB(Center, PointUp)
       for i=1,3 do
         v.Translation[i] = v.Direction[i] + CenterToPoint[i] * Length
-        v.UpVector.data[i - 1] = CenterToPointUp[i]
       end
       v.ViewMatrixCalc = true
     end
