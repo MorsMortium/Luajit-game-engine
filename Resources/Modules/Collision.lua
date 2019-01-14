@@ -156,7 +156,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
     local p = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)));
     if(General.Library.DotProduct(p, search_dir)-min_dist<EPA_TOLERANCE)then
       --Convergence (new point is not significantly further from origin)
-      return support1(coll1, faces[closest_face][4]), VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(p, search_dir)); --dot vertex with normal to resolve collision along normal!
+      return VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(p, search_dir)); --dot vertex with normal to resolve collision along normal!
     end
     local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2]; --keep track of edges we need to fix after removing faces
     for i=1,EPA_MAX_NUM_LOOSE_EDGES do
@@ -228,7 +228,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
   end --End for iterations
     print("EPA did not converge");
     --Return most recent closest point
-    return faces[closest_face][4], VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(faces[closest_face][1], faces[closest_face][4]))
+    return VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(faces[closest_face][1], faces[closest_face][4]))
 end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
@@ -257,9 +257,7 @@ function GiveBack.GJK(coll1, coll2, support1, support2, mtv, General)--(Collider
       update_simplex3(a,b,c,d,simp_dim,search_dir, General);
     elseif(update_simplex4(a,b,c,d,simp_dim,search_dir, General)) then
       if mtv then
-        local CollisionNormal, Depth = GiveBack.EPA(a,b,c,d,coll1,coll2, support1, support2, General)
-        mtv[1] = Depth
-        mtv[2] = CollisionNormal
+        mtv[1] = GiveBack.EPA(a,b,c,d,coll1,coll2, support1, support2, General)
       end
       return true;
     end

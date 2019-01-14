@@ -67,10 +67,6 @@ function GiveBack.Stop(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit,
     end
   end
 end
-AAAASSSSS = true
-mtv = {}
-mtv[1] = {}
-mtv[2] = {1, 1, 1}
 function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit, SDLInitGive, lgsl, lgslGive, ffi, ffiGive, General, GeneralGive, Power, PowerGive, Collision, CollisionGive)
   local gsl = lgsl.Library.gsl
   local Time = SDL.Library.getTicks() - Space.LastTime
@@ -170,9 +166,7 @@ function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLIn
       for e,f in pairs(AllDevices.Space.Devices) do
         for a,b in pairs(f.Objects) do
           if v.CollisionChecked[e..a] == nil then
-
               if (i ~= e or k ~= a) --[[and (not (i == e and Joint(n.FixedJoints, k, a)))--]] and General.Library.SameLayer(v.PhysicsLayers, b.PhysicsLayers) and CollisionBox(v, b) and Collision.Library.GJK(v, b, Space.Support, Space.Support, mtv, unpack(CollisionGive)) then
-                print(mtv[2][1], mtv[2][2], mtv[2][3])
                 if (n.Name == "Bullet" and f.Name == "Asteroid") or (f.Name == "Bullet" and n.Name == "Asteroid") then
                   b.Powers[1].Active = true
                   v.Powers[1].Active = true
@@ -184,13 +178,6 @@ function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLIn
                 elseif (f.Name == "SpaceShip" and n.Name == "Asteroid") then
                   b.Powers[8].Active = true
                   v.Powers[1].Active = true
-                end
-                if (n.Name == "SpaceShip" and f.Name == "One") and AAAASSSSS then
-                  v.Powers[10].Active = true
-                  AAAASSSSS = false
-                elseif (f.Name == "SpaceShip" and n.Name == "One") and AAAASSSSS then
-                  b.Powers[10].Active = true
-                  AAAASSSSS = false
                 end
               --[[
               if b.Fixed and not v.Fixed then
