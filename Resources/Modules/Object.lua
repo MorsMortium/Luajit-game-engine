@@ -4,6 +4,7 @@ function GiveBack.Create(GotObject, General, GeneralGive, ffi, ffiGive, ObjectRe
 	Object.Translation = ffi.Library.new("float[3]")
 	Object.Rotation = {}
 	Object.Scale = ffi.Library.new("float[3]")
+	Object.Transformated = lgsl.Library.gsl.gsl_matrix_alloc(4, 4)
 	-- The Translation in the world, it will be the Object's center of Mass too, Default: center
 	if General.Library.IsVector3(GotObject.Translation) then
 		for i=1,3 do
@@ -130,7 +131,7 @@ function GiveBack.Create(GotObject, General, GeneralGive, ffi, ffiGive, ObjectRe
 	return Object
 end
 function GiveBack.Destroy(Object, General, GeneralGive, ffi, ffiGive, ObjectRender, ObjectRenderGive, lgsl, lgslGive, Power, PowerGive)
-
+	lgsl.Library.gsl.gsl_matrix_free(Object.Transformated)
 end
 GiveBack.Requirements = {"General", "ffi", "ObjectRender", "lgsl"}
 return GiveBack

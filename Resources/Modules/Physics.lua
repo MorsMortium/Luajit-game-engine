@@ -36,7 +36,6 @@ function GiveBack.Start(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit
   for k,v in pairs(AllDevices.Space.Devices) do
     for i,n in pairs(v.Objects) do
       n.ModelMatrix = General.Library.ModelMatrix(n.Translation, n.Rotation, n.Scale, lgsl)
-      n.Transformated = gsl.gsl_matrix_alloc(4, 4)
       gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, n.ModelMatrix, n.Points, 0, n.Transformated)
       gsl.gsl_matrix_transpose(n.Transformated)
       n.MMcalc = false
@@ -61,11 +60,6 @@ function GiveBack.Start(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit
 end
 function GiveBack.Stop(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit, SDLInitGive, lgsl, lgslGive, ffi, ffiGive, General, GeneralGive, Power, PowerGive, Collision, CollisionGive)
 	Space.LastTime = nil
-  for k,v in pairs(AllDevices.Space.Devices) do
-    for i,n in pairs(v.Objects) do
-      lgsl.Library.gsl.gsl_matrix_free(n.Transformated)
-    end
-  end
 end
 function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit, SDLInitGive, lgsl, lgslGive, ffi, ffiGive, General, GeneralGive, Power, PowerGive, Collision, CollisionGive)
   local gsl = lgsl.Library.gsl
