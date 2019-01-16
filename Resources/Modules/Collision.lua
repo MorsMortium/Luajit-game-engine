@@ -23,6 +23,9 @@ end
 local function VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 end
+local function VectorAddition(a, b)
+  return {a[1] + b[1], a[2] + b[2], a[3] + b[3]}
+end
 local function VectorCopy(c, o)
   c[1] = o[1]
   c[2] = o[2]
@@ -33,6 +36,43 @@ local function VectorNumberMult(v, n)
 end
 local function VectorEqual(a, b)
   return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
+end
+local function Barycentric(p, a, b, c, General)
+    local v0 = VectorSubtraction(b, a)
+    local v1 = VectorSubtraction(c, a)
+    local v2 = VectorSubtraction(p, a)
+    local d00 = General.Library.DotProduct(v0, v0)
+    local d01 = General.Library.DotProduct(v0, v1)
+    local d11 = General.Library.DotProduct(v1, v1)
+    local d20 = General.Library.DotProduct(v2, v0)
+    local d21 = General.Library.DotProduct(v2, v1)
+    local denom = d00 * d11 - d01 * d01
+    v = (d11 * d20 - d01 * d21) / denom
+    w = (d00 * d21 - d01 * d20) / denom
+    u = 1 - v - w
+    return u, v, w
+end
+local function ExtrapolateContactInformation(aClosestFace, General)
+	local distanceFromOrigin = General.Library.DotProduct(aClosestFace[4], aClosestFace[3]);
+  local aContactData = {}
+  aContactData[1] = distanceFromOrigin
+  aContactData[2] = General.Library.Normalise(aClosestFace[4])
+	-- calculate the barycentric coordinates of the closest triangle with respect to
+	-- the projection of the origin onto the triangle
+	local bary_u, bary_v, bary_w = Barycentric(VectorNumberMult(aClosestFace[4], distanceFromOrigin), aClosestFace[3], aClosestFace[2], aClosestFace[1], General);
+	-- A Contact points
+	local supportLocal1 = aClosestFace[3].supporta
+	local supportLocal2 = aClosestFace[2].supporta
+	local supportLocal3 = aClosestFace[1].supporta
+	-- Contact point on object A in local space
+	aContactData[3] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
+	-- B contact points
+  supportLocal1 = aClosestFace[3].supportb
+	supportLocal2 = aClosestFace[2].supportb
+	supportLocal3 = aClosestFace[1].supportb
+	-- Contact point on object B in local space
+  aContactData[4] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
+  return aContactData;
 end
 local GiveBack = {}
 --Internal functions used in the GJK algorithm
@@ -52,12 +92,16 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   simp_dim[1] = 2;
   if(General.Library.DotProduct(General.Library.CrossProduct(VectorSubtraction(b, a), n), AO)>0)then --Closest to edge AB
     VectorCopy(c, a);
+    c.supporta = a.supporta
+    c.supportb = a.supportb
     --simp_dim[1] = 2;
     VectorCopy(search_dir, General.Library.CrossProduct(General.Library.CrossProduct(VectorSubtraction(b, a), AO), VectorSubtraction(b, a)));
     return;
   end
   if(General.Library.DotProduct(General.Library.CrossProduct(n, VectorSubtraction(c, a)), AO)>0)then --Closest to edge AC
     VectorCopy(b, a);
+    b.supporta = a.supporta
+    b.supportb = a.supportb
     --simp_dim[1] = 2;
     VectorCopy(search_dir, General.Library.CrossProduct(General.Library.CrossProduct(VectorSubtraction(c, a), AO), VectorSubtraction(c, a)));
     return;
@@ -65,20 +109,29 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   simp_dim[1] = 3;
   if(General.Library.DotProduct(n, AO)>0)then --Above triangle
     VectorCopy(d, c);
+    d.supporta = c.supporta
+    d.supportb = c.supportb
     VectorCopy(c, b);
+    c.supporta = b.supporta
+    c.supportb = b.supportb
     VectorCopy(b, a);
+    b.supporta = a.supporta
+    b.supportb = a.supportb
     --simp_dim[1] = 3;
     VectorCopy(search_dir, n);
     return;
   end
   --else --Below triangle
   VectorCopy(d, b);
+  d.supporta = b.supporta
+  d.supportb = b.supportb
   VectorCopy(b, a);
+  b.supporta = a.supporta
+  b.supportb = a.supportb
   --simp_dim[1] = 3;
   VectorCopy(search_dir, MinusVector(n));
   return;
 end
-
 --Tetrahedral case
 local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   -- a is peak/tip of pyramid, BCD is the base (counterclockwise winding order)
@@ -96,20 +149,34 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   -- this method is good enough. Makes no difference for AABBS, should test with more complex colliders.
   if(General.Library.DotProduct(ABC, AO)>0)then --In front of ABC
   	VectorCopy(d, c);
+    d.supporta = c.supporta
+    d.supportb = c.supportb
   	VectorCopy(c, b);
+    c.supporta = b.supporta
+    c.supportb = b.supportb
   	VectorCopy(b, a);
+    b.supporta = a.supporta
+    b.supportb = a.supportb
     VectorCopy(search_dir, ABC);
   	return false;
   end
   if(General.Library.DotProduct(ACD, AO)>0)then --In front of ACD
   	VectorCopy(b, a);
+    b.supporta = a.supporta
+    b.supportb = a.supportb
     VectorCopy(search_dir, ACD);
   	return false;
   end
   if(General.Library.DotProduct(ADB, AO)>0)then --In front of ADB
   	VectorCopy(c, d);
+    c.supporta = d.supporta
+    c.supportb = d.supportb
   	VectorCopy(d, b);
+    d.supporta = b.supporta
+    d.supportb = b.supportb
   	VectorCopy(b, a);
+    b.supporta = a.supporta
+    b.supportb = a.supportb
     VectorCopy(search_dir, ADB);
   	return false;
   end
@@ -154,9 +221,12 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
     --search normal to face that's closest to origin
     local search_dir = faces[closest_face][4];
     local p = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)));
+    p.supporta = support1(coll1, MinusVector(search_dir))
+    p.supportb = support2(coll2, search_dir)
     if(General.Library.DotProduct(p, search_dir)-min_dist<EPA_TOLERANCE)then
       --Convergence (new point is not significantly further from origin)
-      return VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(p, search_dir)); --dot vertex with normal to resolve collision along normal!
+      local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
+      return contactdata[1], contactdata[2], contactdata[3], contactdata[4] --dot vertex with normal to resolve collision along normal!
     end
     local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2]; --keep track of edges we need to fix after removing faces
     for i=1,EPA_MAX_NUM_LOOSE_EDGES do
@@ -228,7 +298,8 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
   end --End for iterations
     print("EPA did not converge");
     --Return most recent closest point
-    return VectorNumberMult(faces[closest_face][4], General.Library.DotProduct(faces[closest_face][1], faces[closest_face][4]))
+    local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
+    return contactdata[1], contactdata[2], contactdata[3], contactdata[4]
 end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
@@ -237,10 +308,14 @@ function GiveBack.GJK(coll1, coll2, support1, support2, mtv, General)--(Collider
   local a, b, c, d = {}, {}, {}, {}; --Simplex: just a set of points (a is always most recently added)
   local search_dir = VectorSubtractionFrom0(coll1.Translation, coll2.Translation); --initial search direction between colliders
   --Get initial point for simplex
-  c = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)));
+  c = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)))
+  c.supporta = support1(coll1, MinusVector(search_dir))
+  c.supportb = support2(coll2, search_dir)
   search_dir = MinusVector(c); --search in direction of origin
   --Get second point for a line segment simplex
-  b = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)));
+  b = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)))
+  b.supporta = support1(coll1, MinusVector(search_dir))
+  b.supportb = support2(coll2, search_dir)
   if(General.Library.DotProduct(b, search_dir)<0) then return false; end--we didn't reach the origin, won't enclose it
   search_dir = General.Library.CrossProduct(General.Library.CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)); --search perpendicular to line segment towards origin
   if(search_dir=={0,0,0})then --origin is on this line segment
@@ -250,14 +325,16 @@ function GiveBack.GJK(coll1, coll2, support1, support2, mtv, General)--(Collider
   end
   local simp_dim = {2}; --simplex dimension
   for iterations=1, GJK_MAX_NUM_ITERATIONS do
-    a = VectorSubtraction(support2(coll2, search_dir),  support1(coll1, MinusVector(search_dir)));
+    a = VectorSubtraction(support2(coll2, search_dir), support1(coll1, MinusVector(search_dir)))
+    a.supporta = support1(coll1, MinusVector(search_dir))
+    a.supportb = support2(coll2, search_dir)
     if(General.Library.DotProduct(a, search_dir)<0)then return false end--we didn't reach the origin, won't enclose it
     simp_dim[1] = simp_dim[1] + 1
     if(simp_dim[1]==3) then
       update_simplex3(a,b,c,d,simp_dim,search_dir, General);
     elseif(update_simplex4(a,b,c,d,simp_dim,search_dir, General)) then
       if mtv then
-        mtv[1] = GiveBack.EPA(a,b,c,d,coll1,coll2, support1, support2, General)
+        mtv[1], mtv[2], mtv[3], mtv[4], mtv[5], mtv[6] = GiveBack.EPA(a,b,c,d,coll1,coll2, support1, support2, General)
       end
       return true;
     end

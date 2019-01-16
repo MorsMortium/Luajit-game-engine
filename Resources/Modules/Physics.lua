@@ -160,6 +160,7 @@ function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLIn
       for e,f in pairs(AllDevices.Space.Devices) do
         for a,b in pairs(f.Objects) do
           if v.CollisionChecked[e..a] == nil then
+            local mtv = {}
               if (i ~= e or k ~= a) --[[and (not (i == e and Joint(n.FixedJoints, k, a)))--]] and General.Library.SameLayer(v.PhysicsLayers, b.PhysicsLayers) and CollisionBox(v, b) and Collision.Library.GJK(v, b, Space.Support, Space.Support, mtv, unpack(CollisionGive)) then
                 if (n.Name == "Bullet" and f.Name == "Asteroid") or (f.Name == "Bullet" and n.Name == "Asteroid") then
                   b.Powers[1].Active = true
