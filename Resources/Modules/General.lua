@@ -145,21 +145,35 @@ function GiveBack.SameLayer(Layers1, Layers2)
     if Layers1[i] == "AdminAll" then
       return true
     end
-    if Layers1[i] == "None" then
-      return false
-    end
   end
   for i=1,#Layers2 do
     if Layers2[i] == "AdminAll" then
       return true
     end
+  end
+  for i=1,#Layers1 do
+    if Layers1[i] == "None" then
+      return false
+    end
+  end
+  for i=1,#Layers2 do
     if Layers2[i] == "None" then
       return false
     end
   end
   for i=1,#Layers1 do
+    if Layers1[i] == "All" then
+      return true
+    end
+  end
+  for i=1,#Layers2 do
+    if Layers2[i] == "All" then
+      return true
+    end
+  end
+  for i=1,#Layers1 do
     for e=1,#Layers2 do
-      if Layers1[i] == "All" or Layers1[i] == Layers2[e] then
+      if Layers1[i] == Layers2[e] then
         return true
       end
     end

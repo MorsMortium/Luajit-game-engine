@@ -159,48 +159,46 @@ function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLIn
     for k,v in pairs(n.Objects) do
       for e,f in pairs(AllDevices.Space.Devices) do
         for a,b in pairs(f.Objects) do
-          if v.CollisionChecked[e..a] == nil then
-            local mtv = {}
-              if (i ~= e or k ~= a) --[[and (not (i == e and Joint(n.FixedJoints, k, a)))--]] and General.Library.SameLayer(v.PhysicsLayers, b.PhysicsLayers) and CollisionBox(v, b) and Collision.Library.GJK(v, b, Space.Support, Space.Support, mtv, unpack(CollisionGive)) then
-                if (n.Name == "Bullet" and f.Name == "Asteroid") or (f.Name == "Bullet" and n.Name == "Asteroid") then
-                  b.Powers[1].Active = true
-                  v.Powers[1].Active = true
-                  Score = Score + 1
-                end
-                if (n.Name == "SpaceShip" and f.Name == "Asteroid") then
-                  b.Powers[1].Active = true
-                  v.Powers[8].Active = true
-                elseif (f.Name == "SpaceShip" and n.Name == "Asteroid") then
-                  b.Powers[8].Active = true
-                  v.Powers[1].Active = true
-                end
-              --[[
-              if b.Fixed and not v.Fixed then
-                for jjj=1,3 do
-                  v.Speed[jjj] = - v.Speed[jjj] * b.CollisionReaction[2]
-                end
-              elseif v.Fixed and not b.Fixed then
-                for jjj=1,3 do
-                  b.Speed[jjj] = - b.Speed[jjj] * v.CollisionReaction[2]
-                end
-              elseif v.Fixed and b.Fixed then
-                b.Speed = {0, 0, 0}
-                v.Speed = {0, 0, 0}
-              elseif not (v.Fixed or b.Fixed) then
-                for jjj=1,3 do
-                  b.Speed[jjj] = - b.Speed[jjj] * v.CollisionReaction[2]
-                  v.Speed[jjj] = - v.Speed[jjj] * b.CollisionReaction[2]
-                end
-              end
-              --]]
-              --TODO
-              --print(i.." Device "..k.." Object collided with "..e.." Device "..a.." Object")
-            else
-              --print(i.." Device "..k.." Object did not collided with "..e.." Device "..a.." Object")
+          local mtv = {}
+          if v.CollisionChecked[e..a] == nil and (i ~= e or k ~= a) --[[and (not (i == e and Joint(n.FixedJoints, k, a)))--]] and General.Library.SameLayer(v.PhysicsLayers, b.PhysicsLayers) and CollisionBox(v, b) and Collision.Library.GJK(v, b, Space.Support, Space.Support, mtv, unpack(CollisionGive)) then
+            if (n.Name == "Bullet" and f.Name == "Asteroid") or (f.Name == "Bullet" and n.Name == "Asteroid") then
+              b.Powers[1].Active = true
+              v.Powers[1].Active = true
+              Score = Score + 1
             end
-            v.CollisionChecked[e..a] = true
-            b.CollisionChecked[i..k] = true
+            if (n.Name == "SpaceShip" and f.Name == "Asteroid") then
+              b.Powers[1].Active = true
+              v.Powers[8].Active = true
+            elseif (f.Name == "SpaceShip" and n.Name == "Asteroid") then
+              b.Powers[8].Active = true
+              v.Powers[1].Active = true
+            end
+            --[[
+            if b.Fixed and not v.Fixed then
+              for jjj=1,3 do
+                v.Speed[jjj] = - v.Speed[jjj] * b.CollisionReaction[2]
+              end
+            elseif v.Fixed and not b.Fixed then
+              for jjj=1,3 do
+                b.Speed[jjj] = - b.Speed[jjj] * v.CollisionReaction[2]
+              end
+            elseif v.Fixed and b.Fixed then
+              b.Speed = {0, 0, 0}
+              v.Speed = {0, 0, 0}
+            elseif not (v.Fixed or b.Fixed) then
+              for jjj=1,3 do
+                b.Speed[jjj] = - b.Speed[jjj] * v.CollisionReaction[2]
+                v.Speed[jjj] = - v.Speed[jjj] * b.CollisionReaction[2]
+              end
+            end
+            --]]
+            --TODO
+            --print(i.." Device "..k.." Object collided with "..e.." Device "..a.." Object")
+          else
+            --print(i.." Device "..k.." Object did not collided with "..e.." Device "..a.." Object")
           end
+          v.CollisionChecked[e..a] = true
+          b.CollisionChecked[i..k] = true
         end
       end
       for h,j in pairs(v.Powers) do

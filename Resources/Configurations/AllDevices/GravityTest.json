@@ -2,10 +2,10 @@
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "ColorPerSide",
-    "PhysicsLayers": "All",
+    "PhysicsLayers": [ "All" ],
     "Translation": [ 0, 0, 0 ],
     "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
-    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ] ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ],
     "VisualLayers": [ "All" ],
@@ -15,15 +15,15 @@
         "Type": "Gravity",
         "Force": 0.00005,
         "Distance": 100,
-        "Active": false
+        "Active": true
         } ]
   }, {
     "Mass": 1,
     "ObjectRenderer": "Default",
-    "PhysicsLayers": "All",
+    "PhysicsLayers": [ "All" ],
     "Translation": [ 1, 1, 0 ],
     "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
-    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "RenderData": [ 255, 255, 255 ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ],
     "VisualLayers": [ "All" ],

@@ -55,8 +55,7 @@ end
 local function ExtrapolateContactInformation(aClosestFace, General)
 	local distanceFromOrigin = General.Library.DotProduct(aClosestFace[4], aClosestFace[3]);
   local aContactData = {}
-  aContactData[1] = distanceFromOrigin
-  aContactData[2] = General.Library.Normalise(aClosestFace[4])
+  aContactData[1] = General.Library.Normalise(aClosestFace[4])
 	-- calculate the barycentric coordinates of the closest triangle with respect to
 	-- the projection of the origin onto the triangle
 	local bary_u, bary_v, bary_w = Barycentric(VectorNumberMult(aClosestFace[4], distanceFromOrigin), aClosestFace[3], aClosestFace[2], aClosestFace[1], General);
@@ -65,13 +64,13 @@ local function ExtrapolateContactInformation(aClosestFace, General)
 	local supportLocal2 = aClosestFace[2].supporta
 	local supportLocal3 = aClosestFace[1].supporta
 	-- Contact point on object A in local space
-	aContactData[3] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
+	aContactData[2] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
 	-- B contact points
   supportLocal1 = aClosestFace[3].supportb
 	supportLocal2 = aClosestFace[2].supportb
 	supportLocal3 = aClosestFace[1].supportb
 	-- Contact point on object B in local space
-  aContactData[4] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
+  aContactData[3] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
   return aContactData;
 end
 local GiveBack = {}
@@ -226,7 +225,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
     if(General.Library.DotProduct(p, search_dir)-min_dist<EPA_TOLERANCE)then
       --Convergence (new point is not significantly further from origin)
       local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
-      return contactdata[1], contactdata[2], contactdata[3], contactdata[4] --dot vertex with normal to resolve collision along normal!
+      return VectorNumberMult(faces[closest_face][3], General.Library.DotProduct(p, search_dir)), contactdata[1], contactdata[2], contactdata[3] --dot vertex with normal to resolve collision along normal!
     end
     local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2]; --keep track of edges we need to fix after removing faces
     for i=1,EPA_MAX_NUM_LOOSE_EDGES do
@@ -299,7 +298,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, support1, support2, General)
     print("EPA did not converge");
     --Return most recent closest point
     local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
-    return contactdata[1], contactdata[2], contactdata[3], contactdata[4]
+    return VectorNumberMult(faces[closest_face][3], General.Library.DotProduct(faces[closest_face][0], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3]
 end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
