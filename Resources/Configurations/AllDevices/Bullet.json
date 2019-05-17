@@ -2,12 +2,14 @@
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "Asteroid",
-    "PhysicsLayers": "All",
+    "PhysicsLayers": [ "Bullet" ],
     "Translation": [ 2, 0, 0 ],
     "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
     "RenderData": [ 255, 255, 255 ],
     "Rotation": [ 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ],
+    "Scale": [ 0.5, 0.5, 0.5 ],
+    "CollisionDecay": 1,
+    "CollisionReaction": [ 0, 1 ],
     "VisualLayers": [ "All" ],
     "Fixed": false,
     "Powers": [
@@ -18,7 +20,7 @@
         "Active": false
       }, {
         "Type": "Destroypara",
-        "String": "local Devices, i, k, h, General = ... if Devices then local Own = Devices[i].Objects[k].Translation local Other = Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB({Own[0], Own[1], Own[2]}, {Other[0], Other[1], Other[2]})) > 50 then return true else return false end end",
+        "String": "local Devices, i, k, h, General = ... if Devices then local Own, Other = Devices[i].Objects[k].Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 50 then return true else return false end end",
         "Doo": "Device",
         "Active": true
       } ]

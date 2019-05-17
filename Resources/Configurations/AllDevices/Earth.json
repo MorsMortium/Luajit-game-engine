@@ -23,7 +23,7 @@
     "PhysicsLayers": [ "None" ],
     "Translation": [ 0, 1, 0 ],
     "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, true, true, true ] ],
+    "RenderData": [ [ 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255 ], [ false, true, true, true ] ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 10, 10, 10 ],
     "VisualLayers": [ "All" ],

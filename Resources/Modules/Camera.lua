@@ -1,5 +1,6 @@
 local GiveBack = {}
-function GiveBack.Create(GotObject, ffi, ffiGive, General, GeneralGive, lgsl, lgslGive)
+function GiveBack.Create(GotObject, Arguments)
+	local General = Arguments[1]
 	local Object = {}
 	if type(GotObject) == "table" then
 		if General.Library.IsVector3(GotObject.Translation) then
@@ -76,5 +77,11 @@ function GiveBack.Create(GotObject, ffi, ffiGive, General, GeneralGive, lgsl, lg
 	end
 	return Object
 end
-GiveBack.Requirements = {"ffi", "General", "lgsl"}
+function GiveBack.Destroy(GotObject, Arguments)
+	for ak,av in pairs(GotObject) do
+		GotObject[ak] = nil
+	end
+end
+
+GiveBack.Requirements = {"General"}
 return GiveBack

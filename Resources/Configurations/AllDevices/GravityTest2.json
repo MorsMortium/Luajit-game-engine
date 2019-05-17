@@ -3,23 +3,17 @@
     "Mass": 1,
     "ObjectRenderer": "ColorPerSide",
     "PhysicsLayers": [ "All" ],
-    "Translation": [ 2, 0, 0 ],
+    "Translation": [ 0, 0, 0 ],
     "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
     "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ] ],
     "Rotation": [ 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ],
+    "Scale": [ 10, 10, 10 ],
     "VisualLayers": [ "All" ],
-    "Fixed": false,
+    "Fixed": true,
     "Powers": [
       {
-        "Type": "Thruster",
-        "Force": 0.00005,
-        "Point": 4,
-        "Active": false
-      }, {
-        "Type": "SelfSlow",
-        "Rate": 1.01,
+        "Type": "Gravity",
+        "Force": 0.0005,
+        "Distance": 100,
         "Active": true
-      } ]
-  } ]
-}
+        } ]} ] }

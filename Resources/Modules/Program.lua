@@ -1,6 +1,6 @@
 local GiveBack = {}
-function GiveBack.Compile(Program, AllShaders, AllShadersGive, OpenGL, OpenGLGive, OpenGLInit, OpenGLInitGive, ffi, ffiGive)
-	local Char = ffi.Library.typeof("char[?]")
+function GiveBack.Create(Program, Arguments)
+	local AllShaders, OpenGL, ffi = Arguments[1], Arguments[3], Arguments[5]
 	local InfoLogLength = ffi.Library.new("int[1]")
 	local Result = ffi.Library.new("GLint[1]", OpenGL.Library.GL_FALSE)
 	local Object = {}
@@ -9,8 +9,9 @@ function GiveBack.Compile(Program, AllShaders, AllShadersGive, OpenGL, OpenGLGiv
 	-- Link the Program
 	print("Linking Program: "..Program.Name)
 	Object.ProgramID = ffi.Library.new("GLuint[1]", OpenGL.Library.glCreateProgram())
-	for k, v in pairs(Program.Shaders) do
-		OpenGL.Library.glAttachShader(Object.ProgramID[0], AllShaders.Space.Shaders[v].ShaderID[0])
+	for ak=1,#Program.Shaders do
+		local av = Program.Shaders[ak]
+		OpenGL.Library.glAttachShader(Object.ProgramID[0], AllShaders.Space.Shaders[av].ShaderID[0])
 	end
 	OpenGL.Library.glLinkProgram(Object.ProgramID[0])
 	-- Check the Program
@@ -21,23 +22,27 @@ function GiveBack.Compile(Program, AllShaders, AllShadersGive, OpenGL, OpenGLGiv
 		OpenGL.Library.glGetProgramInfoLog(Object.ProgramID[0], InfoLogLength[0], nil, ProgramErrorMessage)
 		print(ffi.Library.string(ProgramErrorMessage))
 	end
-	for k, v in pairs(Program.Shaders) do
-		OpenGL.Library.glDetachShader(Object.ProgramID[0], AllShaders.Space.Shaders[v].ShaderID[0])
-		if AllShaders.Space.Shaders[v].ShaderType == "GL_VERTEX_SHADER" and type(AllShaders.Space.Shaders[v].Inputs) == "table" then
-			for x, y in pairs(AllShaders.Space.Shaders[v].Inputs) do
-				Object.Inputs[y] = OpenGL.Library.glGetAttribLocation(Object.ProgramID[0], y)
+	for ak=1,#Program.Shaders do
+		local av = Program.Shaders[ak]
+		OpenGL.Library.glDetachShader(Object.ProgramID[0], AllShaders.Space.Shaders[av].ShaderID[0])
+		if AllShaders.Space.Shaders[av].ShaderType == "GL_VERTEX_SHADER" and type(AllShaders.Space.Shaders[av].Inputs) == "table" then
+			for bk=1,#AllShaders.Space.Shaders[av].Inputs do
+				local bv = AllShaders.Space.Shaders[av].Inputs[bk]
+				Object.Inputs[bv] = OpenGL.Library.glGetAttribLocation(Object.ProgramID[0], bv)
 			end
 		end
-		if type(AllShaders.Space.Shaders[v].Uniforms) == "table" then
-			for x, y in pairs(AllShaders.Space.Shaders[v].Uniforms) do
-				Object.Uniforms[y] = OpenGL.Library.glGetUniformLocation(Object.ProgramID[0], y)
+		if type(AllShaders.Space.Shaders[av].Uniforms) == "table" then
+			for bk=1,#AllShaders.Space.Shaders[av].Uniforms do
+				local bv = AllShaders.Space.Shaders[av].Uniforms[bk]
+				Object.Uniforms[bv] = OpenGL.Library.glGetUniformLocation(Object.ProgramID[0], bv)
 			end
 		end
 	end
 	return Object
 end
-function GiveBack.Delete(ProgramID, AllShaders, AllShadersGive, OpenGL, OpenGLGive, OpenGLInit, OpenGLInitGive, ffi, ffiGive)
+function GiveBack.Destroy(ProgramID, Arguments)
+	local OpenGL = Arguments[3]
 	OpenGL.Library.glDeleteProgram(ProgramID[0])
 end
-GiveBack.Requirements = {"AllShaders", "OpenGL", "OpenGLInit", "ffi"}
+GiveBack.Requirements = {"AllShaders", "OpenGL", "ffi"}
 return GiveBack

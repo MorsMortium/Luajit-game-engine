@@ -1,26 +1,31 @@
 local GiveBack = {}
-function GiveBack.Start(Space, Power, PowerGive, AllDevices, AllDevicesGive)
-	for k, v in pairs(Power.Library.Powers) do
-		if not (type(v.DataCheck) == "function" and type(v.Use) == "function") then
-			Power.Library.Powers[k] = nil
+function GiveBack.Start(Arguments)
+	local Space, Power, PowerGive, AllDevices = Arguments[1], Arguments[2], Arguments[3], Arguments[4]
+	for ak=1,#Power.Library.Powers do
+		local av = Power.Library.Powers[ak]
+		if not (type(av.DataCheck) == "function" and type(av.Use) == "function") then
+			Power.Library.Powers[ak] = nil
 		end
 	end
-  for k,v in pairs(AllDevices.Space.Devices) do
-    for a,b in pairs(v.Objects) do
-      b.PowerChecked = {}
-      if type(b.Powers) == "table" then
-    		for x,y in pairs(b.Powers) do
-          if Power.Library.Powers[y.Type] then
-            b.Powers[x] = Power.Library.Powers[y.Type].DataCheck(y, unpack(PowerGive))
-            b.PowerChecked[x] = {}
-          end
-    		end
-    	end
-    end
-  end
+	for ak=1,#AllDevices.Space.Devices do
+		local av = AllDevices.Space.Devices[ak]
+		for bk=1,#av.Objects do
+			local bv = av.Objects[bk]
+			bv.PowerChecked = {}
+			if type(bv.Powers) == "table" then
+				for ck=1,#bv.Powers do
+					local cv = bv.Powers[ck]
+					if Power.Library.Powers[cv.Type] then
+						bv.Powers[ck] = Power.Library.Powers[cv.Type].DataCheck(cv, PowerGive)
+						bv.PowerChecked[ck] = {}
+					end
+				end
+			end
+		end
+	end
 	print("AllPowers Started")
 end
-function GiveBack.Stop(Space, Power, PowerGive, AllDevices, AllDevicesGive)
+function GiveBack.Stop(Arguments)
 	print("AllPowers Stopped")
 end
 GiveBack.Requirements = {"Power", "AllDevices"}

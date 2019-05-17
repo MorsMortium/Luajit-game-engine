@@ -120,6 +120,10 @@
   "Name": "AllPowers"
 }, {
   "StartStopSpace": false,
-  "Path": "Collision",
-  "Name": "Collision"
+  "Path": "CollisionDetection",
+  "Name": "CollisionDetection"
+}, {
+  "StartStopSpace": false,
+  "Path": "CollisionResponse",
+  "Name": "CollisionResponse"
 } ]

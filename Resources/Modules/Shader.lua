@@ -1,6 +1,7 @@
 local GiveBack = {}
 --If IfPath true, then String is a Path, else it is a lua String filled with the Shadersourcecode
-function GiveBack.Load(Shader, OpenGL, OpenGLGive, OpenGLInit, OpenGLInitGive, ffi, ffiGive)
+function GiveBack.Create(Shader, Arguments)
+	local OpenGL, OpenGLInit, ffi = Arguments[1], Arguments[3], Arguments[5]
 	local Char = ffi.Library.typeof("char[?]")
 	-- Create the Shader
 	local Object = {}
@@ -44,7 +45,8 @@ function GiveBack.Load(Shader, OpenGL, OpenGLGive, OpenGLInit, OpenGLInitGive, f
 	Object.Uniforms = Shader.Uniforms
 	return Object
 end
-function GiveBack.Delete(ShaderID, OpenGL, OpenGLGive, OpenGLInit, OpenGLInitGive, ffi, ffiGive)
+function GiveBack.Destroy(ShaderID, Arguments)
+	local OpenGL = Arguments[1]
 	OpenGL.Library.glDeleteShader(ShaderID[0])
 end
 GiveBack.Requirements = {"OpenGL", "OpenGLInit", "ffi"}

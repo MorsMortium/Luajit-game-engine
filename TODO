@@ -1,10 +1,13 @@
+reduce data conversion
+Delete camera textures
+software textures for software cameras
 collision reaction
+one draw per rendertype
 RENDERER_SOFTWARE only if there are opengl Windows?
 -collision functions
 -no collision check if no movement (dirty)
--More Opengl Context?
 -Work Out deprecation
--check SDLInit and OpenGLInit variables before trying to Use functions (or Start module)
+-check SDLInit and OpenGLInit variables before trying to use functions (or start module)
 -finish TODOs
 -WindowRender Render.ChangeFrom, Render.ChangeTo
 -error messages where needed (but no exit if not needed)

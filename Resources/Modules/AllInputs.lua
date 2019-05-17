@@ -1,7 +1,7 @@
 local GiveBack = {}
 local function NotInList(List, Object)
-	for k,v in pairs(List) do
-		if v == Object then
+	for ak=1,#List do
+		if List[ak] == Object then
 			return false
 		end
 	end
@@ -10,27 +10,25 @@ end
 local JSON = require("json")
 local Inputs = JSON:DecodeFromFile("./Resources/Configurations/AllInputs.json")
 GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender"}
-for k,v in pairs(Inputs) do
-	if type(v.Pass) == "table" then
-		for a,b in pairs(v.Pass) do
-			if b ~= "AllInputs" and NotInList(GiveBack.Requirements, b) then
-				GiveBack.Requirements[#GiveBack.Requirements + 1] = b
+for ak=1,#Inputs do
+	local av = Inputs[ak]
+	if type(av.Pass) == "table" then
+		for bk=1,#av.Pass do
+			local bv = av.Pass[bk]
+			if bv ~= "AllInputs" and NotInList(GiveBack.Requirements, bv) then
+				GiveBack.Requirements[#GiveBack.Requirements + 1] = bv
 			end
 		end
 	end
 end
 Inputs = nil
-function GiveBack.Start(...)
-	local Arguments = {...}
+function GiveBack.Start(Arguments)
 	local Space = Arguments[1]
 	local JSON = Arguments[2]
-	local JSONGive = Arguments[3]
 	local SDL = Arguments[4]
-	local SDLGive = Arguments[5]
 	local SDLInit = Arguments[6]
 	local SDLInitGive = Arguments[7]
 	local ffi = Arguments[8]
-	local ffiGive = Arguments[9]
 	local Window = Arguments[10]
 	local WindowGive = Arguments[11]
 	local AllWindows = Arguments[12]
@@ -39,28 +37,28 @@ function GiveBack.Start(...)
 	local WindowRenderGive = Arguments[15]
 	Space.PlusRequ = {}
 	Space.Pass = {}
-	for i=7, #GiveBack.Requirements do
-		Space.PlusRequ[GiveBack.Requirements[i]] = Arguments[2 * i]
-		Space.PlusRequ[GiveBack.Requirements[i].."Give"] = Arguments[2 * i + 1]
+	for ak=7, #GiveBack.Requirements do
+		local av = GiveBack.Requirements[ak]
+		Space.PlusRequ[av] = Arguments[2 * ak]
+		Space.PlusRequ[av.."Give"] = Arguments[2 * ak + 1]
 	end
 	Space.PlusRequ["AllInputs"] = {}
 	Space.PlusRequ["AllInputs"].Library = GiveBack
 	Space.PlusRequ["AllInputs"].Space = Space
-	Space.PlusRequ["AllInputsGive"] = {Space, JSON, JSONGive, SDL, SDLGive, SDLInit, SDLInitGive, ffi, ffiGive, Window, WindowGive, AllWindows, AllWindowsGive}
+	Space.PlusRequ["AllInputsGive"] = {Space, JSON, nil, SDL, nil, SDLInit, SDLInitGive, ffi, nil, Window, WindowGive, AllWindows, AllWindowsGive}
 	Space.Inputs = JSON.Library:DecodeFromFile("./Resources/Configurations/AllInputs.json")
-	if type(Space.Inputs) == "table" then
-		for k,v in pairs(Space.Inputs) do
-			v.Command = loadstring(v.String)
-		end
-	end
 	Space.ButtonsDown = {}
 	Space.ButtonsUp = {}
-	for k,v in pairs(Space.Inputs) do
-		if v.Type == "Down" then
-			Space.ButtonsDown[v.Button] = v
-		end
-		if v.Type == "Up" then
-			Space.ButtonsUp[v.Button] = v
+	if type(Space.Inputs) == "table" then
+		for ak=1,#Space.Inputs do
+			local av = Space.Inputs[ak]
+			av.Command = loadstring(av.String)
+			if av.Type == "Down" then
+				Space.ButtonsDown[av.Button] = av
+			end
+			if av.Type == "Up" then
+				Space.ButtonsUp[av.Button] = av
+			end
 		end
 	end
 	Space.Inputs = nil
@@ -68,10 +66,15 @@ function GiveBack.Start(...)
 	Space.Text = ""
 	print("AllInputs Started")
 end
-function GiveBack.Stop(Space, JSON, JSONGive, SDL, SDLGive, SDLInit, SDLInitGive, ffi, ffiGive, Window, WindowGive, AllWindows, AllWindowsGive, WindowRender, WindowRenderGive)
+function GiveBack.Stop(Arguments)
+	local Space = Arguments[1]
+	for ak,av in pairs(Space) do
+		Space[ak] = nil
+	end
 	print("AllInputs Stopped")
 end
-function GiveBack.Input(Space, JSON, JSONGive, SDL, SDLGive, SDLInit, SDLInitGive, ffi, ffiGive, Window, WindowGive, AllWindows, AllWindowsGive, WindowRender, WindowRenderGive)
+function GiveBack.Input(Arguments)
+	local Space, SDL, ffi, Window, WindowGive, AllWindows = Arguments[1], Arguments[4], Arguments[8], Arguments[10], Arguments[11], Arguments[12]
 	local ReturnValue
 	while SDL.Library.pollEvent(Space.Event) ~=0 do
 		if Space.Event.type == SDL.Library.QUIT then
@@ -81,25 +84,28 @@ function GiveBack.Input(Space, JSON, JSONGive, SDL, SDLGive, SDLInit, SDLInitGiv
 		print(Space.Text)
 		elseif Space.Event.type == SDL.Library.WINDOWEVENT then
 			if Space.Event.window.event == SDL.Library.WINDOWEVENT_CLOSE then
-				Window.Library.Destroy(Space.Event.window.windowID, unpack(WindowGive))
-				for k,v in pairs(AllWindows.Space.Windows) do
-					if v.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
-						table.remove(AllWindows.Space.Windows, k)
+				Window.Library.Destroy(Space.Event.window.windowID, WindowGive)
+				for ak=1,#AllWindows.Space.Windows do
+					local av = AllWindows.Space.Windows[ak]
+					if av.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
+						table.remove(AllWindows.Space.Windows, ak)
 					end
 				end
 			elseif Space.Event.window.event == SDL.Library.WINDOWEVENT_RESIZED then
-				for k,v in pairs(AllWindows.Space.Windows) do
-					if v.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
-						SDL.Library.GetWindowSize(SDL.Library.getWindowFromID(Space.Event.window.windowID), v.Width, v.Height)
+				for ak=1,#AllWindows.Space.Windows do
+					local av = AllWindows.Space.Windows[ak]
+					if av.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
+						SDL.Library.GetWindowSize(SDL.Library.getWindowFromID(Space.Event.window.windowID), av.Width, av.Height)
 					end
 				end
 			end
 		elseif Space.Event.type == SDL.Library.KEYDOWN and Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
 			local v = Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))]
 			if type(v.Pass) == "table" then
-				for a,b in pairs(v.Pass) do
-					table.insert(Space.Pass, Space.PlusRequ[b])
-					table.insert(Space.Pass, Space.PlusRequ[b.."Give"])
+				for ak=1,#v.Pass do
+					local av = v.Pass[ak]
+					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av]
+					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av.."Give"]
 				end
 			end
 			local Ran, Buffer = pcall(v.Command, unpack(Space.Pass))
@@ -111,9 +117,10 @@ function GiveBack.Input(Space, JSON, JSONGive, SDL, SDLGive, SDLInit, SDLInitGiv
 		elseif Space.Event.type == SDL.Library.KEYUP and Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
 			local v = Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))]
 			if type(v.Pass) == "table" then
-				for a,b in pairs(v.Pass) do
-					table.insert(Space.Pass, Space.PlusRequ[b])
-					table.insert(Space.Pass, Space.PlusRequ[b.."Give"])
+				for ak=1,#v.Pass do
+					local av = v.Pass[ak]
+					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av]
+					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av.."Give"]
 				end
 			end
 			local Ran, Buffer = pcall(v.Command, unpack(Space.Pass))

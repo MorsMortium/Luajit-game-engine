@@ -1,12 +1,4 @@
 --Depends on: json
---[[
---Noerror
-local function a(...)
-	print(unpack({...}))
-end
-error = a
-a = nil
---]]
 package.path = './Resources/Modules/?.lua;./Resources/Modules/?;' .. package.path
 io.output():setvbuf("no")
 local Order = {}
@@ -14,16 +6,18 @@ local Data = {}
 Data.JSON = {Library = require("json")}
 local Requirements = Data.JSON.Library:DecodeFromFile("./Resources/Configurations/Requirements.json")
 local function LoadModules(Modules)
-	for k, v in pairs(Modules) do
-		Data[v.Name].Library = nil
-		Data[v.Name].Library = require(v.Path)
+	for ak=1,#Modules do
+		local av = Modules[ak]
+		Data[av.name].Library = nil
+		Data[av.name].Library = require(av.Path)
 	end
 end
 local function RequireAll()
-	for k, v in pairs(Requirements) do
-		Data[v.Name] = {}
-		Data[v.Name].Library = require(v.Path)
-		Data[v.Name].StartStopSpace = v.StartStopSpace
+	for ak=1,#Requirements do
+		local av = Requirements[ak]
+		Data[av.Name] = {}
+		Data[av.Name].Library = require(av.Path)
+		Data[av.Name].StartStopSpace = av.StartStopSpace
 	end
 end
 local function RequCalc(MainTable, Table)
@@ -32,12 +26,13 @@ local function RequCalc(MainTable, Table)
 		Give[1] = Table.Space
 	end
 	if type(Table) == "table" and type(Table.Library) == "table" and type(Table.Library.Requirements) == "table" then
-		for k, v in pairs(Table.Library.Requirements) do
-			if type(MainTable[v]) == "table" and type(MainTable[v].Library) == "table" and type(MainTable[v].Library.Requirements) == "table" then
-				Give[#Give + 1] = MainTable[v]
-				Give[#Give + 1] = RequCalc(MainTable, MainTable[v])
+		for ak=1,#Table.Library.Requirements do
+			local av = Table.Library.Requirements[ak]
+			if type(MainTable[av]) == "table" and type(MainTable[av].Library) == "table" and type(MainTable[av].Library.Requirements) == "table" then
+				Give[#Give + 1] = MainTable[av]
+				Give[#Give + 1] = RequCalc(MainTable, MainTable[av])
 			else
-				Give[#Give + 1] = MainTable[v]
+				Give[#Give + 1] = MainTable[av]
 				Give[#Give + 1] = true
 			end
 		end
@@ -53,26 +48,27 @@ local function Start()
 		turn = turn + 1
 		Pending = false
 		Change = false
-		for k, v in pairs(Data) do
-			if not v.Started then
+		for ak, av in pairs(Data) do
+			if not av.Started then
 				local Allrequisgood = true
-				if type(v) == "table" and type(v.Library) == "table" and type(v.Library.Requirements) == "table" then
-					for a,b in pairs(v.Library.Requirements) do
-						if Data[b] == nil or Data[b].Started ~= true then
+				if type(av) == "table" and type(av.Library) == "table" and type(av.Library.Requirements) == "table" then
+					for bk=1,#av.Library.Requirements do
+						local bv = av.Library.Requirements[bk]
+						if Data[bv] == nil or Data[bv].Started ~= true then
 							Allrequisgood = false
 						end
 					end
 				end
 				if Allrequisgood then
-					Order[#Order + 1] = k
-					if v.StartStopSpace then
+					Order[#Order + 1] = ak
+					if av.StartStopSpace then
 						Change = true
-						v.Space = {}
-						v.Library.Start(unpack(RequCalc(Data, v)))
-						v.Started = true
+						av.Space = {}
+						av.Library.Start(RequCalc(Data, av))
+						av.Started = true
 					else
 						Change = true
-						v.Started = true
+						av.Started = true
 					end
 				else
 					Pending = true
@@ -83,35 +79,37 @@ local function Start()
 	if Pending then
 		local NotLoaded = {}
 		print("Error, not loaded Modules:")
-		for k, v in pairs(Data) do
-			if v.Started == nil then
-				NotLoaded[#NotLoaded + 1] = k
-				print(k)
+		for ak, av in pairs(Data) do
+			if av.Started == nil then
+				NotLoaded[#NotLoaded + 1] = ak
+				print(ak)
 			end
 		end
 		print("Needed by:")
-		for k,v in pairs(Data) do
-			if not v.Started then
+		for ak,av in pairs(Data) do
+			if not av.Started then
 				local Needs = false
-				for a,b in pairs(NotLoaded) do
-					if k == b then
+				for bk=1,#NotLoaded do
+					local bv = NotLoaded[bk]
+					if ak == bv then
 						Needs = true
 						break
 					end
 				end
 				if Needs then
-					print(k)
+					print(ak)
 				end
 			end
 		end
 	end
 end
 local function Stop()
-	for i=(#Order),1,-1 do
-		if type(Data[Order[i]]) == "table" and type(Data[Order[i]].Library) == "table" and type(Data[Order[i]].Library.Stop) == "function" then
-			Data[Order[i]].Library.Stop(unpack(RequCalc(Data, Data[Order[i]])))
+	for ak=(#Order),1,-1 do
+		local av = Order[ak]
+		if type(Data[av]) == "table" and type(Data[av].Library) == "table" and type(Data[av].Library.Stop) == "function" then
+			Data[av].Library.Stop(RequCalc(Data, Data[av]))
 		end
-		Data[Order[i]] = nil
+		Data[av] = nil
 	end
 	Data = nil
 end
@@ -162,15 +160,15 @@ local function Game()
 	local LastScore = 0
 	local Niceness = 100
 	while not (MainExit or InputExit) do
-		LoadModule, Modules, MainExit = Main(unpack(MainGive))
-		InputExit = Input(unpack(InputGive))
+		LoadModule, Modules, MainExit = Main(MainGive)
+		InputExit = Input(InputGive)
 		if LoadModule then
 			LoadModules(Modules)
 			LoadModule = false
 		end
 		if LastScore < Score then
 			LastScore = Score
-			print(Score)
+			print("Score:", Score)
 		end
 		if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
 			Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
@@ -179,8 +177,8 @@ local function Game()
 			Niceness = Niceness - 1
 			print("Niceness:", Niceness)
 		end
-		CameraRender(unpack(CameraRenderGive))
-		WindowRender(Number, unpack(WindowRenderGive))
+		CameraRender(CameraRenderGive)
+		WindowRender(Number, WindowRenderGive)
 		Number = Number + 1
 	end
 	Stop()

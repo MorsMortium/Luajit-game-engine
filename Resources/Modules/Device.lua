@@ -1,24 +1,27 @@
 local GiveBack = {}
-function GiveBack.Create(GotDevice, Name, Object, ObjectGive, General, GeneralGive)
+function GiveBack.Create(GotDevice, Name, Arguments)
+  local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   local Device = {}
   Device.Objects = {}
   if type(GotDevice.Objects) == "table" then
-    for k,v in pairs(GotDevice.Objects) do
-      Device.Objects[k] = Object.Library.Create(v, unpack(ObjectGive))
+    for ak=1,#GotDevice.Objects do
+      local av = GotDevice.Objects[ak]
+      Device.Objects[ak] = Object.Library.Create(av, ObjectGive)
     end
   else
     --TODO
   end
   Device.FixedJoints = {}
   if General.Library.GoodTypesOfTable(GotDevice.FixedJoints, "table") then
-    for k,v in pairs(GotDevice.FixedJoints) do
-      if General.Library.GoodTypesOfTable(v, "number") then
-        if #v == 4 and v[1] ~= v[3] and v[2] > 0 and v[2] < 5 and v[4] > 0 and v[4] < 5 then
-          for e,f in pairs(Device.Objects) do
-            if v[1] == e then
-              for r,g in pairs(Device.Objects) do
-                if v[3] == r then
-                  Device.FixedJoints[k] = v
+    for ak=1,#GotDevice.FixedJoints do
+      local av = GotDevice.FixedJoints[ak]
+      if General.Library.GoodTypesOfTable(av, "number") then
+        if #av == 4 and av[1] ~= av[3] and av[2] > 0 and av[2] < 5 and av[4] > 0 and av[4] < 5 then
+          for bk=1,#Device.Objects do
+            if av[1] == bk then
+              for ck=1,#Device.Objects do
+                if av[3] == ck then
+                  Device.FixedJoints[ak] = av
                 end
               end
             end
@@ -30,9 +33,14 @@ function GiveBack.Create(GotDevice, Name, Object, ObjectGive, General, GeneralGi
   Device.Name = Name
   return Device
 end
-function GiveBack.Destroy(Device, Object, ObjectGive, General, GeneralGive)
-  for k,v in pairs(Device.Objects) do
-    Object.Library.Destroy(v, unpack(ObjectGive))
+function GiveBack.Destroy(Device, Arguments)
+  local Object, ObjectGive = Arguments[1], Arguments[2]
+  for ak=1,#Device.Objects do
+    local av = Device.Objects[ak]
+    Object.Library.Destroy(av, ObjectGive)
+  end
+  for ak,av in pairs(Device) do
+    Device[ak] = nil
   end
 end
 GiveBack.Requirements = {"Object", "General"}

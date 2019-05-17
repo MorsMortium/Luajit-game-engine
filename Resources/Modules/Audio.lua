@@ -1,5 +1,6 @@
 local GiveBack = {}
-function GiveBack.Start(Space, PortAudio, PortAudioGive, ffi, ffiGive)
+function GiveBack.Start(Arguments)
+  local Space, PortAudio, ffi = Arguments[1], Arguments[2], Arguments[4]
   --[[
   Space.Stream = ffi.Library.new("PaStream*[1]")
   PortAudio.Library.checkError(PortAudio.Library.dll.Pa_Initialize())
@@ -18,7 +19,8 @@ function GiveBack.Start(Space, PortAudio, PortAudioGive, ffi, ffiGive)
   --]]
   print("Audio Started")
 end
-function GiveBack.Stop(Space, PortAudio, PortAudioGive, ffi, ffiGive)
+function GiveBack.Stop(Arguments)
+  local Space, PortAudio, ffi = Arguments[1], Arguments[2], Arguments[4]
   --[[
 	PortAudio.Library.checkError(PortAudio.Library.dll.Pa_StopStream(Space.Stream[0]))
   PortAudio.Library.checkError(PortAudio.Library.dll.Pa_CloseStream(Space.Stream[0]))

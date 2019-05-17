@@ -2,7 +2,7 @@
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "ColorPerSide",
-    "PhysicsLayers": "All",
+    "PhysicsLayers": [ "All" ],
     "Translation": [ 3, 0, 0 ],
     "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
     "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
@@ -13,7 +13,7 @@
   }, {
     "Mass": 1,
     "ObjectRenderer": "ColorPerSide",
-    "PhysicsLayers": "All",
+    "PhysicsLayers": [ "All" ],
     "Translation": [ 3, 1, 0 ],
     "Points": [ [ 0, 1, 0, 1 ], [ 0, 0, 0, 1 ], [ -1, 0, 0, 1 ], [ 0, 0, -1, 1 ] ],
     "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],

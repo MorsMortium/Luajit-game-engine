@@ -1,224 +1,189 @@
 local GiveBack = {}
-local function CollisionBox(FirstObject, SecondObject, IfEquals)
-  if IfEquals then
-    return (FirstObject.CollisionBoxMinimum[1] <= SecondObject.CollisionBoxMaximum[1] and FirstObject.CollisionBoxMaximum[1] >= SecondObject.CollisionBoxMinimum[1]) and
-             (FirstObject.CollisionBoxMinimum[2] <= SecondObject.CollisionBoxMaximum[2] and FirstObject.CollisionBoxMaximum[2] >= SecondObject.CollisionBoxMinimum[2]) and
-             (FirstObject.CollisionBoxMinimum[3] <= SecondObject.CollisionBoxMaximum[3] and FirstObject.CollisionBoxMaximum[3] >= SecondObject.CollisionBoxMinimum[3])
-  else
-    return (FirstObject.CollisionBoxMinimum[1] < SecondObject.CollisionBoxMaximum[1] and FirstObject.CollisionBoxMaximum[1] > SecondObject.CollisionBoxMinimum[1]) and
-           (FirstObject.CollisionBoxMinimum[2] < SecondObject.CollisionBoxMaximum[2] and FirstObject.CollisionBoxMaximum[2] > SecondObject.CollisionBoxMinimum[2]) and
-           (FirstObject.CollisionBoxMinimum[3] < SecondObject.CollisionBoxMaximum[3] and FirstObject.CollisionBoxMaximum[3] > SecondObject.CollisionBoxMinimum[3])
-  end
-end
 local function Joint(FixedJoints, k1, k2)
-  for k,v in pairs(FixedJoints) do
-    if (v[1] == k1 and v[3] == k2) or (v[3] == k1 and v[1] == k2) then
+  for ak=1,#FixedJoints do
+    local av = FixedJoints[ak]
+    if (av[1] == k1 and av[3] == k2) or (av[3] == k1 and av[1] == k2) then
       return true
     end
   end
   return false
 end
-function GiveBack.Start(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit, SDLInitGive, lgsl, lgslGive, ffi, ffiGive, General, GeneralGive, Power, PowerGive, Collision, CollisionGive)
-  function Space.Support(object, dir)
-    local maxdot = General.Library.DotProduct({object.Transformated.data[0], object.Transformated.data[1], object.Transformated.data[2]}, dir)
-    local index = 0
-    for i=1,3 do
-      local dot = General.Library.DotProduct({object.Transformated.data[i * 4], object.Transformated.data[i * 4 + 1], object.Transformated.data[i * 4 + 2]}, dir)
-      if maxdot < dot then
-        maxdot = dot
-        index = i
-      end
-    end
-    return {object.Transformated.data[index * 4], object.Transformated.data[index * 4 + 1], object.Transformated.data[index * 4 + 2]}
-  end
+local function Check(Boolean)
+  Boolean.Tested = true
+  return Boolean.Value
+end
+function GiveBack.Start(Arguments)
+  local Space, SDL, lgsl = Arguments[1], Arguments[4], Arguments[8]
   Space.LastTime = SDL.Library.getTicks()
   local gsl = lgsl.Library.gsl
-  for k,v in pairs(AllDevices.Space.Devices) do
-    for i,n in pairs(v.Objects) do
-      n.ModelMatrix = General.Library.ModelMatrix(n.Translation, n.Rotation, n.Scale, lgsl)
-      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, n.ModelMatrix, n.Points, 0, n.Transformated)
-      gsl.gsl_matrix_transpose(n.Transformated)
-      n.MMcalc = false
-      n.CollisionBoxMaximum = {}
-      n.CollisionBoxMinimum = {}
-    	for e=0,2 do
-    		local Maximum = n.Transformated.data[e]
-        local  Minimum = Maximum
-    		for f=0,3 do
-    			if Maximum < n.Transformated.data[f * 4 + e] then
-    				Maximum = n.Transformated.data[f * 4 + e]
-    			end
-          if Minimum > n.Transformated.data[f * 4 + e] then
-            Minimum = n.Transformated.data[f * 4 + e]
-          end
-    		end
-        n.CollisionBoxMaximum[e + 1] = Maximum
-        n.CollisionBoxMinimum[e + 1] = Minimum
-      end
-    end
+  Space.AfterJointRotationSpeedMatrix1 = gsl.gsl_matrix_alloc(4, 4)
+  Space.AfterJointRotationSpeedMatrix2 = gsl.gsl_matrix_alloc(4, 4)
+end
+function GiveBack.Stop(Arguments)
+  local Space, lgsl = Arguments[1], Arguments[8]
+  local gsl = lgsl.Library.gsl
+  gsl.gsl_matrix_free(Space.AfterJointRotationSpeedMatrix1)
+  gsl.gsl_matrix_free(Space.AfterJointRotationSpeedMatrix2)
+  for ak,av in pairs(Space) do
+    Space[ak] = nil
   end
 end
-function GiveBack.Stop(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit, SDLInitGive, lgsl, lgslGive, ffi, ffiGive, General, GeneralGive, Power, PowerGive, Collision, CollisionGive)
-	Space.LastTime = nil
-end
-function GiveBack.Physics(Space, AllDevices, AllDevicesGive, SDL, SDLGive, SDLInit, SDLInitGive, lgsl, lgslGive, ffi, ffiGive, General, GeneralGive, Power, PowerGive, Collision, CollisionGive)
+function GiveBack.Physics(Arguments)
+  local Space, AllDevices, SDL, SDLInit, lgsl, ffi, General, Power, PowerGive, CollisionDetection, CollisionDetectionGive, CollisionResponse, CollisionResponseGive = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8], Arguments[10], Arguments[12], Arguments[14], Arguments[15], Arguments[16], Arguments[17], Arguments[18], Arguments[19]
   local gsl = lgsl.Library.gsl
   local Time = SDL.Library.getTicks() - Space.LastTime
 	Space.LastTime = Space.LastTime + Time
-  for k,v in pairs(AllDevices.Space.Devices) do
-    for i,n in pairs(v.Objects) do
-      for p=1,3 do
-        if type(n.Speed[p]) == "number" and n.Speed[p] ~= 0 then
-          n.Translation[p - 1] = n.Translation[p - 1] + n.Speed[p] * Time
-          n.MMcalc = true
-        end
-        if type(n.JointSpeed[p]) == "number" and n.JointSpeed[p] ~= 0 then
-          n.Translation[p - 1] = n.Translation[p - 1] + n.JointSpeed[p] * Time
-          n.JointSpeed[p] = 0
-          n.MMcalc = true
+  if Time == 0 then
+    return
+  end
+  for ak=1,#AllDevices.Space.Devices do
+    local av = AllDevices.Space.Devices[ak]
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+      if not bv.Fixed then
+        for c=1,3 do
+          if bv.Speed[c] ~= 0 then
+            bv.Translation[c] = bv.Translation[c] + bv.Speed[c] * Time
+            bv.MMcalc = true
+          end
+          if bv.JointSpeed[c] ~= 0 then
+            bv.Translation[c] = bv.Translation[c] + bv.JointSpeed[c] * Time
+            bv.JointSpeed[c] = 0
+            bv.MMcalc = true
+          end
+          if bv.RotationSpeed[c] ~= 0 then
+            local Axis = {0, 0, 0}
+            Axis[c] = 1
+            bv.Rotation = General.Library.QuaternionMultiplication(bv.Rotation,
+              General.Library.AxisAngleToQuaternion(Axis,
+                bv.RotationSpeed[c] * Time))
+            bv.MMcalc = true
+          end
         end
       end
-      for p=1,3 do
-        if type(n.RotationSpeed[p]) == "number" and n.RotationSpeed[p] ~= 0 then
-          local Axis = {0, 0, 0}
-          Axis[p] = 1
-          n.Rotation = General.Library.QuaternionMultiplication(n.Rotation, General.Library.AxisAngleToQuaternion(Axis, n.RotationSpeed[p] * Time))
-          n.MMcalc = true
-        end
+      if bv.JointRotationSpeed ~= {1, 0, 0, 0} then
+        bv.Rotation = General.Library.QuaternionMultiplication(bv.Rotation, bv.JointRotationSpeed)
+        bv.JointRotationSpeed = {1, 0, 0, 0}
+        bv.MMcalc = true
       end
-      if n.JointRotationSpeed ~= {1, 0, 0, 0} then
-        n.Rotation = General.Library.QuaternionMultiplication(n.Rotation, n.JointRotationSpeed)
-        n.JointRotationSpeed = {1, 0, 0, 0}
-        n.MMcalc = true
+      if bv.MMcalc then
+        bv.ModelMatrix = General.Library.ModelMatrix(bv.Translation, bv.Rotation, bv.Scale, lgsl)
+        gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, bv.ModelMatrix, bv.Points, 0, bv.Transformated)
+        gsl.gsl_matrix_transpose(bv.Transformated)
+        bv.MMcalc = false
       end
     end
   end
-  for k,v in pairs(AllDevices.Space.Devices) do
-    for i,n in pairs(v.Objects) do
-      if n.MMcalc then
-        n.ModelMatrix = General.Library.ModelMatrix(n.Translation, n.Rotation, n.Scale, lgsl)
-        gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, n.ModelMatrix, n.Points, 0, n.Transformated)
-        gsl.gsl_matrix_transpose(n.Transformated)
-        n.MMcalc = false
-        for e=0,2 do
-          local Maximum = n.Transformated.data[e]
-          local  Minimum = Maximum
-          for f=0,3 do
-            if Maximum < n.Transformated.data[f * 4 + e] then
-              Maximum = n.Transformated.data[f * 4 + e]
-            end
-            if Minimum > n.Transformated.data[f * 4 + e] then
-              Minimum = n.Transformated.data[f * 4 + e]
-            end
-          end
-          n.CollisionBoxMaximum[e + 1] = Maximum
-          n.CollisionBoxMinimum[e + 1] = Minimum
-        end
-      end
-    end
-    for i,n in pairs(v.FixedJoints) do
-      local c1 = {v.Objects[n[1]].Translation[0], v.Objects[n[1]].Translation[1], v.Objects[n[1]].Translation[2]}
+  for ak=1,#AllDevices.Space.Devices do
+    local av = AllDevices.Space.Devices[ak]
+    for bk=1,#av.FixedJoints do
+      local bv = av.FixedJoints[bk]
+      local c1 = av.Objects[bv[1]].Translation
+      local c2 = av.Objects[bv[3]].Translation
 
-      --local AfterJointRotationSpeedMatrix1 = gsl.gsl_matrix_alloc(4, 4)
-      --local JointRotationSpeedMatrix1 = General.Library.RotationMatrix(lgsl, n.Objects[v[1]].JointRotationSpeed, c1)
-      --gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, JointRotationSpeedMatrix1, n.Objects[v[1]].Transformated, 0, AfterJointRotationSpeedMatrix1)
-      --gsl.gsl_matrix_transpose(AfterJointRotationSpeedMatrix1)
-      local AfterJointRotationSpeedMatrix1 = v.Objects[n[1]].Transformated
+      local JointRotationSpeedMatrix1 = General.Library.RotationMatrix(lgsl, av.Objects[bv[1]].JointRotationSpeed, c1)
+      local JointRotationSpeedMatrix2 = General.Library.RotationMatrix(lgsl, av.Objects[bv[3]].JointRotationSpeed, c2)
 
-      local p1 = {AfterJointRotationSpeedMatrix1.data[(n[2]-1) * 4], AfterJointRotationSpeedMatrix1.data[(n[2]-1) * 4 + 1], AfterJointRotationSpeedMatrix1.data[(n[2]-1) * 4 + 2]}
-      local c2 = {v.Objects[n[3]].Translation[0], v.Objects[n[3]].Translation[1], v.Objects[n[3]].Translation[2]}
+      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, JointRotationSpeedMatrix1, av.Objects[bv[1]].Transformated, 0, Space.AfterJointRotationSpeedMatrix1)
+      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, JointRotationSpeedMatrix2, av.Objects[bv[3]].Transformated, 0, Space.AfterJointRotationSpeedMatrix2)
 
-      --local AfterJointRotationSpeedMatrix2 = gsl.gsl_matrix_alloc(4, 4)
-      --local JointRotationSpeedMatrix2 = General.Library.RotationMatrix(lgsl, n.Objects[v[3]].JointRotationSpeed, c2)
-      --gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, JointRotationSpeedMatrix2, n.Objects[v[3]].Transformated, 0, AfterJointRotationSpeedMatrix2)
-      --gsl.gsl_matrix_transpose(AfterJointRotationSpeedMatrix2)
+      gsl.gsl_matrix_transpose(Space.AfterJointRotationSpeedMatrix1)
+      gsl.gsl_matrix_transpose(Space.AfterJointRotationSpeedMatrix2)
 
-      local AfterJointRotationSpeedMatrix2 = v.Objects[n[3]].Transformated
+      local p1 = {Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4], Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4 + 1], Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4 + 2]}
+      local p2 = {Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4], Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4 + 1], Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4 + 2]}
 
-      local p2 = {AfterJointRotationSpeedMatrix2.data[(n[4]-1) * 4], AfterJointRotationSpeedMatrix2.data[(n[4]-1) * 4 + 1], AfterJointRotationSpeedMatrix2.data[(n[4]-1) * 4 + 2]}
       local VectorFromCenter1ToPoint1 = General.Library.PointAToB(c1, p1)
       local VectorFromCenter2ToPoint2 = General.Library.PointAToB(c2, p2)
+
       local MoveVector = General.Library.PointAToB(p1, p2)
+
       local FirstBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter1ToPoint1)
       local SecondBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter2ToPoint2)
-      local FirstBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter1ToPoint1)
-      local SecondBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter2ToPoint2)
+
       local SpeedSmaller = 80
-      for xxx=1,3 do
-        v.Objects[n[1]].JointSpeed[xxx] = v.Objects[n[1]].JointSpeed[xxx] + MoveVector[xxx] / SpeedSmaller
-        v.Objects[n[3]].JointSpeed[xxx] = v.Objects[n[3]].JointSpeed[xxx] - MoveVector[xxx] / SpeedSmaller
-      end
+      av.Objects[bv[1]].JointSpeed = General.Library.VectorAddition(av.Objects[bv[1]].JointSpeed, General.Library.VectorNumberMult(MoveVector, SpeedSmaller))
+      av.Objects[bv[3]].JointSpeed = General.Library.VectorSubtraction(av.Objects[bv[3]].JointSpeed, General.Library.VectorNumberMult(MoveVector, SpeedSmaller))
       local AngleSmaller = 80
-      v.Objects[n[1]].JointRotationSpeed = General.Library.QuaternionMultiplication(v.Objects[n[1]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(FirstBodyAxis, General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
-      v.Objects[n[3]].JointRotationSpeed = General.Library.QuaternionMultiplication(v.Objects[n[3]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(SecondBodyAxis, -General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
-      --lgsl.Library.gsl.gsl_matrix_free(AfterJointRotationSpeedMatrix1)
-      --lgsl.Library.gsl.gsl_matrix_free(AfterJointRotationSpeedMatrix2)
+      av.Objects[bv[1]].JointRotationSpeed = General.Library.QuaternionMultiplication(av.Objects[bv[1]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(FirstBodyAxis, General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
+      av.Objects[bv[3]].JointRotationSpeed = General.Library.QuaternionMultiplication(av.Objects[bv[3]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(SecondBodyAxis, -General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
     end
   end
-  for i,n in pairs(AllDevices.Space.Devices) do
-    for k,v in pairs(n.Objects) do
-      for e,f in pairs(AllDevices.Space.Devices) do
-        for a,b in pairs(f.Objects) do
+  for ak=1,#AllDevices.Space.Devices do
+    local av = AllDevices.Space.Devices[ak]
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+      for ck=ak,#AllDevices.Space.Devices do
+        local cv = AllDevices.Space.Devices[ck]
+        for dk=1,#cv.Objects do
+          local dv = cv.Objects[dk]
           local mtv = {}
-          if v.CollisionChecked[e..a] == nil and (i ~= e or k ~= a) --[[and (not (i == e and Joint(n.FixedJoints, k, a)))--]] and General.Library.SameLayer(v.PhysicsLayers, b.PhysicsLayers) and CollisionBox(v, b) and Collision.Library.GJK(v, b, Space.Support, Space.Support, mtv, unpack(CollisionGive)) then
-            if (n.Name == "Bullet" and f.Name == "Asteroid") or (f.Name == "Bullet" and n.Name == "Asteroid") then
-              b.Powers[1].Active = true
-              v.Powers[1].Active = true
+          if bv.CollidedRecently[ck..dk] == nil then
+            bv.CollidedRecently[ck..dk] = {Value = false, Tested = false}
+          end
+          if dv.CollidedRecently[ak..bk] == nil then
+            dv.CollidedRecently[ak..bk] = {Value = false, Tested = false}
+          end
+          if (ak ~= ck or bk ~= dk) --[[and (not (ak == ck and Joint(av.FixedJoints, bk, dk)))--]] and General.Library.SameLayer(bv.PhysicsLayers, dv.PhysicsLayers) and (not Check(bv.CollidedRecently[ck..dk])) and (not Check(dv.CollidedRecently[ak..bk])) and CollisionDetection.Library.CollisionSphere(bv, dv, nil, General) and CollisionDetection.Library.GJK(bv, dv, mtv, CollisionDetectionGive) then
+            bv.CollidedRecently[ck..dk].Value = true
+            dv.CollidedRecently[ak..bk].Value = true
+            if (av.Name == "Bullet" and cv.Name == "Asteroid") or (cv.Name == "Bullet" and av.Name == "Asteroid") then
+              dv.Powers[1].Active = true
+              bv.Powers[1].Active = true
               Score = Score + 1
             end
-            if (n.Name == "SpaceShip" and f.Name == "Asteroid") then
-              b.Powers[1].Active = true
-              v.Powers[8].Active = true
-            elseif (f.Name == "SpaceShip" and n.Name == "Asteroid") then
-              b.Powers[8].Active = true
-              v.Powers[1].Active = true
+            if (av.Name == "SpaceShip" and cv.Name == "Asteroid") then
+              dv.Powers[1].Active = true
+              bv.Powers[8].Active = true
+            elseif (cv.Name == "SpaceShip" and av.Name == "Asteroid") then
+              dv.Powers[8].Active = true
+              bv.Powers[1].Active = true
             end
-            --[[
-            if b.Fixed and not v.Fixed then
-              for jjj=1,3 do
-                v.Speed[jjj] = - v.Speed[jjj] * b.CollisionReaction[2]
-              end
-            elseif v.Fixed and not b.Fixed then
-              for jjj=1,3 do
-                b.Speed[jjj] = - b.Speed[jjj] * v.CollisionReaction[2]
-              end
-            elseif v.Fixed and b.Fixed then
-              b.Speed = {0, 0, 0}
-              v.Speed = {0, 0, 0}
-            elseif not (v.Fixed or b.Fixed) then
-              for jjj=1,3 do
-                b.Speed[jjj] = - b.Speed[jjj] * v.CollisionReaction[2]
-                v.Speed[jjj] = - v.Speed[jjj] * b.CollisionReaction[2]
-              end
-            end
-            --]]
+            CollisionResponse.Library.ResponseWithoutTorque(bv, dv, mtv, CollisionResponseGive)
             --TODO
-            --print(i.." Device "..k.." Object collided with "..e.." Device "..a.." Object")
+            --print(ak.." Device "..bk.." Object collided with "..ck.." Device "..dk.." Object")
           else
-            --print(i.." Device "..k.." Object did not collided with "..e.." Device "..a.." Object")
+            if not bv.CollidedRecently[ck..dk].Tested then
+              bv.CollidedRecently[ck..dk].Value = false
+            end
+            if not dv.CollidedRecently[ak..bk].Tested then
+              dv.CollidedRecently[ak..bk].Value = false
+            end
+            --print(ak.." Device "..bk.." Object did not collided with "..ck.." Device "..dk.." Object")
           end
-          v.CollisionChecked[e..a] = true
-          b.CollisionChecked[i..k] = true
-        end
-      end
-      for h,j in pairs(v.Powers) do
-        local exit
-        if Power.Library.Powers[j.Type] then
-          exit = Power.Library.Powers[j.Type].Use(AllDevices.Space.Devices, i, k, h, Time, unpack(PowerGive))
-        end
-        if exit then break end
-      end
-    end
-    for i,n in pairs(AllDevices.Space.Devices) do
-      for k,v in pairs(n.Objects) do
-        v.CollisionChecked = {}
-        for p,q in pairs(v.Powers) do
-          v.PowerChecked[p] = {}
+          bv.CollidedRecently[ck..dk].Tested = false
+          dv.CollidedRecently[ak..bk].Tested = false
         end
       end
     end
+  end
+  for ak=1,#AllDevices.Space.Devices do
+    local av = AllDevices.Space.Devices[ak]
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+      for ck=1,#bv.Powers do
+        bv.PowerChecked[ck] = {}
+      end
+    end
+  end
+  for ak=1,#AllDevices.Space.Devices do
+    if ak > #AllDevices.Space.Devices then break end
+    local av = AllDevices.Space.Devices[ak]
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+      local Exit
+      for ck=1,#bv.Powers do
+        local cv = bv.Powers[ck]
+        if Power.Library.Powers[cv.Type] then
+          Exit = Power.Library.Powers[cv.Type].Use(AllDevices.Space.Devices, ak, bk, ck, Time, PowerGive)
+          if Exit then break end
+        end
+      end
+      if Exit then break end
+    end
+
   end
 end
 
-GiveBack.Requirements = {"AllDevices", "SDL", "SDLInit", "lgsl", "ffi", "General", "Power", "Collision"}
+GiveBack.Requirements = {"AllDevices", "SDL", "SDLInit", "lgsl", "ffi", "General", "Power", "CollisionDetection", "CollisionResponse"}
 return GiveBack

@@ -1,7 +1,8 @@
 --Depends on: nothing
 local GiveBack = {}
-function GiveBack.Main(Physics, PhysicsGive)
-	Physics.Library.Physics(unpack(PhysicsGive))
+function GiveBack.Main(Arguments)
+	local Physics, PhysicsGive = Arguments[1], Arguments[2]
+	Physics.Library.Physics(PhysicsGive)
 	--[[
 	GiveBack.Exit = false
 	GiveBack.LoadModule = false

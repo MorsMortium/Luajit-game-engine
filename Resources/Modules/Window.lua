@@ -4,17 +4,19 @@ local GiveBack = {}
 local function SDLNumberOrString(StringOrNumber, General, Library)
 	local ReturnTable = {}
 	if type(StringOrNumber) == "table" then
-		for k, v in pairs(StringOrNumber) do
-			if type(v) == "string" then
-				ReturnTable[#ReturnTable + 1] = unpack(General.Library.DataFromKeys(Library, {v}))
-			elseif type(v) == "number" then
-				ReturnTable[#ReturnTable + 1] = v
+		for ak=1,#StringOrNumber do
+			local av = StringOrNumber[ak]
+			if type(av) == "string" then
+				ReturnTable[#ReturnTable + 1] = unpack(General.Library.DataFromKeys(Library, {av}))
+			elseif type(av) == "number" then
+				ReturnTable[#ReturnTable + 1] = av
 			end
 		end
 	end
 	return ReturnTable
 end
-function GiveBack.Create(GotWindow, SDL, SDLGive, SDLInit, SDLInitGive, General, GeneralGive, ffi, ffiGive)
+function GiveBack.Create(GotWindow, Arguments)
+	local SDL, SDLInit, General, ffi = Arguments[1], Arguments[3], Arguments[5], Arguments[7]
 	local Error
 	local Window = {}
 	if type(GotWindow) == "table" then
@@ -46,9 +48,10 @@ function GiveBack.Create(GotWindow, SDL, SDLGive, SDLInit, SDLInitGive, General,
 		if GotWindow.OpenGLWindow then
 			Window.Flags[#Window.Flags + 1] = SDL.Library.WINDOW_OPENGL
 		else
-			for i=1,#Window.Flags do
-				if(Window.Flags[i] == SDL.Library.WINDOW_OPENGL) then
-					table.remove(Window.Flags, i)
+			for ak=1,#Window.Flags do
+				local av = Window.Flags[ak]
+				if(av == SDL.Library.WINDOW_OPENGL) then
+					table.remove(Window.Flags, ak)
 				end
 			end
 			if type(Window.RendererFlags) ~= "table" then
@@ -71,7 +74,8 @@ function GiveBack.Create(GotWindow, SDL, SDLGive, SDLInit, SDLInitGive, General,
 	end
 	return Window
 end
-function GiveBack.Destroy(WindowID, SDL, SDLGive, SDLInit, SDLInitGive, General, GeneralGive)
+function GiveBack.Destroy(WindowID, Arguments)
+	local SDL, SDLInit, General, ffi = Arguments[1], Arguments[3], Arguments[5], Arguments[7]
 	if type(WindowID) == "number" then
 		SDL.Library.destroyWindow(SDL.Library.getWindowFromID(WindowID))
 	else
