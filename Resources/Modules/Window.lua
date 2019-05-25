@@ -45,7 +45,11 @@ function GiveBack.Create(GotWindow, Arguments)
 		if Window.Flags[1] == nil then
 			Window.Flags = {0}
 		end
-		if GotWindow.OpenGLWindow then
+		Window.Type = GotWindow.Type
+		if Window.Type ~= "OpenGL" and Window.Type ~= "Software" then
+			Window.Type = "Software"
+		end
+		if Window.Type == "OpenGL" then
 			Window.Flags[#Window.Flags + 1] = SDL.Library.WINDOW_OPENGL
 		else
 			for ak=1,#Window.Flags do
@@ -65,11 +69,11 @@ function GiveBack.Create(GotWindow, Arguments)
 	if not Window.WindowID then
 		error(Error)
 	end
-	if not GotWindow.OpenGLWindow then
+	if Window.Type ~= "OpenGL" then
 		if type(Window.RendererFlags) ~= "table" then
-			Window.Renderer = SDL.Library.CreateRenderer(Window.WindowID, -1, 0)
+			Window.Renderer = SDL.Library.createRenderer(Window.WindowID, -1, 0)
 		else
-			Window.Renderer = SDL.Library.CreateRenderer(Window.WindowID, -1, bit.bor(unpack(General.Library.DataFromKeys(SDL.Library, Window.RendererFlags))))
+			Window.Renderer = SDL.Library.createRenderer(Window.WindowID, -1, bit.bor(unpack(General.Library.DataFromKeys(SDL.Library, Window.RendererFlags))))
 		end
 	end
 	return Window

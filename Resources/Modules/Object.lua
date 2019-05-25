@@ -19,10 +19,9 @@ function GiveBack.Create(GotObject, Arguments)
 	if General.Library.IsVector3(GotObject.Scale) then
 		Object.Scale = GotObject.Scale
 	end
+	Object.Fixed = false
 	if type(GotObject.Fixed) == "boolean" then
 		Object.Fixed = GotObject.Fixed
-	else
-		Object.Fixed = false
 	end
 	Object.Speed = {0, 0, 0}
 	if General.Library.IsVector3(GotObject.Speed) then
@@ -57,21 +56,20 @@ function GiveBack.Create(GotObject, Arguments)
 	  {0, 0, 0, 1}}
 	end
 	-- Defines, which of the Cameras can see it, Default: All
-	Object.VisualLayers = GotObject.VisualLayers
-	if not General.Library.GoodTypesOfTable(Object.VisualLayers, "string") then
-		Object.VisualLayers = {"All"}
+	Object.VisualLayers = {"All"}
+	if General.Library.GoodTypesOfTable(Object.VisualLayers, "string") then
+		Object.VisualLayers = GotObject.VisualLayers
 	end
 	-- Defines, which Other bodies, effects can affect it, Default: All
-	Object.PhysicsLayers = GotObject.PhysicsLayers
-	if not General.Library.GoodTypesOfTable(Object.PhysicsLayers, "string") then
-		Object.PhysicsLayers = {"All"}
+	Object.PhysicsLayers = {"All"}
+	if General.Library.GoodTypesOfTable(Object.PhysicsLayers, "string") then
+		Object.PhysicsLayers = GotObject.PhysicsLayers
 	end
 	-- Defines the body's Mass, Default: 1, if Object is fixed, then Mass is infinite
+	Object.Mass = 1
 	if Object.Fixed then
 		Object.Mass = math.huge
-	elseif type(Object.Mass) ~= "number" then
-		Object.Mass = 1
-	else
+	elseif type(GotObject.Mass) == "number" then
 		Object.Mass = GotObject.Mass
 	end
 	Object.ObjectRenderer = GotObject.ObjectRenderer
@@ -95,10 +93,9 @@ function GiveBack.Create(GotObject, Arguments)
 	--Use, return
 	--first: get
 	--second: GiveBack
+	Object.CollisionReaction = {0.5, 0.5}
 	if type(GotObject.CollisionReaction)=="table" and #GotObject.CollisionReaction==2 and General.Library.GoodTypesOfTable(Object.CollisionReaction, "number") then
 		Object.CollisionReaction = GotObject.CollisionReaction
-	else
-		Object.CollisionReaction = {0.5, 0.5}
 	end
 	if Object.CollisionReaction[1] + Object.CollisionReaction[2] > 1 then
 		Object.CollisionReaction[1] = 0.5

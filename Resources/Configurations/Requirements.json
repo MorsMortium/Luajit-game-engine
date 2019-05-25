@@ -126,4 +126,16 @@
   "StartStopSpace": false,
   "Path": "CollisionResponse",
   "Name": "CollisionResponse"
+}, {
+  "StartStopSpace": false,
+  "Path": "obj_loader",
+  "Name": "OBJ"
+}, {
+  "StartStopSpace": true,
+  "Path": "CameraRender",
+  "Name": "CameraRender"
+}, {
+  "StartStopSpace": true,
+  "Path": "AllCameraRenders",
+  "Name": "AllCameraRenders"
 } ]

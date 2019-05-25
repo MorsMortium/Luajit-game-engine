@@ -143,15 +143,15 @@ local function Game()
 		InputGive = {}
 	end
 	if type(Data.AllWindowRenders) == "table" and Data.AllWindowRenders.Started then
-		WindowRender = Data.AllWindowRenders.Library.Render
+		WindowRender = Data.AllWindowRenders.Library.RenderAllWindows
 		WindowRenderGive = RequCalc(Data, Data.AllWindowRenders)
 	else
 		WindowRender = loadstring("if not noRenderprint then print('Render not found') noRenderprint = true end")
 		WindowRenderGive = {}
 	end
-	if type(Data.AllCameras) == "table" and Data.AllCameras.Started then
-		CameraRender = Data.AllCameras.Library.RenderAllCameras
-		CameraRenderGive = RequCalc(Data, Data.AllCameras)
+	if type(Data.AllCameraRenders) == "table" and Data.AllCameraRenders.Started then
+		CameraRender = Data.AllCameraRenders.Library.RenderAllCameras
+		CameraRenderGive = RequCalc(Data, Data.AllCameraRenders)
 	else
 		CameraRender = loadstring("if not noRenderprint then print(\"Render not found\") noRenderprint = true end")
 		CameraRenderGive = {}
@@ -159,6 +159,7 @@ local function Game()
 	Score = 0
 	local LastScore = 0
 	local Niceness = 100
+	---[[
 	while not (MainExit or InputExit) do
 		LoadModule, Modules, MainExit = Main(MainGive)
 		InputExit = Input(InputGive)
@@ -184,3 +185,41 @@ local function Game()
 	Stop()
 end
 Game()
+--]]
+--[[
+	local LastTime = Data.SDL.Library.getTicks()
+	local devicenumber = 1
+	while not (MainExit or InputExit) do
+		if devicenumber < #Data.AllDevices.Space.Devices then
+			devicenumber = #Data.AllDevices.Space.Devices
+			print(devicenumber)
+		end
+		LoadModule, Modules, MainExit = Main(MainGive)
+		InputExit = Input(InputGive)
+		if LoadModule then
+			LoadModules(Modules)
+			LoadModule = false
+		end
+		if LastScore < Score then
+			LastScore = Score
+			--print(Score)
+		end
+		if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
+			Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
+		end
+		if Number % 1500 == 0 and Niceness ~= 1 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
+			Niceness = Niceness - 1
+			--print("Niceness:", Niceness)
+		end
+		if LastTime - Data.SDL.Library.getTicks() < -100  then
+			LastTime = Data.SDL.Library.getTicks()
+			Data.AllDevices.Space.Devices[1].Objects[1].Powers[6].Active = true
+		end
+		CameraRender(CameraRenderGive)
+		WindowRender(Number, WindowRenderGive)
+		Number = Number + 1
+	end
+	Stop()
+end
+Game()
+--]]

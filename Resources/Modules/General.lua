@@ -8,9 +8,8 @@ function GiveBack.GoodTypesOfTable(Table, GoodType)
       end
     end
 		return true
-	else
-		return false
 	end
+	return false
 end
 function GiveBack.IsVector3(Table)
 	if(type(Table) == "table" and (#Table == 3 or #Table == 4) and
@@ -20,27 +19,24 @@ function GiveBack.IsVector3(Table)
 			Table[4] = nil
 		end
 		return true
-	else
-		return false
 	end
+	return false
 end
 function GiveBack.IsVector4(Table)
 	if(type(Table) == "table" and #Table == 4 and type(Table[1]) == "number" and
   type(Table[2]) == "number" and type(Table[3]) == "number" and
   type(Table[4]) == "number") then
 		return true
-	else
-		return false
 	end
+	return false
 end
 function GiveBack.IsMatrix4(Table)
 	if(type(Table) == "table" and GiveBack.IsVector4(Table[1]) and
   GiveBack.IsVector4(Table[2]) and GiveBack.IsVector4(Table[3]) and
   GiveBack.IsVector4(Table[4])) then
 		return true
-	else
-		return false
 	end
+	return false
 end
 function GiveBack.DataFromKeys(DataTable, KeyTable)
 	local ReturnTable = {}
@@ -132,6 +128,16 @@ function GiveBack.AxisAngleToQuaternion(Axis, Angle)
           Axis[2] * math.sin(Angle/2),
           Axis[3] * math.sin(Angle/2)}
 end
+function GiveBack.EulerToQuaternion(Euler)
+	local cy, sy, cp, sp, cr, sr =
+		math.cos(Euler[3] / 2), math.sin(Euler[3] / 2), math.cos(Euler[2] / 2),
+		math.sin(Euler[2] / 2), math.cos(Euler[1] / 2), math.sin(Euler[1] / 2)
+	return {
+		cy * cp * cr + sy * sp * sr,
+		cy * cp * sr - sy * sp * cr,
+		sy * cp * sr + cy * sp * cr,
+		sy * cp * cr - cy * sp * sr}
+end
 function GiveBack.QuaternionMultiplication(a, b)
     return {
         a[1] * b[1] - a[2] * b[2] - a[3] * b[3] - a[4] * b[4],
@@ -146,32 +152,20 @@ function GiveBack.CrossProduct(u, v)
           u[1] * v[2] - u[2] * v[1]}
 end
 function GiveBack.RotationMatrix(lgsl, q, Center)
-  local sqw = q[1]*q[1]
-  local sqx = q[2]*q[2]
-  local sqy = q[3]*q[3]
-  local sqz = q[4]*q[4]
+  local sqw, sqx, sqy, sqz = q[1]*q[1], q[2]*q[2], q[3]*q[3], q[4]*q[4]
   local m00 = sqx - sqy - sqz + sqw --// since sqw + sqx + sqy + sqz =1
   local m11 = -sqx + sqy - sqz + sqw
   local m22 = -sqx - sqy + sqz + sqw
-  local tmp1 = q[2]*q[3]
-  local tmp2 = q[4]*q[1]
-  local m01 = 2 * (tmp1 + tmp2)
-  local m10 = 2 * (tmp1 - tmp2)
-  tmp1 = q[2]*q[4]
-  tmp2 = q[3]*q[1]
-  local m02 = 2 * (tmp1 - tmp2)
-  local m20 = 2 * (tmp1 + tmp2)
-  tmp1 = q[3]*q[4]
-  tmp2 = q[2]*q[1]
-  local m12 = 2 * (tmp1 + tmp2)
-  local m21 = 2 * (tmp1 - tmp2)
-  local a1 = 0
-  local a2 = 0
-  local a3 = 0
+  local tmp1, tmp2 = q[2]*q[3], q[4]*q[1]
+  local m01, m10 = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
+  tmp1, tmp2 = q[2]*q[4], q[3]*q[1]
+  local m02, m20 = 2 * (tmp1 - tmp2), 2 * (tmp1 + tmp2)
+  tmp1, tmp2 = q[3]*q[4], q[2]*q[1]
+  local m12, m21 = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
+  local a1, a2, a3
+	a1, a2, a3 = 0, 0, 0
   if Center then
-    a1 = Center[1]
-    a2 = Center[2]
-    a3 = Center[3]
+    a1, a2, a3 = Center[1], Center[2], Center[3]		
 	end
 	local m03 = a1 - a1 * m00 - a2 * m01 - a3 * m02
 	local m13 = a2 - a1 * m10 - a2 * m11 - a3 * m12

@@ -84,13 +84,16 @@ function GiveBack.Input(Arguments)
 		print(Space.Text)
 		elseif Space.Event.type == SDL.Library.WINDOWEVENT then
 			if Space.Event.window.event == SDL.Library.WINDOWEVENT_CLOSE then
-				Window.Library.Destroy(Space.Event.window.windowID, WindowGive)
 				for ak=1,#AllWindows.Space.Windows do
 					local av = AllWindows.Space.Windows[ak]
 					if av.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
 						table.remove(AllWindows.Space.Windows, ak)
+						break
 					end
 				end
+				SDL.Library.destroyRenderer(SDL.Library.getRenderer(SDL.Library.getWindowFromID(Space.Event.window.windowID)))
+				--print(ffi.Library.string(SDL.Library.getError())) TODO
+				Window.Library.Destroy(Space.Event.window.windowID, WindowGive)
 			elseif Space.Event.window.event == SDL.Library.WINDOWEVENT_RESIZED then
 				for ak=1,#AllWindows.Space.Windows do
 					local av = AllWindows.Space.Windows[ak]
@@ -130,6 +133,9 @@ function GiveBack.Input(Arguments)
 				return ReturnValue
 			end
 		end
+	end
+	if #AllWindows.Space.Windows == 0 then
+		return true
 	end
 end
 return GiveBack

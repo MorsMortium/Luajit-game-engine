@@ -34,20 +34,17 @@ GiveBack.Powers.Gravity = {}
 function GiveBack.Powers.Gravity.DataCheck(v)
 	local Data = {}
 	Data.Type = "Gravity"
+  Data.Force = 0.005
 	if type(v.Force) == "number" then
 		Data.Force = v.Force
-	else
-		Data.Force = 0.005
 	end
+  Data.Distance = 100
 	if type(v.Distance) == "number" then
 		Data.Distance = v.Distance
-	else
-		Data.Distance = 100
 	end
+  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
-  else
-    Data.Active = false
   end
   return Data
 end
@@ -70,7 +67,7 @@ function GiveBack.Powers.Gravity.Use(Devices, i, k, h, time, Arguments)
               if not bv.Fixed then
                 if bv.Translation[ck] > v.Translation[ck] then
     							bv.Speed[ck] = bv.Speed[ck] - time * j.Force
-    						elseif b.Translation[ck] < v.Translation[ck] then
+    						elseif bv.Translation[ck] < v.Translation[ck] then
     							bv.Speed[ck] = bv.Speed[ck] + time * j.Force
     						end
               end
@@ -93,20 +90,17 @@ GiveBack.Powers.Thruster = {}
 function GiveBack.Powers.Thruster.DataCheck(v)
 	local Data = {}
 	Data.Type = "Thruster"
+  Data.Force = 0.005
 	if type(v.Force) == "number" then
 		Data.Force = v.Force
-	else
-		Data.Force = 0.005
 	end
+  Data.Point = 1
 	if v.Point == 1 or v.Point == 2 or v.Point == 3 or v.Point == 4 then
 		Data.Point = v.Point
-	else
-		Data.Point = 1
 	end
+  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
-  else
-    Data.Active = false
   end
 	return Data
 end
@@ -125,20 +119,17 @@ GiveBack.Powers.SelfRotate = {}
 function GiveBack.Powers.SelfRotate.DataCheck(v)
 	local Data = {}
 	Data.Type = "SelfRotate"
+  Data.Angle = 0.005
 	if type(v.Angle) == "number" then
 		Data.Angle = v.Angle
-	else
-		Data.Angle = 0.005
 	end
+  Data.Point = 1
 	if v.Point == 1 or v.Point == 2 or v.Point == 3 or v.Point == 4 then
 		Data.Point = v.Point
-	else
-		Data.Point = 1
 	end
+  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
-  else
-    Data.Active = false
   end
 	return Data
 end
@@ -158,15 +149,13 @@ GiveBack.Powers.SelfSlow = {}
 function GiveBack.Powers.SelfSlow.DataCheck(v)
 	local Data = {}
 	Data.Type = "SelfSlow"
+  Data.Rate = 2
 	if type(v.Rate) == "number" then
 		Data.Rate = v.Rate
-	else
-		Data.Rate = 2
 	end
+  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
-  else
-    Data.Active = false
   end
 	return Data
 end
@@ -190,15 +179,13 @@ function GiveBack.Powers.Destroypara.DataCheck(v)
   if not pcall(Data.Command) then
     Data.Command = loadstring("return false")
   end
+  Data.Doo = "Device"
   if v.Doo == "Object" or v.Doo == "Device" then
     Data.Doo = v.Doo
-  else
-    Data.Doo = "Device"
   end
+  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
-  else
-    Data.Active = false
   end
 	return Data
 end
@@ -259,10 +246,9 @@ function GiveBack.Powers.Summon.DataCheck(v, Arguments)
   if not pcall(Data.Command, DeviceObject, DeviceObject.Objects[1], General) then
 		Data.Command = loadstring("local Created, Creator = ... for k=1,#Created.Objects do local v = Created.Objects[k] v.MMcalc = true for ak=1,3 do v.Translation[ak] = Creator.Translation[ak] end end print('Bad modifier function')")
 	end
+  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
-  else
-    Data.Active = false
   end
   return Data
 end

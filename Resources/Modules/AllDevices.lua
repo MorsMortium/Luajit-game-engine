@@ -1,6 +1,6 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
-	local Space, JSON, General, Device, DeviceGive = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7]
+	local Space, JSON, General, Device, DeviceGive, OBJ = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10]
 	Space.Devices = {}
 	local Devices = JSON.Library:DecodeFromFile("./Resources/Configurations/AllDevices.json")
 	if type(Devices) == "table" and General.Library.GoodTypesOfTable(Devices, "string") then
@@ -12,6 +12,7 @@ function GiveBack.Start(Arguments)
 			end
 		end
 	end
+	--Space.Devices[#Space.Devices + 1] = Device.Library.Create(OBJ.Library.makedevice("./Resources/hand.obj"), "Hand", DeviceGive)
 	print("AllDevices Started")
 end
 function GiveBack.RenderAllDevices(CameraObject, Arguments)
@@ -32,5 +33,5 @@ function GiveBack.Stop(Arguments)
 	end
 	print("AllDevices Stopped")
 end
-GiveBack.Requirements = {"JSON", "General", "Device", "AllObjectRenders"}
+GiveBack.Requirements = {"JSON", "General", "Device", "AllObjectRenders", "OBJ"}
 return GiveBack

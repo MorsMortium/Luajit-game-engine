@@ -721,6 +721,9 @@ int SDL_UpperBlitScaled
 int SDL_LowerBlitScaled
     (SDL_Surface * src, SDL_Rect * srcrect,
     SDL_Surface * dst, SDL_Rect * dstrect);
+int SDL_BlitScaled
+    (SDL_Surface * src, const SDL_Rect * srcrect,
+    SDL_Surface * dst, SDL_Rect * dstrect);
 typedef struct
 {
     Uint32 format;

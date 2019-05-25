@@ -298,7 +298,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
     print("EPA did not converge");
     --Return most recent closest point
     local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
-    return General.Library.VectorNumberMult(faces[closest_face][3], General.Library.DotProduct(faces[closest_face][0], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3], true
+    return General.Library.VectorNumberMult(faces[closest_face][3], General.Library.DotProduct(faces[closest_face][1], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3], true
 end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
@@ -345,7 +345,7 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   end--endfor
   return false;
 end
-function GiveBack.CollisionSphere(FirstObject, SecondObject, IfEquals, General)
+function GiveBack.CollisionSphere(FirstObject, SecondObject, General, IfEquals)
   if IfEquals then
     return FirstObject.Radius + SecondObject.Radius >= General.Library.VectorLength(General.Library.PointAToB(FirstObject.Translation, SecondObject.Translation))
   else

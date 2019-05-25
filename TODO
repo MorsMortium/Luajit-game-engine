@@ -1,11 +1,9 @@
+Cleanup for commit
 reduce data conversion
-Delete camera textures
-software textures for software cameras
 collision reaction
 one draw per rendertype
-RENDERER_SOFTWARE only if there are opengl Windows?
 -collision functions
--no collision check if no movement (dirty)
+-no collision check if no movement
 -Work Out deprecation
 -check SDLInit and OpenGLInit variables before trying to use functions (or start module)
 -finish TODOs

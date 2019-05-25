@@ -8,16 +8,12 @@ function GiveBack.Start(Arguments)
 		for ak=1,#AllWindows do
 			local av = AllWindows[ak]
 			Space.Windows[ak] = Window.Library.Create(av, WindowGive)
-			if WindowRender.Library.WindowRenders[av.WindowRenderer].Start and WindowRender.Library.WindowRenders[av.WindowRenderer].Render and av.OpenGLWindow == WindowRender.Library.WindowRenders[av.WindowRenderer].OpenGL then
+			if WindowRender.Library.WindowRenders[av.WindowRenderer] then
 				Space.Windows[ak].WindowRenderer = av.WindowRenderer
 			else
-				if av.OpenGLWindow then
-					Space.Windows[ak].WindowRenderer = "DefaultOpenGL"
-				else
-					Space.Windows[ak].WindowRenderer = "Default"
-				end
+				Space.Windows[ak].WindowRenderer = "Default"
 			end
-			if av.OpenGLWindow then
+			if av.Type == "OpenGL" then
 				Space.OpenGLWindow = ak
 				Space.Windows[ak].OpenGL = true
 			end
