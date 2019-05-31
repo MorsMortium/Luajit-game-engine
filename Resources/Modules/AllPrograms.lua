@@ -1,7 +1,7 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
 	local Space, Program, ProgramGive, JSON = Arguments[1], Arguments[2], Arguments[3], Arguments[4]
-	local Programs  = JSON.Library:DecodeFromFile("./Resources/Configurations/AllPrograms.json")
+	local Programs  = JSON.Library:DecodeFromFile("AllPrograms.json")
 	Space.Programs = {}
 	if Programs then
 		for ak=1,#Programs do

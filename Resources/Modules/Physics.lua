@@ -8,13 +8,8 @@ local function Joint(FixedJoints, k1, k2)
   end
   return false
 end
-local function Check(Boolean)
-  Boolean.Tested = true
-  return Boolean.Value
-end
 function GiveBack.Start(Arguments)
-  local Space, SDL, lgsl = Arguments[1], Arguments[4], Arguments[8]
-  Space.LastTime = SDL.Library.getTicks()
+  local Space, lgsl = Arguments[1], Arguments[8]
   local gsl = lgsl.Library.gsl
   Space.AfterJointRotationSpeedMatrix1 = gsl.gsl_matrix_alloc(4, 4)
   Space.AfterJointRotationSpeedMatrix2 = gsl.gsl_matrix_alloc(4, 4)
@@ -28,46 +23,53 @@ function GiveBack.Stop(Arguments)
     Space[ak] = nil
   end
 end
-function GiveBack.Physics(Arguments)
-  local Space, AllDevices, SDL, SDLInit, lgsl, ffi, General, Power, PowerGive, CollisionDetection, CollisionDetectionGive, CollisionResponse, CollisionResponseGive = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8], Arguments[10], Arguments[12], Arguments[14], Arguments[15], Arguments[16], Arguments[17], Arguments[18], Arguments[19]
+function GiveBack.Physics(Time, Arguments)
+  local Space, AllDevices, AllDevicesGive, SDL, SDLInit, lgsl, ffi, General,
+  AllPowers, AllPowersGive, CollisionDetection, CollisionDetectionGive,
+  CollisionResponse, CollisionResponseGive = Arguments[1], Arguments[2],
+  Arguments[3], Arguments[4], Arguments[6], Arguments[8], Arguments[10],
+  Arguments[12], Arguments[14], Arguments[15], Arguments[16], Arguments[17],
+  Arguments[18], Arguments[19]
   local gsl = lgsl.Library.gsl
   local VectorAddition = General.Library.VectorAddition
   local VectorNumberMult = General.Library.VectorNumberMult
   local QuaternionMultiplication = General.Library.QuaternionMultiplication
   local RotationMatrix = General.Library.RotationMatrix
-  local Time = SDL.Library.getTicks() - Space.LastTime
-	Space.LastTime = Space.LastTime + Time
-  if Time == 0 then
-    return
-  end
   for ak=1,#AllDevices.Space.Devices do
     local av = AllDevices.Space.Devices[ak]
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
       if not bv.Fixed then
-        if bv.Speed[1] ~= 0 or bv.Speed[2] ~= 0 or bv.Speed[3] ~= 0 then
+        if bv.Speed[1] ~= 0 or
+        bv.Speed[2] ~= 0 or
+        bv.Speed[3] ~= 0 then
           bv.Translation = VectorAddition(bv.Translation, VectorNumberMult(bv.Speed, Time))
           bv.MMcalc = true
         end
-        if bv.RotationSpeed[1] ~= 0 or bv.RotationSpeed[2] ~= 0 or bv.RotationSpeed[3] ~= 0 then
+        if bv.RotationSpeed[1] ~= 0 or
+        bv.RotationSpeed[2] ~= 0 or
+        bv.RotationSpeed[3] ~= 0 then
           bv.Rotation = QuaternionMultiplication(bv.Rotation,
           General.Library.EulerToQuaternion(VectorNumberMult(bv.RotationSpeed, Time)))
           bv.MMcalc = true
         end
-        if bv.JointSpeed[1] ~= 0 or bv.JointSpeed[2] ~= 0 or bv.JointSpeed[3] ~= 0 then
+        if bv.JointSpeed[1] ~= 0 or
+        bv.JointSpeed[2] ~= 0 or
+        bv.JointSpeed[3] ~= 0 then
           bv.Translation = VectorAddition(bv.Translation, VectorNumberMult(bv.JointSpeed, Time))
           bv.JointSpeed = {0, 0, 0}
           bv.MMcalc = true
         end
-        if bv.JointRotationSpeed[1] ~= 1 or bv.JointRotationSpeed[2] ~= 0 or bv.JointRotationSpeed[3] ~= 0 or bv.JointRotationSpeed[4] ~= 0 then
+        if bv.JointRotationSpeed[1] ~= 1 or
+        bv.JointRotationSpeed[2] ~= 0 or
+        bv.JointRotationSpeed[3] ~= 0 or
+         bv.JointRotationSpeed[4] ~= 0 then
           bv.Rotation = QuaternionMultiplication(bv.Rotation, bv.JointRotationSpeed)
           bv.JointRotationSpeed = {1, 0, 0, 0}
           bv.MMcalc = true
         end
         if bv.MMcalc then
-          bv.ModelMatrix = General.Library.ModelMatrix(bv.Translation, bv.Rotation, bv.Scale, lgsl)
-          gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, bv.ModelMatrix, bv.Points, 0, bv.Transformated)
-          gsl.gsl_matrix_transpose(bv.Transformated)
+          General.Library.UpdateObject(bv, false, lgsl)
           bv.MMcalc = false
         end
       end
@@ -114,85 +116,41 @@ function GiveBack.Physics(Arguments)
       local bv = av.Objects[bk]
       for ck=ak,#AllDevices.Space.Devices do
         local cv = AllDevices.Space.Devices[ck]
+        if av.Name == "Hand" and cv.Name == "Hand" then break end
         for dk=1,#cv.Objects do
           local dv = cv.Objects[dk]
           local mtv = {}
-          --[[
-          if bv.CollidedRecently[ck..dk] == nil then
-            bv.CollidedRecently[ck..dk] = {Value = false, Tested = false}
-          end
-          if dv.CollidedRecently[ak..bk] == nil then
-            dv.CollidedRecently[ak..bk] = {Value = false, Tested = false}
-          end
-          --]]
-          if av.Name == "Hand" and cv.Name =="Hand" then break end
-          if (ak ~= ck or bk ~= dk) --[[and (not (ak == ck and Joint(av.FixedJoints, bk, dk)))--]] and CollisionDetection.Library.CollisionSphere(bv, dv, General) and General.Library.SameLayer(bv.PhysicsLayers, dv.PhysicsLayers) and --[[(not Check(bv.CollidedRecently[ck..dk])) and (not Check(dv.CollidedRecently[ak..bk])) and--]] CollisionDetection.Library.GJK(bv, dv, mtv, CollisionDetectionGive) then
-            --bv.CollidedRecently[ck..dk].Value = true
-            --dv.CollidedRecently[ak..bk].Value = true
+          if (ak ~= ck or bk ~= dk)
+          --[[and (not (ak == ck and Joint(av.FixedJoints, bk, dk)))--]] and
+          CollisionDetection.Library.CollisionSphere(bv, dv, General) and
+          General.Library.SameLayer(bv.PhysicsLayers, dv.PhysicsLayers) and
+          CollisionDetection.Library.GJK(bv, dv, mtv, CollisionDetectionGive) then
             ---[[
-            if (av.Name == "Bullet" and cv.Name == "Asteroid") or (cv.Name == "Bullet" and av.Name == "Asteroid") then
+            if (av.Name == "Bullet" and cv.Name == "Asteroid") or
+            (cv.Name == "Bullet" and av.Name == "Asteroid") or
+            (av.Name == "SpaceShip" and cv.Name == "Asteroid") or
+            (cv.Name == "SpaceShip" and av.Name == "Asteroid") or
+            (av.Name == "Asteroid" and cv.Name == "Asteroid") then
               dv.Powers[1].Active = true
               bv.Powers[1].Active = true
-              Score = Score + 1
+              if (av.Name == "Bullet" and cv.Name == "Asteroid") or
+              (cv.Name == "Bullet" and av.Name == "Asteroid") then
+                Score = Score + 1
+              end
             end
-            if (av.Name == "Asteroid" and cv.Name == "Asteroid") then
-              dv.Powers[1].Active = true
-              bv.Powers[1].Active = true
-            end
-            if (av.Name == "SpaceShip" and cv.Name == "Asteroid") then
-              dv.Powers[1].Active = true
-              bv.Powers[8].Active = true
-            elseif (cv.Name == "SpaceShip" and av.Name == "Asteroid") then
-              dv.Powers[8].Active = true
-              bv.Powers[1].Active = true
-            end
+            --]]
             CollisionResponse.Library.ResponseWithoutTorque(bv, dv, mtv, CollisionResponseGive)
             --TODO
             --print(ak.." Device "..bk.." Object collided with "..ck.." Device "..dk.." Object")
           else
-            --[[
-            if not bv.CollidedRecently[ck..dk].Tested then
-              bv.CollidedRecently[ck..dk].Value = false
-            end
-            if not dv.CollidedRecently[ak..bk].Tested then
-              dv.CollidedRecently[ak..bk].Value = false
-            end
-            --]]
             --print(ak.." Device "..bk.." Object did not collided with "..ck.." Device "..dk.." Object")
           end
-          --bv.CollidedRecently[ck..dk].Tested = false
-          --dv.CollidedRecently[ak..bk].Tested = false
         end
       end
     end
   end
-  for ak=1,#AllDevices.Space.Devices do
-    local av = AllDevices.Space.Devices[ak]
-    for bk=1,#av.Objects do
-      local bv = av.Objects[bk]
-      for ck=1,#bv.Powers do
-        bv.PowerChecked[ck] = {}
-      end
-    end
-  end
-  for ak=1,#AllDevices.Space.Devices do
-    if ak > #AllDevices.Space.Devices then break end
-    local av = AllDevices.Space.Devices[ak]
-    for bk=1,#av.Objects do
-      local bv = av.Objects[bk]
-      local Exit
-      for ck=1,#bv.Powers do
-        local cv = bv.Powers[ck]
-        if Power.Library.Powers[cv.Type] then
-          Exit = Power.Library.Powers[cv.Type].Use(AllDevices.Space.Devices, ak, bk, ck, Time, PowerGive)
-          if Exit then break end
-        end
-      end
-      if Exit then break end
-    end
-
-  end
+  AllPowers.Library.UseAllPowers(Time, AllPowersGive)
 end
 
-GiveBack.Requirements = {"AllDevices", "SDL", "SDLInit", "lgsl", "ffi", "General", "Power", "CollisionDetection", "CollisionResponse"}
+GiveBack.Requirements = {"AllDevices", "SDL", "SDLInit", "lgsl", "ffi", "General", "AllPowers", "CollisionDetection", "CollisionResponse"}
 return GiveBack

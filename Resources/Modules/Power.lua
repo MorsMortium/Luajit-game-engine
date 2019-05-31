@@ -58,29 +58,26 @@ function GiveBack.Powers.Gravity.Use(Devices, i, k, h, time, Arguments)
       local av = Devices[ak]
       for bk=1,#av.Objects do
         local bv = av.Objects[bk]
-        if v.PowerChecked[h][ak..bk] == nil then
-  				if (i ~= ak or k ~= bk) and General.Library.SameLayer(v.PhysicsLayers, bv.PhysicsLayers) and
-  				math.sqrt((bv.Translation[1] - v.Translation[1])^2 +
-  									(bv.Translation[2] - v.Translation[2])^2 +
-  									(bv.Translation[3] - v.Translation[3])^2) < j.Distance then
-  					for ck=1,3 do
-              if not bv.Fixed then
-                if bv.Translation[ck] > v.Translation[ck] then
-    							bv.Speed[ck] = bv.Speed[ck] - time * j.Force
-    						elseif bv.Translation[ck] < v.Translation[ck] then
-    							bv.Speed[ck] = bv.Speed[ck] + time * j.Force
-    						end
-              end
-              if not v.Fixed then
-                if bv.Translation[ck] > v.Translation[ck] then
-    							v.Speed[ck] = v.Speed[ck] + time * j.Force
-    						elseif bv.Translation[ck] < v.Translation[ck] then
-    							v.Speed[ck] = v.Speed[ck] - time * j.Force
-    						end
-  						end
+  			if (i ~= ak or k ~= bk) and General.Library.SameLayer(v.PhysicsLayers, bv.PhysicsLayers) and
+  			math.sqrt((bv.Translation[1] - v.Translation[1])^2 +
+  								(bv.Translation[2] - v.Translation[2])^2 +
+  								(bv.Translation[3] - v.Translation[3])^2) < j.Distance then
+  				for ck=1,3 do
+            if not bv.Fixed then
+              if bv.Translation[ck] > v.Translation[ck] then
+    						bv.Speed[ck] = bv.Speed[ck] - time * j.Force
+    					elseif bv.Translation[ck] < v.Translation[ck] then
+    						bv.Speed[ck] = bv.Speed[ck] + time * j.Force
+    					end
+            end
+            if not v.Fixed then
+              if bv.Translation[ck] > v.Translation[ck] then
+    						v.Speed[ck] = v.Speed[ck] + time * j.Force
+    					elseif bv.Translation[ck] < v.Translation[ck] then
+    						v.Speed[ck] = v.Speed[ck] - time * j.Force
+    					end
   					end
   				end
-  				v.PowerChecked[h][ak..bk] = true
   			end
       end
     end
@@ -212,29 +209,22 @@ function GiveBack.Powers.Summon.DataCheck(v, Arguments)
 	local Data = {}
 	Data.Type = "Summon"
 	local DeviceObject
-	if type(v.Name) == "string" and FileExists("./Resources/Configurations/AllDevices/" .. v.Name .. ".json") then
-		Data.Name = v.Name
-		local Devicecode = JSON.Library:DecodeFromFile("./Resources/Configurations/AllDevices/" .. v.Name .. ".json")
-    if type(Devicecode) == "table" then
-      DeviceObject = Device.Library.Create(Devicecode, Data.Name, DeviceGive)
-    end
-	else
-		Data.Name = "Default"
-		local Devicecode = JSON.Library:DecodeFromFile("./Resources/Configurations/AllDevices/Default.json")
-    if type(Devicecode) == "table" then
-      DeviceObject = Device.Library.Create(Devicecode, Data.Name, DeviceGive)
-    end
+  Data.Name = "Default"
+  if type(v.Name) == "string" and FileExists("./Resources/Configurations/AllDevices/" .. v.Name .. ".json") then
+    Data.Name = v.Name
+  end
+	local Devicecode = JSON.Library:DecodeFromFile("AllDevices/" .. Data.Name .. ".json")
+  if type(Devicecode) == "table" then
+    DeviceObject = Device.Library.Create(Devicecode, DeviceGive)
   end
   local gsl = lgsl.Library.gsl
   for ak=1,#DeviceObject.Objects do
     local av = DeviceObject.Objects[ak]
-    av.PowerChecked = {}
     if type(av.Powers) == "table" then
       for bk=1,#av.Powers do
         local bv = av.Powers[bk]
         if GiveBack.Powers[bv.Type] then
           av.Powers[bk] = GiveBack.Powers[bv.Type].DataCheck(bv, General, JSON, Device, DeviceGive, lgsl, lgslGive)
-          av.PowerChecked[bk] = {}
         end
       end
     end
@@ -258,19 +248,17 @@ function GiveBack.Powers.Summon.Use(Devices, i, k, h, time, Arguments)
 	local j = v.Powers[h]
   if j.Active then
     local gsl = lgsl.Library.gsl
-    local Devicecode = JSON.Library:DecodeFromFile("./Resources/Configurations/AllDevices/" .. j.Name .. ".json")
+    local Devicecode = JSON.Library:DecodeFromFile("AllDevices/" .. j.Name .. ".json")
     local DeviceObject
     if type(Devicecode) == "table" then
-      DeviceObject = Device.Library.Create(Devicecode, j.Name, DeviceGive)
+      DeviceObject = Device.Library.Create(Devicecode, DeviceGive)
       for ak=1,#DeviceObject.Objects do
         local av = DeviceObject.Objects[ak]
-        av.PowerChecked = {}
         if type(av.Powers) == "table" then
           for bk=1,#av.Powers do
             local bv = av.Powers[bk]
             if GiveBack.Powers[bv.Type] then
               av.Powers[bk] = GiveBack.Powers[bv.Type].DataCheck(bv, General, JSON, Device, DeviceGive, lgsl, lgslGive)
-              av.PowerChecked[bk] = {}
             end
           end
         end
@@ -278,10 +266,7 @@ function GiveBack.Powers.Summon.Use(Devices, i, k, h, time, Arguments)
       pcall(j.Command, DeviceObject, v, General)
       for ak=1,#DeviceObject.Objects do
         local av = DeviceObject.Objects[ak]
-        av.ModelMatrix = General.Library.ModelMatrix(av.Translation, av.Rotation, av.Scale, lgsl)
-        lgsl.Library.gsl.gsl_blas_dgemm(lgsl.Library.gsl.CblasNoTrans, lgsl.Library.gsl.CblasTrans, 1, av.ModelMatrix, av.Points, 0, av.Transformated)
-        lgsl.Library.gsl.gsl_matrix_transpose(av.Transformated)
-        General.Library.CreateCollisionSphere(av)
+        General.Library.UpdateObject(av, true, lgsl)
       end
       Devices[#Devices + 1] = DeviceObject
     end

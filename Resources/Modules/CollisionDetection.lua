@@ -346,10 +346,12 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   return false;
 end
 function GiveBack.CollisionSphere(FirstObject, SecondObject, General, IfEquals)
+  local Distance = General.Library.VectorLength(General.Library.PointAToB(FirstObject.Translation, SecondObject.Translation))
+  local SumRadius = FirstObject.Radius + SecondObject.Radius
   if IfEquals then
-    return FirstObject.Radius + SecondObject.Radius >= General.Library.VectorLength(General.Library.PointAToB(FirstObject.Translation, SecondObject.Translation))
+    return Distance <= SumRadius
   else
-    return FirstObject.Radius + SecondObject.Radius > General.Library.VectorLength(General.Library.PointAToB(FirstObject.Translation, SecondObject.Translation))
+    return Distance < SumRadius
   end
 end
 GiveBack.Requirements = {"General"}

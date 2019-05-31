@@ -8,7 +8,7 @@ local function NotInList(List, Object)
 	return true
 end
 local JSON = require("json")
-local Inputs = JSON:DecodeFromFile("./Resources/Configurations/AllInputs.json")
+local Inputs = JSON:DecodeFromFile("AllInputs.json")
 GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender"}
 for ak=1,#Inputs do
 	local av = Inputs[ak]
@@ -23,21 +23,14 @@ for ak=1,#Inputs do
 end
 Inputs = nil
 function GiveBack.Start(Arguments)
-	local Space = Arguments[1]
-	local JSON = Arguments[2]
-	local SDL = Arguments[4]
-	local SDLInit = Arguments[6]
-	local SDLInitGive = Arguments[7]
-	local ffi = Arguments[8]
-	local Window = Arguments[10]
-	local WindowGive = Arguments[11]
-	local AllWindows = Arguments[12]
-	local AllWindowsGive = Arguments[13]
-	local WindowRender = Arguments[14]
-	local WindowRenderGive = Arguments[15]
+	local Space, JSON, SDL, SDLInit, SDLInitGive, ffi, Window, WindowGive,
+	AllWindows, AllWindowsGive, WindowRender, WindowRenderGive = Arguments[1],
+	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[8],
+	Arguments[10], Arguments[11], Arguments[12], Arguments[13], Arguments[14],
+	Arguments[15]
 	Space.PlusRequ = {}
 	Space.Pass = {}
-	for ak=7, #GiveBack.Requirements do
+	for ak=1, #GiveBack.Requirements do
 		local av = GiveBack.Requirements[ak]
 		Space.PlusRequ[av] = Arguments[2 * ak]
 		Space.PlusRequ[av.."Give"] = Arguments[2 * ak + 1]
@@ -45,19 +38,18 @@ function GiveBack.Start(Arguments)
 	Space.PlusRequ["AllInputs"] = {}
 	Space.PlusRequ["AllInputs"].Library = GiveBack
 	Space.PlusRequ["AllInputs"].Space = Space
-	Space.PlusRequ["AllInputsGive"] = {Space, JSON, nil, SDL, nil, SDLInit, SDLInitGive, ffi, nil, Window, WindowGive, AllWindows, AllWindowsGive}
-	Space.Inputs = JSON.Library:DecodeFromFile("./Resources/Configurations/AllInputs.json")
+	Space.PlusRequ["AllInputsGive"] = Arguments
+	Space.Inputs = JSON.Library:DecodeFromFile("AllInputs.json")
 	Space.ButtonsDown = {}
 	Space.ButtonsUp = {}
 	if type(Space.Inputs) == "table" then
 		for ak=1,#Space.Inputs do
 			local av = Space.Inputs[ak]
 			av.Command = loadstring(av.String)
-			if av.Type == "Down" then
-				Space.ButtonsDown[av.Button] = av
-			end
 			if av.Type == "Up" then
 				Space.ButtonsUp[av.Button] = av
+			else
+				Space.ButtonsDown[av.Button] = av
 			end
 		end
 	end
@@ -74,7 +66,9 @@ function GiveBack.Stop(Arguments)
 	print("AllInputs Stopped")
 end
 function GiveBack.Input(Arguments)
-	local Space, SDL, ffi, Window, WindowGive, AllWindows = Arguments[1], Arguments[4], Arguments[8], Arguments[10], Arguments[11], Arguments[12]
+	local Space, SDL, ffi, Window, WindowGive, AllWindows, AllWindowsGive =
+	Arguments[1], Arguments[4], Arguments[8], Arguments[10], Arguments[11],
+	Arguments[12], Arguments[13]
 	local ReturnValue
 	while SDL.Library.pollEvent(Space.Event) ~=0 do
 		if Space.Event.type == SDL.Library.QUIT then
@@ -102,7 +96,8 @@ function GiveBack.Input(Arguments)
 					end
 				end
 			end
-		elseif Space.Event.type == SDL.Library.KEYDOWN and Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
+		elseif Space.Event.type == SDL.Library.KEYDOWN and
+		Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
 			local v = Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))]
 			if type(v.Pass) == "table" then
 				for ak=1,#v.Pass do
@@ -117,7 +112,8 @@ function GiveBack.Input(Arguments)
 			if Ran and ReturnValue then
 				return ReturnValue
 			end
-		elseif Space.Event.type == SDL.Library.KEYUP and Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
+		elseif Space.Event.type == SDL.Library.KEYUP and
+		Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
 			local v = Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))]
 			if type(v.Pass) == "table" then
 				for ak=1,#v.Pass do
@@ -136,6 +132,31 @@ function GiveBack.Input(Arguments)
 	end
 	if #AllWindows.Space.Windows == 0 then
 		return true
+	end
+end
+function GiveBack.Add(Command, Arguments)
+	local Space = Arguments[1]
+	local Object = {}
+	if type(Command) == "table" and type(Command.String) == "string" and
+	type(Command.Button) == "string" then
+		Object.Command = loadstring(Command.String)
+		if Command.Type == "Up" then
+			Space.ButtonsUp[Command.Button] = Object
+			Space.ButtonsUp[Command.Button].Pass = Command.Pass
+		else
+			Space.ButtonsDown[Command.Button] = Object
+			Space.ButtonsDown[Command.Button].Pass = Command.Pass
+		end
+	end
+end
+function GiveBack.Remove(Letter, Type,  Arguments)
+	local Space = Arguments[1]
+	if type(Letter) == "string" then
+		if Type == "Up" then
+			Space.ButtonsUp[Letter] = nil
+		elseif Type == "Down" then
+			Space.ButtonsDown[Letter] = nil
+		end
 	end
 end
 return GiveBack

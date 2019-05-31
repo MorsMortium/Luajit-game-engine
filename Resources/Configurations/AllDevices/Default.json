@@ -1,4 +1,5 @@
 {
+  "Name": "Default",
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "Default",

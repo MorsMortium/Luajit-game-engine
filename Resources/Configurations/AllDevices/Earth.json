@@ -1,4 +1,5 @@
 {
+  "Name": "Earth",
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "Default",

@@ -1,17 +1,23 @@
 {
+  "Name": "SpaceShip",
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "Asteroid",
     "PhysicsLayers": [ "SpaceShip" ],
     "Translation": [ 0, 0, -2 ],
     "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-    "RenderData": [ 255, 255, 255 ],
+    "RenderData": [ 255, 0, 0 ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ],
     "VisualLayers": [ "All" ],
     "Fixed": false,
     "Powers": [
       {
+        "Type": "Destroypara",
+        "String": "return true",
+        "Doo": "Device",
+        "Active": false
+      }, {
         "Type": "SelfRotate",
         "Angle": -0.00001,
         "Point": 2,
@@ -45,11 +51,6 @@
         "Type": "SelfSlow",
         "Rate": 1.004,
         "Active": true
-      }, {
-        "Type": "Destroypara",
-        "String": "return true",
-        "Doo": "Device",
-        "Active": false
       }, {
         "Type": "Summon",
         "Name": "Asteroid",

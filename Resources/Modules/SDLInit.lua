@@ -1,7 +1,7 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
 	local Space, JSON, SDL, ffi, General = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8]
-	Space.SDLData = JSON.Library:DecodeFromFile("./Resources/Configurations/SDLData.json")
+	Space.SDLData = JSON.Library:DecodeFromFile("SDLData.json")
 	if SDL.Library.init(0) ~= 0 then
 		error(ffi.Library.sring(SDL.Library.getError()))
 	else

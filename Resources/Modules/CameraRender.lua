@@ -16,7 +16,7 @@ function GiveBack.CameraRenders.Default.OpenGL.Start(Space, BigSpace, SDL, SDLIn
 end
 function GiveBack.CameraRenders.Default.OpenGL.Stop(Space, BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, ffi)
 end
-function GiveBack.CameraRenders.Default.OpenGL.Render(CameraObject, Space, Arguments)
+function GiveBack.CameraRenders.Default.OpenGL.Render(CameraObject, MVP, Space, Arguments)
 	local BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, ffi = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8], Arguments[10]
 	OpenGL.Library.glClearColor(1, 1, 0, 1)
 	OpenGL.Library.glClear(OpenGL.Library.GL_COLOR_BUFFER_BIT)
@@ -27,11 +27,11 @@ function GiveBack.CameraRenders.Test.OpenGL.Start(Space, BigSpace, SDL, SDLInit,
 end
 function GiveBack.CameraRenders.Test.OpenGL.Stop(Space, BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, ffi)
 end
-function GiveBack.CameraRenders.Test.OpenGL.Render(CameraObject, Space, Arguments)
+function GiveBack.CameraRenders.Test.OpenGL.Render(CameraObject, MVP, Space, Arguments)
 	local BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, ffi, AllDevices, AllDevicesGive = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8], Arguments[10], Arguments[12], Arguments[13]
 	OpenGL.Library.glClearColor(0, 0, 0, 1)
 	OpenGL.Library.glClear(bit.bor(OpenGL.Library.GL_COLOR_BUFFER_BIT, OpenGL.Library.GL_DEPTH_BUFFER_BIT))
-	AllDevices.Library.RenderAllDevices(CameraObject, AllDevicesGive)
+	AllDevices.Library.RenderAllDevices(CameraObject, MVP, AllDevicesGive)
 end
 GiveBack.CameraRenders.Test.Software = {}
 function GiveBack.CameraRenders.Test.Software.Start(Space, BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, ffi)

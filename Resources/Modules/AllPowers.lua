@@ -11,19 +11,37 @@ function GiveBack.Start(Arguments)
 		local av = AllDevices.Space.Devices[ak]
 		for bk=1,#av.Objects do
 			local bv = av.Objects[bk]
-			bv.PowerChecked = {}
 			if type(bv.Powers) == "table" then
 				for ck=1,#bv.Powers do
+					if #bv.Powers < ck then break end
 					local cv = bv.Powers[ck]
 					if Power.Library.Powers[cv.Type] then
 						bv.Powers[ck] = Power.Library.Powers[cv.Type].DataCheck(cv, PowerGive)
-						bv.PowerChecked[ck] = {}
+					else
+						table.remove(bv.Powers, ck)
 					end
 				end
 			end
 		end
 	end
 	print("AllPowers Started")
+end
+function GiveBack.UseAllPowers(Time, Arguments)
+	local Space, Power, PowerGive, AllDevices = Arguments[1], Arguments[2], Arguments[3], Arguments[4]
+	for ak=1,#AllDevices.Space.Devices do
+    if ak > #AllDevices.Space.Devices then break end
+    local av = AllDevices.Space.Devices[ak]
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+      local Exit
+      for ck=1,#bv.Powers do
+        local cv = bv.Powers[ck]
+        Exit = Power.Library.Powers[cv.Type].Use(AllDevices.Space.Devices, ak, bk, ck, Time, PowerGive)
+        if Exit then break end
+      end
+      if Exit then break end
+    end
+  end
 end
 function GiveBack.Stop(Arguments)
 	print("AllPowers Stopped")

@@ -165,7 +165,7 @@ function GiveBack.RotationMatrix(lgsl, q, Center)
   local a1, a2, a3
 	a1, a2, a3 = 0, 0, 0
   if Center then
-    a1, a2, a3 = Center[1], Center[2], Center[3]		
+    a1, a2, a3 = Center[1], Center[2], Center[3]
 	end
 	local m03 = a1 - a1 * m00 - a2 * m01 - a3 * m02
 	local m13 = a2 - a1 * m10 - a2 * m11 - a3 * m12
@@ -190,15 +190,14 @@ function GiveBack.ScaleMatrix(lgsl, Scale)
   {0, 0, Scale[3], 0},
   {0, 0, 0, 1}}
 end
-function GiveBack.ModelMatrix(Translation, Rotation, Scale, lgsl)
-  return GiveBack.TranslationMatrix(lgsl, Translation) *
-          GiveBack.RotationMatrix(lgsl, Rotation) *
-          GiveBack.ScaleMatrix(lgsl, Scale)
+function GiveBack.ModelMatrix(Object, lgsl)
+	Object.ModelMatrix = GiveBack.TranslationMatrix(lgsl, Object.Translation) *
+          GiveBack.RotationMatrix(lgsl, Object.Rotation) *
+          GiveBack.ScaleMatrix(lgsl, Object.Scale)
 end
 function GiveBack.Normalise(a)
-    return {a[1]/GiveBack.VectorLength(a),
-            a[2]/GiveBack.VectorLength(a),
-            a[3]/GiveBack.VectorLength(a)}
+	local Length = GiveBack.VectorLength(a)
+	return {a[1]/Length, a[2]/Length, a[3]/Length}
 end
 function GiveBack.CreateCollisionSphere(Object)
 	local Radius = 0
@@ -218,6 +217,15 @@ function GiveBack.VectorAddition(a, b)
 end
 function GiveBack.VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
+end
+function GiveBack.UpdateObject(Object, IfSphere, lgsl)
+	local gsl = lgsl.Library.gsl
+	GiveBack.ModelMatrix(Object, lgsl)
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, Object.ModelMatrix, Object.Points, 0, Object.Transformated)
+	gsl.gsl_matrix_transpose(Object.Transformated)
+	if IfSphere then
+		GiveBack.CreateCollisionSphere(Object)
+	end
 end
 GiveBack.Requirements = {}
 return GiveBack

@@ -11,7 +11,7 @@
   "FollowDevice": 1,
   "FollowObject": 1,
   "FollowPoint": 1,
-  "FollowPointUpVector": 2,
+  "FollowPointUp": 2,
   "FollowDistance": -5,
   "Type": "OpenGL",
   "CameraRenderer": "Test"

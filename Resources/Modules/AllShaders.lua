@@ -1,7 +1,7 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
 	local Space, Shader, ShaderGive, JSON = Arguments[1], Arguments[2], Arguments[3], Arguments[4]
-	local Shaders = JSON.Library:DecodeFromFile("./Resources/Configurations/AllShaders.json")
+	local Shaders = JSON.Library:DecodeFromFile("AllShaders.json")
 	Space.Shaders = {}
 	if Shaders then
 		for ak=1,#Shaders do

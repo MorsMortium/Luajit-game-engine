@@ -4,7 +4,8 @@ io.output():setvbuf("no")
 local Order = {}
 local Data = {}
 Data.JSON = {Library = require("json")}
-local Requirements = Data.JSON.Library:DecodeFromFile("./Resources/Configurations/Requirements.json")
+Data.JSON.Library:SetPath("./Resources/Configurations/")
+local Requirements = Data.JSON.Library:DecodeFromFile("Requirements.json")
 local function LoadModules(Modules)
 	for ak=1,#Modules do
 		local av = Modules[ak]
@@ -159,65 +160,65 @@ local function Game()
 	Score = 0
 	local LastScore = 0
 	local Niceness = 100
+	local LastTime = Data.SDL.Library.getTicks()
+	local Time = 0
+	local SumTime = 0
 	---[[
 	while not (MainExit or InputExit) do
-		LoadModule, Modules, MainExit = Main(MainGive)
-		InputExit = Input(InputGive)
-		if LoadModule then
-			LoadModules(Modules)
-			LoadModule = false
+		if 0 < Data.SDL.Library.getTicks() - LastTime then
+			Time = Data.SDL.Library.getTicks() - LastTime
+			LastTime = Data.SDL.Library.getTicks()
+			LoadModule, Modules, MainExit = Main(Time, MainGive)
+			InputExit = Input(InputGive)
+			if LoadModule then
+				LoadModules(Modules)
+				LoadModule = false
+			end
+			if LastScore < Score then
+				LastScore = Score
+				print("Score: "..Score)
+			end
+			if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
+				Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
+			end
+			if Number % 1500 == 0 and Niceness ~= 1 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
+				Niceness = Niceness - 1
+				print("Niceness: "..Niceness)
+			end
+			CameraRender(CameraRenderGive)
+			WindowRender(Number, WindowRenderGive)
+			Number = Number + 1
 		end
-		if LastScore < Score then
-			LastScore = Score
-			print("Score:", Score)
-		end
-		if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-			Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
-		end
-		if Number % 1500 == 0 and Niceness ~= 1 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-			Niceness = Niceness - 1
-			print("Niceness:", Niceness)
-		end
-		CameraRender(CameraRenderGive)
-		WindowRender(Number, WindowRenderGive)
-		Number = Number + 1
 	end
 	Stop()
 end
 Game()
 --]]
 --[[
-	local LastTime = Data.SDL.Library.getTicks()
-	local devicenumber = 1
+	local devicenumber = 0
 	while not (MainExit or InputExit) do
-		if devicenumber < #Data.AllDevices.Space.Devices then
-			devicenumber = #Data.AllDevices.Space.Devices
-			print(devicenumber)
-		end
-		LoadModule, Modules, MainExit = Main(MainGive)
-		InputExit = Input(InputGive)
-		if LoadModule then
-			LoadModules(Modules)
-			LoadModule = false
-		end
-		if LastScore < Score then
-			LastScore = Score
-			--print(Score)
-		end
-		if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-			Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
-		end
-		if Number % 1500 == 0 and Niceness ~= 1 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-			Niceness = Niceness - 1
-			--print("Niceness:", Niceness)
-		end
-		if LastTime - Data.SDL.Library.getTicks() < -100  then
+		if 0 < Data.SDL.Library.getTicks() - LastTime then
+			Time = Data.SDL.Library.getTicks() - LastTime
 			LastTime = Data.SDL.Library.getTicks()
-			Data.AllDevices.Space.Devices[1].Objects[1].Powers[6].Active = true
+			if devicenumber < #Data.AllDevices.Space.Devices - 9 then
+				devicenumber = #Data.AllDevices.Space.Devices
+				print(devicenumber)
+			end
+			LoadModule, Modules, MainExit = Main(Time, MainGive)
+			if LoadModule then
+				LoadModules(Modules)
+				LoadModule = false
+			end
+			SumTime = SumTime + Time
+			if 100 < SumTime  then
+				SumTime = 0
+				--Data.AllDevices.Space.Devices[1].Objects[1].Powers[6].Active = true
+			end
+			CameraRender(CameraRenderGive)
+			WindowRender(Number, WindowRenderGive)
+			Number = Number + 1
 		end
-		CameraRender(CameraRenderGive)
-		WindowRender(Number, WindowRenderGive)
-		Number = Number + 1
+		InputExit = Input(InputGive)
 	end
 	Stop()
 end

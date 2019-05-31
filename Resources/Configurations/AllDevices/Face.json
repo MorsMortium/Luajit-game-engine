@@ -1,4 +1,5 @@
 {
+  "Name": "Face",
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "Default",

@@ -1,11 +1,10 @@
-Cleanup for commit
 reduce data conversion
 collision reaction
 one draw per rendertype
 -collision functions
 -no collision check if no movement
 -Work Out deprecation
--check SDLInit and OpenGLInit variables before trying to use functions (or start module)
+-check SDL and OpenGL Init variables before using functions (or start module)
 -finish TODOs
 -WindowRender Render.ChangeFrom, Render.ChangeTo
 -error messages where needed (but no exit if not needed)

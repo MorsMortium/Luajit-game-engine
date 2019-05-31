@@ -12,9 +12,9 @@ function GiveBack.Create(GotObject, Arguments)
 	Object.VerticalResolution = 480
 	Object.FieldOfView = 90
 	Object.Type = "Software"
+	Object.CameraRenderer = "Default"
 	Object.ViewMatrixCalc = true
 	Object.ProjectionMatrixCalc = true
-	Object.CameraRenderer = "Default"
 	if type(GotObject) == "table" then
 		if General.Library.IsVector3(GotObject.Translation) then
 			Object.Translation = GotObject.Translation
@@ -54,11 +54,13 @@ function GiveBack.Create(GotObject, Arguments)
 			if type(GotObject.FollowObject) == "number" then
 				Object.FollowObject = GotObject.FollowObject
 			end
-			if type(GotObject.FollowPoint) == "number" and GotObject.FollowPoint > 0 and GotObject.FollowPoint < 5 then
+			if type(GotObject.FollowPoint) == "number" and
+			GotObject.FollowPoint > 0 and GotObject.FollowPoint < 5 then
 				Object.FollowPoint = GotObject.FollowPoint
 			end
-			if type(GotObject.FollowPointUpVector) == "number" and GotObject.FollowPointUpVector > 0 and GotObject.FollowPointUpVector < 5 then
-				Object.FollowPointUpVector = GotObject.FollowPointUpVector
+			if type(GotObject.FollowPointUp) == "number" and
+			GotObject.FollowPointUp > 0 and GotObject.FollowPointUp < 5 then
+				Object.FollowPointUp = GotObject.FollowPointUp
 			end
 			if type(GotObject.FollowDistance) == "number" then
 				Object.FollowDistance = GotObject.FollowDistance

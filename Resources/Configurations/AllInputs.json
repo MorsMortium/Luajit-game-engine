@@ -5,7 +5,7 @@
 }, {
   "Button": "Return",
   "Type": "Down",
-  "String": "local AllInputs = ... if pcall(loadstring(AllInputs.Space.Text)) then AllInputs.Space.Text = '' end",
+  "String": "local AllInputs, AllInputsGive = ... if pcall(loadstring('local AllInputs, AllInputsGive = ... ' .. AllInputs.Space.Text), AllInputs, AllInputsGive) then AllInputs.Space.Text = '' end",
   "Pass": [ "AllInputs" ]
 }, {
   "Button": "Delete",
@@ -25,61 +25,56 @@
 }, {
   "Button": "Left",
   "Type": "Down",
-  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[1].Active = true end",
+  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[2].Active = true end",
   "Pass": [ "AllDevices" ]
 }, {
   "Button": "Left",
   "Type": "Up",
-  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[1].Active = false end",
-  "Pass": [ "AllDevices" ]
-}, {
-  "Button": "Right",
-  "Type": "Down",
-  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[2].Active = true end",
-  "Pass": [ "AllDevices" ]
-}, {
-  "Button": "Right",
-  "Type": "Up",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[2].Active = false end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Up",
+  "Button": "Right",
   "Type": "Down",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[3].Active = true end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Up",
+  "Button": "Right",
   "Type": "Up",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[3].Active = false end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Down",
+  "Button": "Up",
   "Type": "Down",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[4].Active = true end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Down",
+  "Button": "Up",
   "Type": "Up",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[4].Active = false end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Left Ctrl",
+  "Button": "Down",
   "Type": "Down",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[5].Active = true end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Left Ctrl",
+  "Button": "Down",
   "Type": "Up",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[5].Active = false end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Left Alt",
+  "Button": "Left Ctrl",
   "Type": "Down",
   "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[6].Active = true end",
   "Pass": [ "AllDevices" ]
 }, {
-  "Button": "Space",
+  "Button": "Left Ctrl",
+  "Type": "Up",
+  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[6].Active = false end",
+  "Pass": [ "AllDevices" ]
+}, {
+  "Button": "Left Alt",
   "Type": "Down",
-  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[10].Active = true end",
+  "String": "local AllDevices = ... if AllDevices.Space.Devices[1].Name == 'SpaceShip' then AllDevices.Space.Devices[1].Objects[1].Powers[7].Active = true end",
   "Pass": [ "AllDevices" ]
 } ]

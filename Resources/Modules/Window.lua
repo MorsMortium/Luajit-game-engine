@@ -16,38 +16,46 @@ local function SDLNumberOrString(StringOrNumber, General, Library)
 	return ReturnTable
 end
 function GiveBack.Create(GotWindow, Arguments)
-	local SDL, SDLInit, General, ffi = Arguments[1], Arguments[3], Arguments[5], Arguments[7]
+	local SDL, SDLInit, General, ffi, WindowRender = Arguments[1], Arguments[3],
+	Arguments[5], Arguments[7], Arguments[9]
 	local Error
 	local Window = {}
+	Window.Title = "Default"
+	Window.Width = ffi.Library.new("int[1]", 256)
+	Window.Height = ffi.Library.new("int[1]", 256)
+	Window.X = SDL.Library.WINDOWPOS_UNDEFINED
+	Window.Y = SDL.Library.WINDOWPOS_UNDEFINED
+	Window.Flags = {0}
+	Window.Type = "Software"
+	Window.WindowRenderer = "Default"
+	Window.RendererFlags = {"RENDERER_SOFTWARE"}
 	if type(GotWindow) == "table" then
-		Window.RendererFlags = GotWindow.RendererFlags
-		Window.Title = GotWindow.Title
-		if type(Window.Title) ~= "string" then
-			Window.Title = "Default"
+		if type(GotWindow.Title) == "string" then
+			Window.Title = GotWindow.Title
 		end
-		if type(GotWindow.Width) ~= "number" then
-			GotWindow.Width = 256
+		if type(GotWindow.Width) == "number" then
+			Window.Width[0] = GotWindow.Width
 		end
-		Window.Width = ffi.Library.new("int[1]", GotWindow.Width)
-		if type(GotWindow.Height) ~= "number" then
-			GotWindow.Height = 256
+		if type(GotWindow.Height) == "number" then
+			Window.Height[0] = GotWindow.Height
 		end
-		Window.Height = ffi.Library.new("int[1]", GotWindow.Height)
-		Window.X = unpack(SDLNumberOrString({GotWindow.X}, General, SDL.Library))
-		if Window.X == nil then
-			Window.X = SDL.Library.WINDOWPOS_UNDEFINED
+		local X = unpack(SDLNumberOrString({GotWindow.X}, General, SDL.Library))
+		if X ~= nil then
+			Window.X = X
 		end
-		Window.X = unpack(SDLNumberOrString({GotWindow.X}, General, SDL.Library))
-		if Window.X == nil then
-			Window.X = SDL.Library.WINDOWPOS_UNDEFINED
+		localY = unpack(SDLNumberOrString({GotWindow.Y}, General, SDL.Library))
+		if Y ~= nil then
+			Window.Y = Y
 		end
-		Window.Flags = General.Library.DataFromKeys(SDL.Library, GotWindow.Flags)
-		if Window.Flags[1] == nil then
-			Window.Flags = {0}
+		local Flags = General.Library.DataFromKeys(SDL.Library, GotWindow.Flags)
+		if Flags[1] ~= nil then
+			Window.Flags = Flags
 		end
-		Window.Type = GotWindow.Type
-		if Window.Type ~= "OpenGL" and Window.Type ~= "Software" then
-			Window.Type = "Software"
+		if GotWindow.Type == "OpenGL" then
+			Window.Type = "OpenGL"
+		end
+		if WindowRender.Library.WindowRenders[GotWindow.WindowRenderer] ~= nil then
+			Window.WindowRenderer = GotWindow.WindowRenderer
 		end
 		if Window.Type == "OpenGL" then
 			Window.Flags[#Window.Flags + 1] = SDL.Library.WINDOW_OPENGL
@@ -58,14 +66,13 @@ function GiveBack.Create(GotWindow, Arguments)
 					table.remove(Window.Flags, ak)
 				end
 			end
-			if type(Window.RendererFlags) ~= "table" then
-				Window.RendererFlags = {"RENDERER_SOFTWARE"}
-			end
 		end
-		Window.WindowID, Error = SDL.Library.createWindow(Window.Title, Window.X, Window.X, Window.Width[0], Window.Height[0], bit.bor(unpack(Window.Flags)))
-	else
-		Window.WindowID, Error = SDL.Library.createWindow("Default", SDL.Library.WINDOWPOS_UNDEFINED, SDL.Library.WINDOWPOS_UNDEFINED, 256, 256, 0)
+		if type(GotWindow.RendererFlags) == "table" then
+			Window.RendererFlags = GotWindow.RendererFlags
+		end
 	end
+	Window.WindowID, Error = SDL.Library.createWindow(Window.Title, Window.X,
+	Window.Y, Window.Width[0], Window.Height[0], bit.bor(unpack(Window.Flags)))
 	if not Window.WindowID then
 		error(Error)
 	end
@@ -73,18 +80,20 @@ function GiveBack.Create(GotWindow, Arguments)
 		if type(Window.RendererFlags) ~= "table" then
 			Window.Renderer = SDL.Library.createRenderer(Window.WindowID, -1, 0)
 		else
-			Window.Renderer = SDL.Library.createRenderer(Window.WindowID, -1, bit.bor(unpack(General.Library.DataFromKeys(SDL.Library, Window.RendererFlags))))
+			Window.Renderer = SDL.Library.createRenderer(Window.WindowID, -1,
+			bit.bor(unpack(General.Library.DataFromKeys(SDL.Library, Window.RendererFlags))))
 		end
 	end
 	return Window
 end
 function GiveBack.Destroy(WindowID, Arguments)
-	local SDL, SDLInit, General, ffi = Arguments[1], Arguments[3], Arguments[5], Arguments[7]
+	local SDL, SDLInit, General, ffi = Arguments[1], Arguments[3], Arguments[5],
+	Arguments[7]
 	if type(WindowID) == "number" then
 		SDL.Library.destroyWindow(SDL.Library.getWindowFromID(WindowID))
 	else
 		SDL.Library.destroyWindow(WindowID)
 	end
 end
-GiveBack.Requirements = {"SDL", "SDLInit", "General", "ffi"}
+GiveBack.Requirements = {"SDL", "SDLInit", "General", "ffi", "WindowRender"}
 return GiveBack

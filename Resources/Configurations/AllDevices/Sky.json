@@ -1,4 +1,5 @@
 {
+  "Name": "Sky",
   "Objects": [ {
     "Mass": 1,
     "ObjectRenderer": "SomeSides",

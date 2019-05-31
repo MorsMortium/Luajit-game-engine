@@ -1326,9 +1326,15 @@ function OBJDEF:encode_pretty(value, etc, options)
 
    return encode_value(self, value, {}, etc, options)
 end
-
-function OBJDEF:DecodeFromFile(file)
-  local f = io.open(file, "rb")
+local Path = ""
+function OBJDEF:SetPath(NewPath)
+  Path = NewPath
+end
+function OBJDEF:GetPath()
+  return Path
+end
+function OBJDEF:DecodeFromFile(File)
+  local f = io.open(Path .. File, "rb")
   if not f then return nil end
   local content = f:read("*a")
   f:close()
