@@ -1,4 +1,7 @@
 [ {
   "Name": "TestShaderProgram",
   "Shaders": [ "TestVertexShader", "TestFragmentShader" ]
-} ]
+},{
+  "Name": "TestProgram",
+  "Shaders": [ "TestVertex", "TestFragment" ]
+}]

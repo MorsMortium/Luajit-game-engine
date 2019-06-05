@@ -212,7 +212,7 @@ Game()
 			SumTime = SumTime + Time
 			if 100 < SumTime  then
 				SumTime = 0
-				--Data.AllDevices.Space.Devices[1].Objects[1].Powers[6].Active = true
+				--Data.AllDevices.Space.Devices[1].Objects[1].Powers[7].Active = true
 			end
 			CameraRender(CameraRenderGive)
 			WindowRender(Number, WindowRenderGive)

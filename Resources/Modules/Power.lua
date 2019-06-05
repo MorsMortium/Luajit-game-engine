@@ -52,34 +52,31 @@ function GiveBack.Powers.Gravity.Use(Devices, i, k, h, time, Arguments)
   local General = Arguments[1]
 	local v = Devices[i].Objects[k]
 	local j = v.Powers[h]
-  if j.Active then
-    --lmn
-    for ak=1,#Devices do
-      local av = Devices[ak]
-      for bk=1,#av.Objects do
-        local bv = av.Objects[bk]
-  			if (i ~= ak or k ~= bk) and General.Library.SameLayer(v.PhysicsLayers, bv.PhysicsLayers) and
-  			math.sqrt((bv.Translation[1] - v.Translation[1])^2 +
-  								(bv.Translation[2] - v.Translation[2])^2 +
-  								(bv.Translation[3] - v.Translation[3])^2) < j.Distance then
-  				for ck=1,3 do
-            if not bv.Fixed then
-              if bv.Translation[ck] > v.Translation[ck] then
-    						bv.Speed[ck] = bv.Speed[ck] - time * j.Force
-    					elseif bv.Translation[ck] < v.Translation[ck] then
-    						bv.Speed[ck] = bv.Speed[ck] + time * j.Force
-    					end
-            end
-            if not v.Fixed then
-              if bv.Translation[ck] > v.Translation[ck] then
-    						v.Speed[ck] = v.Speed[ck] + time * j.Force
-    					elseif bv.Translation[ck] < v.Translation[ck] then
-    						v.Speed[ck] = v.Speed[ck] - time * j.Force
-    					end
+  for ak=1,#Devices do
+    local av = Devices[ak]
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+  		if (i ~= ak or k ~= bk) and General.Library.SameLayer(v.PhysicsLayers, bv.PhysicsLayers) and
+  		math.sqrt((bv.Translation[1] - v.Translation[1])^2 +
+  							(bv.Translation[2] - v.Translation[2])^2 +
+  							(bv.Translation[3] - v.Translation[3])^2) < j.Distance then
+  			for ck=1,3 do
+          if not bv.Fixed then
+            if bv.Translation[ck] > v.Translation[ck] then
+  						bv.Speed[ck] = bv.Speed[ck] - time * j.Force
+  					elseif bv.Translation[ck] < v.Translation[ck] then
+  						bv.Speed[ck] = bv.Speed[ck] + time * j.Force
   					end
+          end
+          if not v.Fixed then
+            if bv.Translation[ck] > v.Translation[ck] then
+    					v.Speed[ck] = v.Speed[ck] + time * j.Force
+    				elseif bv.Translation[ck] < v.Translation[ck] then
+    					v.Speed[ck] = v.Speed[ck] - time * j.Force
+    				end
   				end
   			end
-      end
+  		end
     end
   end
 end
@@ -105,7 +102,7 @@ function GiveBack.Powers.Thruster.Use(Devices, i, k, h, time, Arguments)
   local General = Arguments[1]
 	local v = Devices[i].Objects[k]
 	local j = v.Powers[h]
-  if j.Active and not v.Fixed then
+  if not v.Fixed then
     local p1 = {v.Transformated.data[(j.Point-1) * 4], v.Transformated.data[(j.Point-1) * 4 + 1], v.Transformated.data[(j.Point-1) * 4 + 2]}
     local c1 = v.Translation
     local vfc1tp1 = General.Library.PointAToB(c1, p1)
@@ -134,7 +131,7 @@ function GiveBack.Powers.SelfRotate.Use(Devices, i, k, h, time, Arguments)
   local General = Arguments[1]
   local v = Devices[i].Objects[k]
   local j = v.Powers[h]
-  if j.Active and not v.Fixed then
+  if not v.Fixed then
 		local p1 = {v.Transformated.data[(j.Point-1) * 4], v.Transformated.data[(j.Point-1) * 4 + 1], v.Transformated.data[(j.Point-1) * 4 + 2]}
 		local c1 = v.Translation
 		local vfc1tp1 = General.Library.PointAToB(c1, p1)
@@ -160,10 +157,8 @@ function GiveBack.Powers.SelfSlow.Use(Devices, i, k, h, time, Arguments)
   local General = Arguments[1]
 	local v = Devices[i].Objects[k]
 	local j = v.Powers[h]
-  if j.Active then
-    v.Speed = General.Library.VectorNumberMult(v.Speed, 1/j.Rate ^ time)
-    v.RotationSpeed = General.Library.VectorNumberMult(v.RotationSpeed, 1/j.Rate ^ time)
-  end
+  v.Speed = General.Library.VectorNumberMult(v.Speed, 1/j.Rate ^ time)
+  v.RotationSpeed = General.Library.VectorNumberMult(v.RotationSpeed, 1/j.Rate ^ time)
 end
 GiveBack.Powers.Destroypara = {}
 function GiveBack.Powers.Destroypara.DataCheck(v)
@@ -190,16 +185,14 @@ function GiveBack.Powers.Destroypara.Use(Devices, i, k, h, time, Arguments)
   local General = Arguments[1]
 	local v = Devices[i].Objects[k]
 	local j = v.Powers[h]
-  if j.Active then
-    local Ran, ifdestroy = pcall(j.Command, Devices, i, k, h, General)
-    if Ran and ifdestroy then
-      if j.Doo == "Object" then
-        table.remove(Devices[i].Objects, k)
-        return true
-      else
-        table.remove(Devices, i)
-        return true
-      end
+  local Ran, ifdestroy = pcall(j.Command, Devices, i, k, h, General)
+  if Ran and ifdestroy then
+    if j.Doo == "Object" then
+      table.remove(Devices[i].Objects, k)
+      return true
+    else
+      table.remove(Devices, i)
+      return true
     end
   end
 end
@@ -243,35 +236,33 @@ function GiveBack.Powers.Summon.DataCheck(v, Arguments)
   return Data
 end
 function GiveBack.Powers.Summon.Use(Devices, i, k, h, time, Arguments)
-  local General, JSON, Device, DeviceGive, lgsl = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7]
-	local v = Devices[i].Objects[k]
-	local j = v.Powers[h]
-  if j.Active then
-    local gsl = lgsl.Library.gsl
-    local Devicecode = JSON.Library:DecodeFromFile("AllDevices/" .. j.Name .. ".json")
-    local DeviceObject
-    if type(Devicecode) == "table" then
-      DeviceObject = Device.Library.Create(Devicecode, DeviceGive)
-      for ak=1,#DeviceObject.Objects do
-        local av = DeviceObject.Objects[ak]
-        if type(av.Powers) == "table" then
-          for bk=1,#av.Powers do
-            local bv = av.Powers[bk]
-            if GiveBack.Powers[bv.Type] then
-              av.Powers[bk] = GiveBack.Powers[bv.Type].DataCheck(bv, General, JSON, Device, DeviceGive, lgsl, lgslGive)
-            end
+  local General, JSON, Device, DeviceGive, lgsl, AllDevices = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7], Arguments[9]
+  local v = Devices[i].Objects[k]
+  local j = v.Powers[h]
+  local gsl = lgsl.Library.gsl
+  local Devicecode = JSON.Library:DecodeFromFile("AllDevices/" .. j.Name .. ".json")
+  local DeviceObject
+  if type(Devicecode) == "table" then
+    DeviceObject = Device.Library.Create(Devicecode, DeviceGive)
+    for ak=1,#DeviceObject.Objects do
+      local av = DeviceObject.Objects[ak]
+      if type(av.Powers) == "table" then
+        for bk=1,#av.Powers do
+          local bv = av.Powers[bk]
+          if GiveBack.Powers[bv.Type] then
+            av.Powers[bk] = GiveBack.Powers[bv.Type].DataCheck(bv, General, JSON, Device, DeviceGive, lgsl, lgslGive)
           end
         end
       end
-      pcall(j.Command, DeviceObject, v, General)
-      for ak=1,#DeviceObject.Objects do
-        local av = DeviceObject.Objects[ak]
-        General.Library.UpdateObject(av, true, lgsl)
-      end
-      Devices[#Devices + 1] = DeviceObject
     end
-		j.Active = false
+    pcall(j.Command, DeviceObject, v, General)
+    for ak=1,#DeviceObject.Objects do
+      local av = DeviceObject.Objects[ak]
+      General.Library.UpdateObject(av, true, lgsl)
+    end
+    Devices[#Devices + 1] = DeviceObject
   end
+	j.Active = false
 end
-GiveBack.Requirements = {"General", "JSON", "Device", "lgsl"}
+GiveBack.Requirements = {"General", "JSON", "Device", "lgsl", "AllDevices"}
 return GiveBack

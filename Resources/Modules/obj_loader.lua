@@ -148,7 +148,7 @@ function loader.makedevice(Name)
 	local device = {}
 	device.Objects = {}
 	for ak=1,#obj.f do
-		device.Objects[ak] = {Mass = 1, ObjectRenderer = "Asteroid", PhysicsLayers = "All", VisualLayers = "All", Fixed = false}
+		device.Objects[ak] = {Mass = 1, ObjectRenderer = "WireFrame", PhysicsLayers = "All", VisualLayers = "All", Fixed = false}
 		device.Objects[ak].Points = {}
 		local av = obj.f[ak]
 		for bk=1,3 do

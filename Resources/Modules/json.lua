@@ -1341,8 +1341,8 @@ function OBJDEF:DecodeFromFile(File)
   return OBJDEF:decode(content)
 end
 
-function OBJDEF:EncodeToFile(file, o)
-    local f = io.open(file,"w+")
+function OBJDEF:EncodeToFile(File, o)
+    local f = io.open(Path .. File, "w+")
     f:write(OBJDEF:encode_pretty(o))
     f:close()
 end

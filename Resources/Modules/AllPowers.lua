@@ -33,10 +33,12 @@ function GiveBack.UseAllPowers(Time, Arguments)
     local av = AllDevices.Space.Devices[ak]
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
-      local Exit
+      local Exit = false
       for ck=1,#bv.Powers do
         local cv = bv.Powers[ck]
-        Exit = Power.Library.Powers[cv.Type].Use(AllDevices.Space.Devices, ak, bk, ck, Time, PowerGive)
+				if bv.Powers[ck].Active then
+					Exit = Power.Library.Powers[cv.Type].Use(AllDevices.Space.Devices, ak, bk, ck, Time, PowerGive)
+				end
         if Exit then break end
       end
       if Exit then break end

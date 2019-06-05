@@ -28,6 +28,7 @@ function GiveBack.Start(Arguments)
 	else
 		Space.glew = false
 	end
+	OpenGL.Library.glEnable(OpenGL.Library.GL_DEPTH_TEST)
 	print("openglinit Started")
 end
 function GiveBack.DeleteDummyWindow(Arguments)

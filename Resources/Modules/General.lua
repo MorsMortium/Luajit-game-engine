@@ -227,5 +227,14 @@ function GiveBack.UpdateObject(Object, IfSphere, lgsl)
 		GiveBack.CreateCollisionSphere(Object)
 	end
 end
+function GiveBack.ConcatenateCArrays(CArrays, ArrayLength, Type, ffi)
+  local ArraySize = ffi.Library.sizeof(ffi.Library.typeof(Type))
+  local SizeOfAll = ArrayLength * #CArrays
+  local NewCArray = ffi.Library.new(Type .. "[?]", SizeOfAll)
+  for i=1,#CArrays do
+    ffi.Library.copy(NewCArray + (i - 1) * ArrayLength, CArrays[i], ArraySize * ArrayLength)
+  end
+  return NewCArray
+end
 GiveBack.Requirements = {}
 return GiveBack

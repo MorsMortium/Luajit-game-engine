@@ -68,8 +68,8 @@
   "Name": "ObjectRender"
 }, {
   "StartStopSpace": true,
-  "Path": "AllObjectRenders",
-  "Name": "AllObjectRenders"
+  "Path": "AllDeviceRenders",
+  "Name": "AllDeviceRenders"
 }, {
   "StartStopSpace": false,
   "Path": "Object",

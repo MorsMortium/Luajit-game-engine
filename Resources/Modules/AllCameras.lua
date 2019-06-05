@@ -6,15 +6,16 @@ function GiveBack.Start(Arguments)
 	local Cameras = JSON.Library:DecodeFromFile("AllCameras.json")
 	Space.VAO = ffi.Library.new("GLuint[1]")
 	Space.VBO = ffi.Library.new("GLuint[1]")
+  Space.RDBO = ffi.Library.new("GLuint[1]") --Render Data Buffer Object
 	Space.EBO = ffi.Library.new("GLuint[1]")
 	Space.FBO = ffi.Library.new("GLuint[1]")
 	OpenGL.Library.glGenVertexArrays(1, Space.VAO)
 	OpenGL.Library.glGenBuffers(1, Space.VBO)
+  OpenGL.Library.glGenBuffers(1, Space.RDBO)
 	OpenGL.Library.glGenBuffers(1, Space.EBO)
 	OpenGL.Library.glGenFramebuffers(1, Space.FBO)
 	OpenGL.Library.glBindFramebuffer(OpenGL.Library.GL_FRAMEBUFFER, Space.FBO[0])
 	OpenGL.Library.glBindVertexArray(Space.VAO[0])
-	OpenGL.Library.glBindBuffer(OpenGL.Library.GL_ARRAY_BUFFER, Space.VBO[0])
 	OpenGL.Library.glBindBuffer(OpenGL.Library.GL_ELEMENT_ARRAY_BUFFER, Space.EBO[0])
   Space.OpenGLCameras = {}
   Space.SoftwareCameras = {}
@@ -43,8 +44,6 @@ function GiveBack.Start(Arguments)
       end
     end
   end
-	OpenGL.Library.glEnable(OpenGL.Library.GL_DEPTH_TEST)
-	OpenGL.Library.glDepthFunc(OpenGL.Library.GL_LESS)
 	print("AllCameras Started")
 end
 function GiveBack.Stop(Arguments)

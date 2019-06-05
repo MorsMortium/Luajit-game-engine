@@ -1,8 +1,6 @@
 #version 330
 
-layout (std140) uniform Matrices {
-    mat4 pvm;
-} ;
+uniform mat4 Matrices;
 
 in vec4 Position;
 in vec4 ColorV;
@@ -12,5 +10,5 @@ out vec4 color;
 void main()
 {
     color = ColorV;
-    gl_Position = pvm * Position ;
+    gl_Position = Matrices * Position ;
 }

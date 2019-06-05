@@ -89,7 +89,7 @@ function GiveBack.RenderAllCameras(Arguments)
     for bk=0,15 do
       Space.ViewProjectionMatrix[bk] = av.ViewProjectionMatrix.data[bk]
     end
-    CameraRender.Library.CameraRenders[av.CameraRenderer][av.Type].Render(av, Space.ViewProjectionMatrix, CameraRender.Library.CameraRenders[av.CameraRenderer].Space, CameraRenderGive)
+    CameraRender.Library.CameraRenders[av.CameraRenderer][av.Type].Render(AllCameras.Space.VBO, AllCameras.Space.RDBO, av, Space.ViewProjectionMatrix, CameraRender.Library.CameraRenders[av.CameraRenderer].Space, CameraRenderGive)
   end
   for ak=1,#AllCameras.Space.SoftwareCameras do
     local av = AllCameras.Space.SoftwareCameras[ak]

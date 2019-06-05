@@ -2,11 +2,11 @@
   "Name": "Box",
   "Objects": [ {
     "Mass": 1,
-    "ObjectRenderer": "Asteroid",
+    "ObjectRenderer": "WireFrame",
     "PhysicsLayers": [ "All" ],
     "Translation": [ 0, 0, 0 ],
     "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-    "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+    "RenderData": [ [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ] ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 10, 10, 10 ],
     "VisualLayers": [ "All" ],
@@ -19,11 +19,11 @@
       }]
 }, {
   "Mass": 1,
-  "ObjectRenderer": "Asteroid",
+  "ObjectRenderer": "WireFrame",
   "PhysicsLayers": [ "None" ],
   "Translation": [ 0, 0, 0 ],
   "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-  "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+  "RenderData": [ [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ] ],
   "Rotation": [ 0, 0, 0 ],
   "Scale": [ 10, 10, 10 ],
   "VisualLayers": [ "All" ],
@@ -36,11 +36,11 @@
     }]
 }, {
   "Mass": 1,
-  "ObjectRenderer": "Default",
+  "ObjectRenderer": "WireFrame",
   "PhysicsLayers": [ "All" ],
   "Translation": [ 0, 0, 0 ],
   "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-  "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+  "RenderData": [ [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ] ],
   "Rotation": [ 0, 0, 0 ],
   "Scale": [ 10, 10, 10 ],
   "VisualLayers": [ "All" ],
@@ -53,11 +53,11 @@
     }]
 }, {
   "Mass": 1,
-  "ObjectRenderer": "Default",
+  "ObjectRenderer": "WireFrame",
   "PhysicsLayers": [ "All" ],
   "Translation": [ 0, 0, 0 ],
   "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-  "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+  "RenderData": [ [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ] ],
   "Rotation": [ 0, 0, 0 ],
   "Scale": [ 10, 10, 10 ],
   "VisualLayers": [ "All" ],
@@ -70,11 +70,11 @@
     }]
 }, {
   "Mass": 1,
-  "ObjectRenderer": "Default",
+  "ObjectRenderer": "WireFrame",
   "PhysicsLayers": [ "All" ],
   "Translation": [ 0, 0, 0 ],
   "Points": [ [ 1, 1, 1, 1 ], [ 1, -1, -1, 1 ], [ -1, 1, -1, 1 ], [ -1, -1, 1, 1 ] ],
-  "RenderData": [ [ 135, 206, 250, 135, 206, 250, 135, 206, 250, 135, 206, 250 ], [ false, false, true, false ] ],
+  "RenderData": [ [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ], [ 255, 255, 255, 255 ] ],
   "Rotation": [ 0, 0, 0 ],
   "Scale": [ 10, 10, 10 ],
   "VisualLayers": [ "All" ],

@@ -34,7 +34,7 @@ function GiveBack.Create(Shader, Arguments)
 	OpenGL.Library.glGetShaderiv(Object.ShaderID[0], OpenGL.Library.GL_COMPILE_STATUS, Result)
 	if Result[0] ~= OpenGL.Library.GL_TRUE then
 		OpenGL.Library.glGetShaderiv(Object.ShaderID[0], OpenGL.Library.GL_INFO_LOG_LENGTH, InfoLogLength)
-		local ShaderErrorMessage = Char(InfoLogLength[0]+1)
+		local ShaderErrorMessage = Char(InfoLogLength[0] + 1)
 		OpenGL.Library.glGetShaderInfoLog(Object.ShaderID[0], InfoLogLength[0], nil, ShaderErrorMessage)
 		print(ffi.Library.string(ShaderErrorMessage))
 	end

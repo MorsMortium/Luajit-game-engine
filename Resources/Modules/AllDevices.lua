@@ -1,8 +1,8 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
-	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive, OBJ =
+	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive =
 	Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7],
-	Arguments[10], Arguments[11], Arguments[12]
+	Arguments[8], Arguments[9]
 	Space.Devices = {}
 	local Devices = JSON.Library:DecodeFromFile("AllDevices.json")
 	if type(Devices) == "table" and General.Library.GoodTypesOfTable(Devices, "string") then
@@ -20,13 +20,6 @@ function GiveBack.Start(Arguments)
 	--Space.Devices[#Space.Devices + 1] = Device.Library.Create(OBJ.Library.makedevice("./Resources/hand.obj"), "Hand", DeviceGive)
 	print("AllDevices Started")
 end
-function GiveBack.RenderAllDevices(CameraObject, MVP, Arguments)
-	local Space, AllObjectRenders, AllObjectRendersGive = Arguments[1], Arguments[8], Arguments[9]
-	for ak=1,#Space.Devices do
-		local av = Space.Devices[ak]
-		AllObjectRenders.Library.RenderAllObjects(CameraObject, av.Objects, MVP, AllObjectRendersGive)--, AllCameras.Framebuffer[0])
-	end
-end
 function GiveBack.Stop(Arguments)
 	local Space, Device, DeviceGive = Arguments[1], Arguments[6], Arguments[7]
 	for ak=1,#Space.Devices do
@@ -39,9 +32,9 @@ function GiveBack.Stop(Arguments)
 	print("AllDevices Stopped")
 end
 function GiveBack.Add(IfObject, DeviceID, ObjectOrDevice, Arguments)
-	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive, OBJ =
+	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive =
 	Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7],
-	Arguments[10], Arguments[11], Arguments[12]
+	Arguments[8], Arguments[9]
 	--If IfObject is true, then its an object, for the Device with the ID in DeviceID, and the objectdata in ObjectOrDevice
 	--Otherwise it's a device, and the devicedata is in ObjectOrDevice
 	if IfObject then
@@ -57,9 +50,9 @@ function GiveBack.Add(IfObject, DeviceID, ObjectOrDevice, Arguments)
 	end
 end
 function GiveBack.Remove(IfObject, DeviceID, ObjectID, Arguments)
-	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive, OBJ =
+	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive =
 	Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7],
-	Arguments[10], Arguments[11], Arguments[12]
+	Arguments[8], Arguments[9]
 	--If IfObject is true, then its an object, for the Device with DeviceID, and ObjectID
 	--Otherwise it's a device, with DeviceID
 	local DeviceIndex = #Space.Devices
@@ -80,5 +73,5 @@ function GiveBack.Remove(IfObject, DeviceID, ObjectID, Arguments)
 		table.remove(Space.Devices, DeviceIndex)
 	end
 end
-GiveBack.Requirements = {"JSON", "General", "Device", "AllObjectRenders", "Object", "OBJ"}
+GiveBack.Requirements = {"JSON", "General", "Device", "Object"}
 return GiveBack

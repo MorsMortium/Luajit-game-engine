@@ -1,6 +1,7 @@
 local GiveBack = {}
 function GiveBack.Create(Program, Arguments)
 	local AllShaders, OpenGL, ffi = Arguments[1], Arguments[3], Arguments[5]
+	local Char = ffi.Library.typeof("char[?]")
 	local InfoLogLength = ffi.Library.new("int[1]")
 	local Result = ffi.Library.new("GLint[1]", OpenGL.Library.GL_FALSE)
 	local Object = {}
@@ -18,7 +19,7 @@ function GiveBack.Create(Program, Arguments)
 	OpenGL.Library.glGetProgramiv(Object.ProgramID[0], OpenGL.Library.GL_LINK_STATUS, Result)
 	if Result[0] ~= OpenGL.Library.GL_TRUE then
 		OpenGL.Library.glGetProgramiv(Object.ProgramID[0], OpenGL.Library.GL_INFO_LOG_LENGTH, InfoLogLength)
-		local ProgramErrorMessage = Char(InfoLogLength[0]+1)
+		local ProgramErrorMessage = Char(InfoLogLength[0] + 1)
 		OpenGL.Library.glGetProgramInfoLog(Object.ProgramID[0], InfoLogLength[0], nil, ProgramErrorMessage)
 		print(ffi.Library.string(ProgramErrorMessage))
 	end

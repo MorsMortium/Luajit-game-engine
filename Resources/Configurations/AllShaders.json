@@ -11,4 +11,17 @@
   "String": "./Resources/Shaders/SingleColorFragmentShader.txt",
   "ShaderType": "GL_FRAGMENT_SHADER",
   "Uniforms": [ ]
+}, {
+  "IfPath": true,
+  "Name": "TestFragment",
+  "String": "./Resources/Shaders/TestFragment.txt",
+  "ShaderType": "GL_FRAGMENT_SHADER",
+  "Uniforms": [ ]
+}, {
+  "IfPath": true,
+  "Name": "TestVertex",
+  "String": "./Resources/Shaders/TestVertex.txt",
+  "ShaderType": "GL_VERTEX_SHADER",
+  "Inputs": [ "vertexPosition_modelspace", "vertexColor" ],
+  "Uniforms": [ "MVP" ]
 } ]
