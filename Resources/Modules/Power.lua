@@ -171,9 +171,9 @@ function GiveBack.Powers.Destroypara.DataCheck(v)
   if not pcall(Data.Command) then
     Data.Command = loadstring("return false")
   end
-  Data.Doo = "Device"
-  if v.Doo == "Object" or v.Doo == "Device" then
-    Data.Doo = v.Doo
+  Data.IfObject = false
+  if type(v.IfObject) == "boolean" then
+    Data.IfObject = v.IfObject
   end
   Data.Active = false
   if type(v.Active) == "boolean" then
@@ -182,87 +182,48 @@ function GiveBack.Powers.Destroypara.DataCheck(v)
 	return Data
 end
 function GiveBack.Powers.Destroypara.Use(Devices, i, k, h, time, Arguments)
-  local General = Arguments[1]
+  local General, AllDevices, AllDevicesGive = Arguments[1], Arguments[9], Arguments[10]
 	local v = Devices[i].Objects[k]
 	local j = v.Powers[h]
-  local Ran, ifdestroy = pcall(j.Command, Devices, i, k, h, General)
-  if Ran and ifdestroy then
-    if j.Doo == "Object" then
-      table.remove(Devices[i].Objects, k)
-      return true
+  local Ran, IfDestroy = pcall(j.Command, Devices, i, k, h, General)
+  if Ran and IfDestroy then
+    if j.IfObject then
+      AllDevices.Library.RemoveObject(i, k, AllDevicesGive)
     else
-      table.remove(Devices, i)
-      return true
+      AllDevices.Library.RemoveDevice(i, AllDevicesGive)
     end
+    return true
   end
 end
 GiveBack.Powers.Summon = {}
 function GiveBack.Powers.Summon.DataCheck(v, Arguments)
-  local General, JSON, Device, DeviceGive, lgsl = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7]
+  local General, JSON, Device, DeviceGive, lgsl, AllDevices, ffi = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7], Arguments[9], Arguments[11]
 	local Data = {}
 	Data.Type = "Summon"
-	local DeviceObject
   Data.Name = "Default"
-  if type(v.Name) == "string" and FileExists("./Resources/Configurations/AllDevices/" .. v.Name .. ".json") then
+  Data.Active = false
+  if type(v.Name) == "string" and AllDevices.Space.DeviceTypes[v.Name] then
     Data.Name = v.Name
   end
-	local Devicecode = JSON.Library:DecodeFromFile("AllDevices/" .. Data.Name .. ".json")
-  if type(Devicecode) == "table" then
-    DeviceObject = Device.Library.Create(Devicecode, DeviceGive)
-  end
-  local gsl = lgsl.Library.gsl
-  for ak=1,#DeviceObject.Objects do
-    local av = DeviceObject.Objects[ak]
-    if type(av.Powers) == "table" then
-      for bk=1,#av.Powers do
-        local bv = av.Powers[bk]
-        if GiveBack.Powers[bv.Type] then
-          av.Powers[bk] = GiveBack.Powers[bv.Type].DataCheck(bv, General, JSON, Device, DeviceGive, lgsl, lgslGive)
-        end
-      end
-    end
-  end
+  local NewDevice = Device.Library.Copy(AllDevices.Space.DeviceTypes[Data.Name], DeviceGive, AllDevices.Space.HelperMatrices)
   if v.String == nil then
     v.String = "local Created, Creator = ... for k=1,#Created.Objects do local v = Created.Objects[k] v.MMcalc = true for ak=1,3 do v.Translation[ak] = Creator.Translation[ak] end end print('Bad modifier function')"
   end
   Data.Command = loadstring(v.String)
-  if not pcall(Data.Command, DeviceObject, DeviceObject.Objects[1], General) then
+  if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], General) then
 		Data.Command = loadstring("local Created, Creator = ... for k=1,#Created.Objects do local v = Created.Objects[k] v.MMcalc = true for ak=1,3 do v.Translation[ak] = Creator.Translation[ak] end end print('Bad modifier function')")
 	end
-  Data.Active = false
   if type(v.Active) == "boolean" then
     Data.Active = v.Active
   end
   return Data
 end
 function GiveBack.Powers.Summon.Use(Devices, i, k, h, time, Arguments)
-  local General, JSON, Device, DeviceGive, lgsl, AllDevices = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7], Arguments[9]
+  local General, JSON, Device, DeviceGive, lgsl, AllDevices, AllDevicesGive, ffi = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7], Arguments[9], Arguments[10], Arguments[11]
   local v = Devices[i].Objects[k]
   local j = v.Powers[h]
-  local gsl = lgsl.Library.gsl
-  local Devicecode = JSON.Library:DecodeFromFile("AllDevices/" .. j.Name .. ".json")
-  local DeviceObject
-  if type(Devicecode) == "table" then
-    DeviceObject = Device.Library.Create(Devicecode, DeviceGive)
-    for ak=1,#DeviceObject.Objects do
-      local av = DeviceObject.Objects[ak]
-      if type(av.Powers) == "table" then
-        for bk=1,#av.Powers do
-          local bv = av.Powers[bk]
-          if GiveBack.Powers[bv.Type] then
-            av.Powers[bk] = GiveBack.Powers[bv.Type].DataCheck(bv, General, JSON, Device, DeviceGive, lgsl, lgslGive)
-          end
-        end
-      end
-    end
-    pcall(j.Command, DeviceObject, v, General)
-    for ak=1,#DeviceObject.Objects do
-      local av = DeviceObject.Objects[ak]
-      General.Library.UpdateObject(av, true, lgsl)
-    end
-    Devices[#Devices + 1] = DeviceObject
-  end
+  AllDevices.Library.AddDevice(j.Name, {Command = j.Command, Creator = v}, AllDevicesGive)
 	j.Active = false
 end
-GiveBack.Requirements = {"General", "JSON", "Device", "lgsl", "AllDevices"}
+GiveBack.Requirements = {"General", "JSON", "Device", "lgsl", "AllDevices", "ffi"}
 return GiveBack

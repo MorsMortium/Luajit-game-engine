@@ -1,5 +1,5 @@
 local GiveBack = {}
-function GiveBack.Create(GotDevice, Arguments)
+function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   local Device = {}
   Device.Objects = {}
@@ -9,7 +9,7 @@ function GiveBack.Create(GotDevice, Arguments)
     if type(GotDevice.Objects) == "table" then
       for ak=1,#GotDevice.Objects do
         local av = GotDevice.Objects[ak]
-        Device.Objects[ak] = Object.Library.Create(av, ObjectGive)
+        Device.Objects[ak] = Object.Library.Create(av, ObjectGive, HelperMatrices)
       end
       if General.Library.GoodTypesOfTable(GotDevice.FixedJoints, "table") then
         for ak=1,#GotDevice.FixedJoints do
@@ -22,14 +22,30 @@ function GiveBack.Create(GotDevice, Arguments)
         end
       end
     else
-      Device.Objects[1] = Object.Library.Create(nil, ObjectGive)
+      Device.Objects[1] = Object.Library.Create(nil, ObjectGive, HelperMatrices)
     end
     if GotDevice.Name then
       Device.Name = GotDevice.Name
     end
   else
-    Device.Objects[1] = Object.Library.Create(nil, ObjectGive)
+    Device.Objects[1] = Object.Library.Create(nil, ObjectGive, HelperMatrices)
   end
+  General.Library.UpdateDevice(Device)
+  General.Library.MergeLayers(Device)
+  return Device
+end
+function GiveBack.Copy(GotDevice, Arguments, HelperMatrices)
+  local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
+  local Device = {}
+  Device.Objects = {}
+  Device.Name = GotDevice.Name
+  for ak=1,#GotDevice.Objects do
+    local av = GotDevice.Objects[ak]
+    Device.Objects[ak] = Object.Library.Copy(av, ObjectGive, HelperMatrices)
+  end
+  Device.FixedJoints = General.Library.DeepCopy(GotDevice.FixedJoints)
+  General.Library.UpdateDevice(Device)
+  General.Library.MergeLayers(Device)
   return Device
 end
 function GiveBack.Destroy(Device, Arguments)

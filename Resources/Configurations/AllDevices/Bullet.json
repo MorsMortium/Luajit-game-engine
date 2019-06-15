@@ -17,12 +17,12 @@
       {
         "Type": "Destroypara",
         "String": "return true",
-        "Doo": "Device",
+        "IfObject": false,
         "Active": false
       }, {
         "Type": "Destroypara",
         "String": "local Devices, i, k, h, General = ... if Devices then local Own, Other = Devices[i].Objects[k].Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 50 then return true else return false end end",
-        "Doo": "Device",
+        "IfObject": false,
         "Active": true
       } ]
   } ]

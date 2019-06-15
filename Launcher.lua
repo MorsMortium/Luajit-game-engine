@@ -178,10 +178,12 @@ local function Game()
 				LastScore = Score
 				print("Score: "..Score)
 			end
-			if Number % Niceness == 0 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
+			if Number % Niceness == 0 and
+				Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
 				Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
 			end
-			if Number % 1500 == 0 and Niceness ~= 1 and Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
+			if Number % 1500 == 0 and Niceness ~= 1 and
+				Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
 				Niceness = Niceness - 1
 				print("Niceness: "..Niceness)
 			end
@@ -210,9 +212,12 @@ Game()
 				LoadModule = false
 			end
 			SumTime = SumTime + Time
-			if 100 < SumTime  then
+			if SumTime > 100 then
 				SumTime = 0
-				--Data.AllDevices.Space.Devices[1].Objects[1].Powers[7].Active = true
+				Data.AllDevices.Space.Devices[1].Objects[1].Powers[7].Active = true
+				Data.AllDevices.Space.Devices[1].Objects[1].Powers[10].Active = true
+				Data.AllDevices.Space.Devices[1].Objects[1].Powers[11].Active = true
+				Data.AllDevices.Space.Devices[1].Objects[1].Powers[12].Active = true
 			end
 			CameraRender(CameraRenderGive)
 			WindowRender(Number, WindowRenderGive)

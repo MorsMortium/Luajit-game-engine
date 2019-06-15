@@ -11,6 +11,22 @@ function GiveBack.GoodTypesOfTable(Table, GoodType)
 	end
 	return false
 end
+function GiveBack.DeepCopy(Original, ffi)
+  local OriginalType = type(Original)
+  local Copy
+  if OriginalType == 'table' then
+    Copy = {}
+    for ak, av in next, Original, nil do
+      Copy[GiveBack.DeepCopy(ak, ffi)] = GiveBack.DeepCopy(av, ffi)
+    end
+    setmetatable(Copy, GiveBack.DeepCopy(getmetatable(Original), ffi))
+  elseif OriginalType == "cdata" then
+		Copy = ffi.Library.new(ffi.Library.typeof(Original), Original)
+	else -- number, string, boolean, etc
+    Copy = Original
+  end
+  return Copy
+end
 function GiveBack.IsVector3(Table)
 	if(type(Table) == "table" and (#Table == 3 or #Table == 4) and
     type(Table[1]) == "number" and type(Table[2]) == "number" and
@@ -98,6 +114,46 @@ function GiveBack.SameLayer(Layers1, Layers2)
   end
   return false
 end
+function GiveBack.InsertIfNotFound(Table, Value)
+	for ak=1,#Table do
+		if Table[ak] == Value then
+			return
+		end
+	end
+	Table[#Table + 1] = Value
+end
+function GiveBack.MergeLayers(Device)
+	for ak=1,#Device.Objects do
+		local av = Device.Objects[ak]
+		for bk=1,#av.PhysicsLayers do
+			local bv = av.PhysicsLayers[bk]
+			if bv == "AdminAll" then
+				Device.PhysicsLayers = {"AdminAll"}
+				return
+			end
+		end
+	end
+	for ak=1,#Device.Objects do
+		local av = Device.Objects[ak]
+		for bk=1,#av.PhysicsLayers do
+			local bv = av.PhysicsLayers[bk]
+			if bv == "All" then
+				Device.PhysicsLayers = {"All"}
+				return
+			end
+		end
+	end
+	Device.PhysicsLayers = {}
+	for ak=1,#Device.Objects do
+		local av = Device.Objects[ak]
+		for bk=1,#av.PhysicsLayers do
+			local bv = av.PhysicsLayers[bk]
+			if bv ~= "None" then
+				GiveBack.InsertIfNotFound(Device.PhysicsLayers, bv)
+			end
+		end
+	end
+end
 function GiveBack.VectorLength(a)
    return math.sqrt(a[1]*a[1] + a[2]*a[2] + a[3]*a[3])
 end
@@ -151,49 +207,45 @@ function GiveBack.CrossProduct(u, v)
           u[3] * v[1] - u[1] * v[3],
           u[1] * v[2] - u[2] * v[1]}
 end
-function GiveBack.RotationMatrix(lgsl, q, Center)
+function GiveBack.RotationMatrix(lgsl, q, Center, Matrix)
   local sqw, sqx, sqy, sqz = q[1]*q[1], q[2]*q[2], q[3]*q[3], q[4]*q[4]
-  local m00 = sqx - sqy - sqz + sqw --// since sqw + sqx + sqy + sqz =1
-  local m11 = -sqx + sqy - sqz + sqw
-  local m22 = -sqx - sqy + sqz + sqw
+	local m = {}
+  m[0] = sqx - sqy - sqz + sqw --// since sqw + sqx + sqy + sqz =1
+  m[5], m[10] = -sqx + sqy - sqz + sqw, -sqx - sqy + sqz + sqw
   local tmp1, tmp2 = q[2]*q[3], q[4]*q[1]
-  local m01, m10 = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
+  m[1], m[4] = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
   tmp1, tmp2 = q[2]*q[4], q[3]*q[1]
-  local m02, m20 = 2 * (tmp1 - tmp2), 2 * (tmp1 + tmp2)
+  m[2], m[8] = 2 * (tmp1 - tmp2), 2 * (tmp1 + tmp2)
   tmp1, tmp2 = q[3]*q[4], q[2]*q[1]
-  local m12, m21 = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
-  local a1, a2, a3
-	a1, a2, a3 = 0, 0, 0
+  m[6], m[9] = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
+  local a1, a2, a3 = 0, 0, 0
   if Center then
     a1, a2, a3 = Center[1], Center[2], Center[3]
 	end
-	local m03 = a1 - a1 * m00 - a2 * m01 - a3 * m02
-	local m13 = a2 - a1 * m10 - a2 * m11 - a3 * m12
-	local m23 = a3 - a1 * m20 - a2 * m21 - a3 * m22
-  return lgsl.Library.matrix.def{
-  {m00, m01, m02, m03},
-  {m10, m11, m12, m13},
-  {m20, m21, m22, m23},
-  {0, 0, 0, 1}}
+	m[3] = a1 - a1 * m[0] - a2 * m[1] - a3 * m[2]
+	m[7] = a2 - a1 * m[4] - a2 * m[5] - a3 * m[6]
+	m[11] = a3 - a1 * m[8] - a2 * m[9] - a3 * m[10]
+	m[12], m[13], m[14], m[15] = 0, 0, 0, 1
+	for ak=0,15 do
+		Matrix.data[ak] = m[ak]
+	end
 end
-function GiveBack.TranslationMatrix(lgsl, Translation)
-  return lgsl.Library.matrix.def{
-  {1, 0, 0, Translation[1]},
-  {0, 1, 0, Translation[2]},
-  {0, 0, 1, Translation[3]},
-  {0, 0, 0, 1}}
+function GiveBack.TranslationMatrix(lgsl, Translation, Matrix)
+	lgsl.Library.gsl.gsl_matrix_set_identity(Matrix)
+	Matrix.data[3], Matrix.data[7], Matrix.data[11] = Translation[1], Translation[2], Translation[3]
 end
-function GiveBack.ScaleMatrix(lgsl, Scale)
-  return lgsl.Library.matrix.def{
-  {Scale[1], 0, 0, 0},
-  {0, Scale[2], 0, 0},
-  {0, 0, Scale[3], 0},
-  {0, 0, 0, 1}}
+function GiveBack.ScaleMatrix(lgsl, Scale, Matrix)
+	lgsl.Library.gsl.gsl_matrix_set_zero(Matrix)
+	Matrix.data[0], Matrix.data[5], Matrix.data[10], Matrix.data[15] = Scale[1],
+	Scale[2], Scale[3], 1
 end
-function GiveBack.ModelMatrix(Object, lgsl)
-	Object.ModelMatrix = GiveBack.TranslationMatrix(lgsl, Object.Translation) *
-          GiveBack.RotationMatrix(lgsl, Object.Rotation) *
-          GiveBack.ScaleMatrix(lgsl, Object.Scale)
+function GiveBack.ModelMatrix(Object, lgsl, HelperMatrices)
+	GiveBack.ScaleMatrix(lgsl, Object.Scale, HelperMatrices[1])
+	GiveBack.RotationMatrix(lgsl, Object.Rotation, nil, HelperMatrices[2])
+	local gsl = lgsl.Library.gsl
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, HelperMatrices[1], HelperMatrices[2], 0, HelperMatrices[3])
+	GiveBack.TranslationMatrix(lgsl, Object.Translation, HelperMatrices[2])
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, HelperMatrices[2], HelperMatrices[3], 0, HelperMatrices[1])
 end
 function GiveBack.Normalise(a)
 	local Length = GiveBack.VectorLength(a)
@@ -201,16 +253,32 @@ function GiveBack.Normalise(a)
 end
 function GiveBack.CreateCollisionSphere(Object)
 	local Radius = 0
-	for f=0,3 do
+	for ak=0,3 do
 		local NewRadius = GiveBack.VectorLength({
-		Object.Transformated.data[f * 4],
-		Object.Transformated.data[f * 4 + 1],
-		Object.Transformated.data[f * 4 + 2]})
+		Object.Transformated.data[ak * 4],
+		Object.Transformated.data[ak * 4 + 1],
+		Object.Transformated.data[ak * 4 + 2]})
 		if Radius < NewRadius then
 			Radius = NewRadius
 		end
 	end
 	Object.Radius = Radius
+end
+function GiveBack.CreateCollisionSphereForDevice(Device)
+	local Radius = 0
+	for ak=1,#Device.Objects do
+		local av = Device.Objects[ak]
+		for bk=0,3 do
+			local NewRadius = GiveBack.VectorLength(GiveBack.PointAToB(Device.Translation, {
+			av.Transformated.data[bk * 4],
+			av.Transformated.data[bk * 4 + 1],
+			av.Transformated.data[bk * 4 + 2]}))
+			if Radius < NewRadius then
+				Radius = NewRadius
+			end
+		end
+	end
+	Device.Radius = Radius
 end
 function GiveBack.VectorAddition(a, b)
   return {a[1] + b[1], a[2] + b[2], a[3] + b[3]}
@@ -218,14 +286,25 @@ end
 function GiveBack.VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 end
-function GiveBack.UpdateObject(Object, IfSphere, lgsl)
+function GiveBack.UpdateObject(Object, IfSphere, lgsl, HelperMatrices)
 	local gsl = lgsl.Library.gsl
-	GiveBack.ModelMatrix(Object, lgsl)
-	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, Object.ModelMatrix, Object.Points, 0, Object.Transformated)
-	gsl.gsl_matrix_transpose(Object.Transformated)
+	GiveBack.ModelMatrix(Object, lgsl, HelperMatrices)
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, Object.Points, HelperMatrices[1], 0, Object.Transformated)
 	if IfSphere then
 		GiveBack.CreateCollisionSphere(Object)
 	end
+end
+function GiveBack.UpdateDevice(Device)
+	local NewTranslation = {0, 0, 0}
+	for ak=1,#Device.Objects do
+		local av = Device.Objects[ak]
+		NewTranslation[1] = NewTranslation[1] + av.Translation[1]
+		NewTranslation[2] = NewTranslation[2] + av.Translation[2]
+		NewTranslation[3] = NewTranslation[3] + av.Translation[3]
+	end
+	NewTranslation = GiveBack.VectorNumberMult(NewTranslation, 1 / #Device.Objects)
+	Device.Translation = NewTranslation
+	GiveBack.CreateCollisionSphereForDevice(Device)
 end
 function GiveBack.ConcatenateCArrays(CArrays, ArrayLength, Type, ffi)
   local ArraySize = ffi.Library.sizeof(ffi.Library.typeof(Type))

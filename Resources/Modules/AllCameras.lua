@@ -1,4 +1,24 @@
 local GiveBack = {}
+function GiveBack.Add(CameraData, Arguments)
+  local Space, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1], Arguments[4], Arguments[5], Arguments[6], Arguments[8],
+  Arguments[16]
+  local NewCamera = Camera.Library.Create(CameraData, CameraGive)
+  if NewCamera.Type == "OpenGL" then
+    NewCamera.Texture = ffi.Library.new("GLuint[1]")
+    NewCamera.DBO = ffi.Library.new("GLuint[1]")
+    OpenGL.Library.glGenTextures(1, NewCamera.Texture);
+    OpenGL.Library.glGenRenderbuffers(1, NewCamera.DBO)
+    OpenGL.Library.glBindTexture(OpenGL.Library.GL_TEXTURE_2D, NewCamera.Texture[0]);
+    OpenGL.Library.glTexImage2D(OpenGL.Library.GL_TEXTURE_2D, 0, OpenGL.Library.GL_RGB, NewCamera.VerticalResolution, NewCamera.HorizontalResolution, 0, OpenGL.Library.GL_RGB, OpenGL.Library.GL_UNSIGNED_BYTE, nil)
+    OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, NewCamera.DBO[0])
+    OpenGL.Library.glRenderbufferStorage(OpenGL.Library.GL_RENDERBUFFER, OpenGL.Library.GL_DEPTH_COMPONENT, NewCamera.VerticalResolution, NewCamera.HorizontalResolution)
+    OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, 0)
+    Space.OpenGLCameras[#Space.OpenGLCameras + 1] = NewCamera
+  elseif NewCamera.Type == "Software" then
+    NewCamera.Surface = SDL.Library.createRGBSurface(0, NewCamera.HorizontalResolution, NewCamera.VerticalResolution, 32, 0, 0, 0, 0)
+    Space.SoftwareCameras[#Space.SoftwareCameras + 1] = NewCamera
+  end
+end
 function GiveBack.Start(Arguments)
   local Space, JSON, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1],
   Arguments[2], Arguments[4], Arguments[5], Arguments[6], Arguments[8],
@@ -20,28 +40,11 @@ function GiveBack.Start(Arguments)
   Space.OpenGLCameras = {}
   Space.SoftwareCameras = {}
   if type(Cameras) ~= "table" then
-    local CameraObject = Camera.Library.Create(nil, CameraGive)
-    CameraObject.Surface = SDL.Library.createRGBSurface(0, CameraObject.HorizontalResolution, CameraObject.VerticalResolution, 32, 0, 0, 0, 0)
-    Space.SoftwareCameras[#Space.SoftwareCameras + 1] = CameraObject
+    GiveBack.Add(nil, Arguments)
   else
     for ak=1,#Cameras do
       local av = Cameras[ak]
-      local CameraObject = Camera.Library.Create(av, CameraGive)
-      if CameraObject.Type == "OpenGL" then
-        CameraObject.Texture = ffi.Library.new("GLuint[1]")
-        CameraObject.DBO = ffi.Library.new("GLuint[1]")
-        OpenGL.Library.glGenTextures(1, CameraObject.Texture);
-        OpenGL.Library.glGenRenderbuffers(1, CameraObject.DBO)
-        OpenGL.Library.glBindTexture(OpenGL.Library.GL_TEXTURE_2D, CameraObject.Texture[0]);
-        OpenGL.Library.glTexImage2D(OpenGL.Library.GL_TEXTURE_2D, 0, OpenGL.Library.GL_RGB, CameraObject.VerticalResolution, CameraObject.HorizontalResolution, 0, OpenGL.Library.GL_RGB, OpenGL.Library.GL_UNSIGNED_BYTE, nil)
-        OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, CameraObject.DBO[0])
-        OpenGL.Library.glRenderbufferStorage(OpenGL.Library.GL_RENDERBUFFER, OpenGL.Library.GL_DEPTH_COMPONENT, CameraObject.VerticalResolution, CameraObject.HorizontalResolution)
-        OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, 0)
-        Space.OpenGLCameras[#Space.OpenGLCameras + 1] = CameraObject
-      elseif CameraObject.Type == "Software" then
-        CameraObject.Surface = SDL.Library.createRGBSurface(0, CameraObject.HorizontalResolution, CameraObject.VerticalResolution, 32, 0, 0, 0, 0)
-        Space.SoftwareCameras[#Space.SoftwareCameras + 1] = CameraObject
-      end
+      GiveBack.Add(av, Arguments)
     end
   end
 	print("AllCameras Started")
@@ -59,26 +62,6 @@ function GiveBack.Stop(Arguments)
     Space[ak] = nil
   end
 	print("AllCameras Stopped")
-end
-function GiveBack.Add(Object, Arguments)
-  local Space, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1], Arguments[4], Arguments[5], Arguments[6], Arguments[8],
-  Arguments[16]
-  local CameraObject = Camera.Library.Create(Object, CameraGive)
-  if CameraObject.Type == "OpenGL" then
-    CameraObject.Texture = ffi.Library.new("GLuint[1]")
-    CameraObject.DBO = ffi.Library.new("GLuint[1]")
-    OpenGL.Library.glGenTextures(1, CameraObject.Texture);
-    OpenGL.Library.glGenRenderbuffers(1, CameraObject.DBO)
-    OpenGL.Library.glBindTexture(OpenGL.Library.GL_TEXTURE_2D, CameraObject.Texture[0]);
-    OpenGL.Library.glTexImage2D(OpenGL.Library.GL_TEXTURE_2D, 0, OpenGL.Library.GL_RGB, CameraObject.VerticalResolution, CameraObject.HorizontalResolution, 0, OpenGL.Library.GL_RGB, OpenGL.Library.GL_UNSIGNED_BYTE, nil)
-    OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, CameraObject.DBO[0])
-    OpenGL.Library.glRenderbufferStorage(OpenGL.Library.GL_RENDERBUFFER, OpenGL.Library.GL_DEPTH_COMPONENT, CameraObject.VerticalResolution, CameraObject.HorizontalResolution)
-    OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, 0)
-    Space.OpenGLCameras[#Space.OpenGLCameras + 1] = CameraObject
-  elseif CameraObject.Type == "Software" then
-    CameraObject.Surface = SDL.Library.createRGBSurface(0, CameraObject.HorizontalResolution, CameraObject.VerticalResolution, 32, 0, 0, 0, 0)
-    Space.SoftwareCameras[#Space.SoftwareCameras + 1] = CameraObject
-  end
 end
 function GiveBack.Remove(Number, Type, Arguments)
   local Space, OpenGL, SDL = Arguments[1], Arguments[8], Arguments[16]

@@ -1,15 +1,12 @@
 reduce data conversion
-collision reaction
+collision reaction/functions
 max number of devices? (elements ffi new)
--collision functions
 -no collision check if no movement
 -Work Out deprecation
 -check SDL and OpenGL Init variables before using functions (or start module)
 -finish TODOs
--WindowRender Render.ChangeFrom, Render.ChangeTo
 -error messages where needed (but no exit if not needed)
 performance: Pass Objects only once and Delete when deleted, send when new
-             checking everything, but only once (not runtime?)
              multicore Physics
              multicore rendering?
 looks: documentation

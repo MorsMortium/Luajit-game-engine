@@ -10,6 +10,7 @@ local function Joint(FixedJoints, k1, k2)
 end
 function GiveBack.Start(Arguments)
   local Space, lgsl = Arguments[1], Arguments[8]
+  Space.BroadPhaseAxes = {{}, {}, {}}
   local gsl = lgsl.Library.gsl
   Space.AfterJointRotationSpeedMatrix1 = gsl.gsl_matrix_alloc(4, 4)
   Space.AfterJointRotationSpeedMatrix2 = gsl.gsl_matrix_alloc(4, 4)
@@ -37,6 +38,7 @@ function GiveBack.Physics(Time, Arguments)
   local RotationMatrix = General.Library.RotationMatrix
   for ak=1,#AllDevices.Space.Devices do
     local av = AllDevices.Space.Devices[ak]
+    local UpdateDevice = false
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
       if not bv.Fixed then
@@ -69,10 +71,14 @@ function GiveBack.Physics(Time, Arguments)
           bv.MMcalc = true
         end
         if bv.MMcalc then
-          General.Library.UpdateObject(bv, false, lgsl)
+          General.Library.UpdateObject(bv, false, lgsl, AllDevices.Space.HelperMatrices)
           bv.MMcalc = false
+          UpdateDevice = true
         end
       end
+    end
+    if UpdateDevice then
+      General.Library.UpdateDevice(av)
     end
   end
   for ak=1,#AllDevices.Space.Devices do
@@ -82,14 +88,11 @@ function GiveBack.Physics(Time, Arguments)
       local c1 = av.Objects[bv[1]].Translation
       local c2 = av.Objects[bv[3]].Translation
 
-      local JointRotationSpeedMatrix1 = RotationMatrix(lgsl, av.Objects[bv[1]].JointRotationSpeed, c1)
-      local JointRotationSpeedMatrix2 = RotationMatrix(lgsl, av.Objects[bv[3]].JointRotationSpeed, c2)
+      RotationMatrix(lgsl, av.Objects[bv[1]].JointRotationSpeed, c1, AllDevices.Space.HelperMatrices[1])
+      RotationMatrix(lgsl, av.Objects[bv[3]].JointRotationSpeed, c2, AllDevices.Space.HelperMatrices[2])
 
-      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, JointRotationSpeedMatrix1, av.Objects[bv[1]].Transformated, 0, Space.AfterJointRotationSpeedMatrix1)
-      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, JointRotationSpeedMatrix2, av.Objects[bv[3]].Transformated, 0, Space.AfterJointRotationSpeedMatrix2)
-
-      gsl.gsl_matrix_transpose(Space.AfterJointRotationSpeedMatrix1)
-      gsl.gsl_matrix_transpose(Space.AfterJointRotationSpeedMatrix2)
+      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, av.Objects[bv[1]].Transformated, AllDevices.Space.HelperMatrices[1], 0, Space.AfterJointRotationSpeedMatrix1)
+      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, av.Objects[bv[3]].Transformated, AllDevices.Space.HelperMatrices[2], 0, Space.AfterJointRotationSpeedMatrix2)
 
       local p1 = {Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4], Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4 + 1], Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4 + 2]}
       local p2 = {Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4], Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4 + 1], Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4 + 2]}
@@ -102,53 +105,17 @@ function GiveBack.Physics(Time, Arguments)
       local FirstBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter1ToPoint1)
       local SecondBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter2ToPoint2)
 
-      local SpeedSmaller = 80
+      local SpeedSmaller = 80000000
       av.Objects[bv[1]].JointSpeed = VectorAddition(av.Objects[bv[1]].JointSpeed, VectorNumberMult(MoveVector, SpeedSmaller))
       av.Objects[bv[3]].JointSpeed = General.Library.VectorSubtraction(av.Objects[bv[3]].JointSpeed, VectorNumberMult(MoveVector, SpeedSmaller))
-      local AngleSmaller = 80
+      local AngleSmaller = 80000000
       av.Objects[bv[1]].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[1]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(FirstBodyAxis, General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
       av.Objects[bv[3]].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[3]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(SecondBodyAxis, -General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
     end
   end
-  for ak=1,#AllDevices.Space.Devices do
-    local av = AllDevices.Space.Devices[ak]
-    for bk=1,#av.Objects do
-      local bv = av.Objects[bk]
-      for ck=ak,#AllDevices.Space.Devices do
-        local cv = AllDevices.Space.Devices[ck]
-        if av.Name == "Hand" and cv.Name == "Hand" then break end
-        for dk=1,#cv.Objects do
-          local dv = cv.Objects[dk]
-          local mtv = {}
-          if (ak ~= ck or bk ~= dk)
-          --[[and (not (ak == ck and Joint(av.FixedJoints, bk, dk)))--]] and
-          CollisionDetection.Library.CollisionSphere(bv, dv, General) and
-          General.Library.SameLayer(bv.PhysicsLayers, dv.PhysicsLayers) and
-          CollisionDetection.Library.GJK(bv, dv, mtv, CollisionDetectionGive) then
-            ---[[
-            if (av.Name == "Bullet" and cv.Name == "Asteroid") or
-            (cv.Name == "Bullet" and av.Name == "Asteroid") or
-            (av.Name == "SpaceShip" and cv.Name == "Asteroid") or
-            (cv.Name == "SpaceShip" and av.Name == "Asteroid") or
-            (av.Name == "Asteroid" and cv.Name == "Asteroid") then
-              dv.Powers[1].Active = true
-              bv.Powers[1].Active = true
-              if (av.Name == "Bullet" and cv.Name == "Asteroid") or
-              (cv.Name == "Bullet" and av.Name == "Asteroid") then
-                Score = Score + 1
-              end
-            end
-            --]]
-            CollisionResponse.Library.ResponseWithoutTorque(bv, dv, mtv, CollisionResponseGive)
-            --TODO
-            --print(ak.." Device "..bk.." Object collided with "..ck.." Device "..dk.." Object")
-          else
-            --print(ak.." Device "..bk.." Object did not collided with "..ck.." Device "..dk.." Object")
-          end
-        end
-      end
-    end
-  end
+  AllPowers.Library.DataCheckNewDevicesPowers(AllPowersGive)
+  CollisionDetection.Library.CheckForCollisions(AllDevices, Space.BroadPhaseAxes, CollisionDetectionGive)
+  AllDevices.Library.ClearDeviceChanges(AllDevicesGive)
   AllPowers.Library.UseAllPowers(Time, AllPowersGive)
 end
 

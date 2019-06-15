@@ -1,1 +1,4 @@
-[ "SpaceShip" ]
+{
+  "DeviceTypes": [ "Default", "SpaceShip", "One", "Bullet", "Asteroid", "LongTest", "Two", "Box", "CollisionTest", "Face", "GravityTest", "GravityTest2", "Point", "Three", "ThrusterTest" ],
+  "Devices": [ "SpaceShip" ]
+}
