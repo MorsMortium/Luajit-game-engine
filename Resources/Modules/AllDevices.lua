@@ -6,8 +6,6 @@ function GiveBack.AddObject(DeviceID, Object, Arguments)
 		DeviceIndex = DeviceID
 	end
 	Space.Devices[DeviceIndex].Objects[#Space.Devices[DeviceIndex].Objects + 1] = Object.Library.Create(Object, ObjectGive, Space.HelperMatrices)
-	General.Library.UpdateDevice(Space.Devices[DeviceIndex])
-	General.Library.MergeLayers(Space.Devices[DeviceIndex])
 end
 function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	local Space, General, Device, DeviceGive, lgsl = Arguments[1], Arguments[4],
@@ -24,8 +22,6 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	    local av = NewDevice.Objects[ak]
 	    General.Library.UpdateObject(av, true, lgsl, Space.HelperMatrices)
 	  end
-		General.Library.UpdateDevice(NewDevice)
-		General.Library.MergeLayers(NewDevice)
 	end
 	Space.Devices[#Space.Devices + 1] = NewDevice
 	Space.CreatedDevices[#Space.CreatedDevices + 1] = NewDevice
@@ -34,14 +30,14 @@ function GiveBack.Start(Arguments)
 	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive, lgsl =
 	Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7],
 	Arguments[8], Arguments[9], Arguments[10]
+	local gsl = lgsl.Library.gsl
 	Space.HelperMatrices = {}
 	for ak=1,3 do
-		Space.HelperMatrices[ak] = lgsl.Library.gsl.gsl_matrix_alloc(4, 4)
+		Space.HelperMatrices[ak] = gsl.gsl_matrix_alloc(4, 4)
 	end
 	Space.Devices = {}
 	Space.DeviceTypes = {}
 	Space.CreatedDevices = {}
-	Space.DestroyedDevices = {}
 	local AllDevices = JSON.Library:DecodeFromFile("AllDevices.json")
 	if type(AllDevices) == "table" and General.Library.GoodTypesOfTable(AllDevices.DeviceTypes, "string") then
 		for ak=1,#AllDevices.DeviceTypes do
@@ -80,8 +76,6 @@ function GiveBack.RemoveObject(DeviceID, ObjectID, Arguments)
 	end
 	Object.Library.Destroy(Space.Devices[DeviceIndex].Objects[ObjectIndex], ObjectGive)
 	table.remove(Space.Devices[DeviceIndex].Objects, ObjectIndex)
-	General.Library.UpdateDevice(Space.Devices[DeviceIndex])
-	General.Library.MergeLayers(Space.Devices[DeviceIndex])
 end
 function GiveBack.RemoveDevice(DeviceID, Arguments)
 	local Space, Device, DeviceGive = Arguments[1], Arguments[6], Arguments[7]
@@ -90,13 +84,13 @@ function GiveBack.RemoveDevice(DeviceID, Arguments)
 		DeviceIndex = DeviceID
 	end
 	Device.Library.Destroy(Space.Devices[DeviceIndex], DeviceGive)
-	Space.DestroyedDevices[#Space.DestroyedDevices + 1] = Space.Devices[DeviceIndex]
 	table.remove(Space.Devices, DeviceIndex)
 end
 function GiveBack.Stop(Arguments)
 	local Space, Device, DeviceGive, lgsl = Arguments[1], Arguments[6], Arguments[7], Arguments[10]
+	local gsl = lgsl.Library.gsl
 	for ak=1,3 do
-		lgsl.Library.gsl.gsl_matrix_free(Space.HelperMatrices[ak])
+		gsl.gsl_matrix_free(Space.HelperMatrices[ak])
 	end
 	for ak=1,#Space.Devices do
 		local av = Space.Devices[ak]
@@ -110,7 +104,6 @@ end
 function GiveBack.ClearDeviceChanges(Arguments)
 	local Space = Arguments[1]
 	Space.CreatedDevices = {}
-	Space.DestroyedDevices = {}
 end
 GiveBack.Requirements = {"JSON", "General", "Device", "Object", "lgsl"}
 return GiveBack

@@ -1,8 +1,10 @@
 local GiveBack = {}
-function GiveBack.Create(GotObject, Arguments, HelperMatrices)
+function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
 	local General, ffi, ObjectRender, ObjectRenderGive, lgsl = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7]
+	local gsl = lgsl.Library.gsl
 	local Object = {}
-	Object.Transformated = lgsl.Library.gsl.gsl_matrix_alloc(4, 4)
+	Object.Parent = Parent
+	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
 	-- The Translation in the world, it will be the Object's center of Mass too, Default: center
 	Object.Translation = {0, 0, 0}
 	-- The Direction of the shape, it will come from the Translation, and will go to the Angle of the last three lines, Default: Up
@@ -14,8 +16,8 @@ function GiveBack.Create(GotObject, Arguments, HelperMatrices)
 	Object.JointSpeed = {0, 0, 0}
 	Object.JointRotationSpeed = {1, 0, 0, 0}
 	-- The coordinates of each Point, specifies the shape of the tetrahedron, Default shape: All Point is perpendicular to the first
-	Object.Points = lgsl.Library.gsl.gsl_matrix_alloc(4, 4)
-	lgsl.Library.gsl.gsl_matrix_set_identity(Object.Points)
+	Object.Points = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_set_identity(Object.Points)
 	Object.Points.data[3], Object.Points.data[7], Object.Points.data[11] = 1, 1, 1
 	-- Defines, which of the Cameras can see it, Default: All
 	Object.VisualLayers = {"All"}
@@ -103,10 +105,12 @@ function GiveBack.Create(GotObject, Arguments, HelperMatrices)
 	General.Library.UpdateObject(Object, true, lgsl, HelperMatrices)
 	return Object
 end
-function GiveBack.Copy(GotObject, Arguments, HelperMatrices)
+function GiveBack.Copy(GotObject, Parent, Arguments, HelperMatrices)
 	local General, ffi, ObjectRender, ObjectRenderGive, lgsl = Arguments[1], Arguments[3], Arguments[5], Arguments[6], Arguments[7]
+	local gsl = lgsl.Library.gsl
 	local Object = {}
-	Object.Transformated = lgsl.Library.gsl.gsl_matrix_alloc(4, 4)
+	Object.Parent = Parent
+	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
 	Object.Translation = {GotObject.Translation[1], GotObject.Translation[2], GotObject.Translation[3]}
 	Object.Rotation = {GotObject.Rotation[1],
 										GotObject.Rotation[2],
@@ -121,8 +125,8 @@ function GiveBack.Copy(GotObject, Arguments, HelperMatrices)
 															GotObject.JointRotationSpeed[2],
 															GotObject.JointRotationSpeed[3],
 															GotObject.JointRotationSpeed[4]}
-	Object.Points = lgsl.Library.gsl.gsl_matrix_alloc(4, 4)
-	lgsl.Library.gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
+	Object.Points = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
 	Object.VisualLayers = {}
 	for ak=1,#GotObject.VisualLayers do
 		Object.VisualLayers[ak] = GotObject.VisualLayers[ak]
@@ -145,8 +149,9 @@ function GiveBack.Copy(GotObject, Arguments, HelperMatrices)
 end
 function GiveBack.Destroy(Object, Arguments)
 	local lgsl = Arguments[7]
-	lgsl.Library.gsl.gsl_matrix_free(Object.Transformated)
-	lgsl.Library.gsl.gsl_matrix_free(Object.Points)
+	local gsl = lgsl.Library.gsl
+	gsl.gsl_matrix_free(Object.Transformated)
+	gsl.gsl_matrix_free(Object.Points)
 	for ak,av in pairs(Object) do
 		Object[ak] = nil
 	end

@@ -13,18 +13,20 @@ local function ProjectionMatrix(FieldOfView, Aspect, MinimumDistance, MaximumDis
 end
 local function ViewMatrix(Translation, Direction, UpVector, lgsl, General)
   local gsl = lgsl.Library.gsl
-  local Z = General.Library.VectorSubtraction(Translation, Direction)
-  Z = General.Library.Normalise(Z)
-  local X = General.Library.CrossProduct(UpVector, Z)
-  X = General.Library.Normalise(X)
-  local Y = General.Library.CrossProduct(Z, X)
+  local DotProduct = General.Library.DotProduct
+  local CrossProduct = General.Library.CrossProduct
+  local Normalise = General.Library.Normalise
+  local VectorSubtraction =  General.Library.VectorSubtraction
+  local Z = Normalise(VectorSubtraction(Translation, Direction))
+  local X = Normalise(CrossProduct(UpVector, Z))
+  local Y = CrossProduct(Z, X)
   local ResultMatrix = lgsl.Library.matrix.def{
     {X[1], Y[1], Z[1], 0},
     {X[2], Y[2], Z[2], 0},
     {X[3], Y[3], Z[3], 0},
-    {-General.Library.DotProduct(X, Translation),
-    -General.Library.DotProduct(Y, Translation),
-    -General.Library.DotProduct(Z, Translation), 1}}
+    {-DotProduct(X, Translation),
+    -DotProduct(Y, Translation),
+    -DotProduct(Z, Translation), 1}}
   gsl.gsl_matrix_transpose(ResultMatrix)
 	return ResultMatrix
 end

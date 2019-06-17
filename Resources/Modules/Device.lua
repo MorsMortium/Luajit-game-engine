@@ -9,7 +9,7 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
     if type(GotDevice.Objects) == "table" then
       for ak=1,#GotDevice.Objects do
         local av = GotDevice.Objects[ak]
-        Device.Objects[ak] = Object.Library.Create(av, ObjectGive, HelperMatrices)
+        Device.Objects[ak] = Object.Library.Create(av, Device, ObjectGive, HelperMatrices)
       end
       if General.Library.GoodTypesOfTable(GotDevice.FixedJoints, "table") then
         for ak=1,#GotDevice.FixedJoints do
@@ -22,16 +22,14 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
         end
       end
     else
-      Device.Objects[1] = Object.Library.Create(nil, ObjectGive, HelperMatrices)
+      Device.Objects[1] = Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
     end
     if GotDevice.Name then
       Device.Name = GotDevice.Name
     end
   else
-    Device.Objects[1] = Object.Library.Create(nil, ObjectGive, HelperMatrices)
+    Device.Objects[1] = Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
   end
-  General.Library.UpdateDevice(Device)
-  General.Library.MergeLayers(Device)
   return Device
 end
 function GiveBack.Copy(GotDevice, Arguments, HelperMatrices)
@@ -41,11 +39,9 @@ function GiveBack.Copy(GotDevice, Arguments, HelperMatrices)
   Device.Name = GotDevice.Name
   for ak=1,#GotDevice.Objects do
     local av = GotDevice.Objects[ak]
-    Device.Objects[ak] = Object.Library.Copy(av, ObjectGive, HelperMatrices)
+    Device.Objects[ak] = Object.Library.Copy(av, Device, ObjectGive, HelperMatrices)
   end
   Device.FixedJoints = General.Library.DeepCopy(GotDevice.FixedJoints)
-  General.Library.UpdateDevice(Device)
-  General.Library.MergeLayers(Device)
   return Device
 end
 function GiveBack.Destroy(Device, Arguments)
@@ -54,9 +50,9 @@ function GiveBack.Destroy(Device, Arguments)
     local av = Device.Objects[ak]
     Object.Library.Destroy(av, ObjectGive)
   end
-  for ak,av in pairs(Device) do
-    Device[ak] = nil
-  end
+  --for ak,av in pairs(Device) do
+  --  Device[ak] = nil
+  --end
 end
 GiveBack.Requirements = {"Object", "General"}
 return GiveBack

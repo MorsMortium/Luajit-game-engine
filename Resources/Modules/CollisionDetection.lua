@@ -355,45 +355,35 @@ function GiveBack.CollisionSphere(FirstObject, SecondObject, General, IfEquals)
   end
 end
 local function SortX(Object1, Object2)
-  if Object1.Translation[1] - Object1.Radius < Object2.Translation[1] - Object2.Radius then
-    return true
-  end
+  if Object1.Min[1] < Object2.Min[1] then return true end
 end
 local function SortY(Object1, Object2)
-  if Object1.Translation[2] - Object1.Radius < Object2.Translation[2] - Object2.Radius then
-    return true
-  end
+  if Object1.Min[2] < Object2.Min[2] then return true end
 end
 local function SortZ(Object1, Object2)
-  if Object1.Translation[3] - Object1.Radius < Object2.Translation[3] - Object2.Radius then
-    return true
-  end
-end
-local function SortByNumberOfElements(List1, List2)
-  if #List1 < #List2 then
-    return true
-  end
+  if Object1.Min[3] < Object2.Min[3] then return true end
 end
 function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
   local General, CollisionResponse, CollisionResponseGive = Arguments[1],
-    Arguments[3], Arguments[4]
+  Arguments[3], Arguments[4]
+  local SameLayer = General.Library.SameLayer
+  local ResponseWithoutTorque = CollisionResponse.Library.ResponseWithoutTorque
   for ak=1,#AllDevices.Space.CreatedDevices do
     local av = AllDevices.Space.CreatedDevices[ak]
-    for bk=1,3 do
-      local bv = BroadPhaseAxes[bk]
-      bv[#bv + 1] = av
+    for bk=1,#av.Objects do
+      local bv = av.Objects[bk]
+      for ck=1,3 do
+        local cv = BroadPhaseAxes[ck]
+        cv[#cv + 1] = bv
+      end
     end
   end
-  for ak=1,#AllDevices.Space.DestroyedDevices do
-    local av = AllDevices.Space.DestroyedDevices[ak]
-    for bk=1,3 do
-      local bv = BroadPhaseAxes[bk]
-      for ck=1,#bv do
-        local cv = bv[ck]
-        if cv == av then
-          table.remove(bv, ck)
-        end
-      end
+  for ak=1,3 do
+    local av = BroadPhaseAxes[ak]
+    local bk = 1
+    while bk <= #av do
+      local bv = av[bk]
+      if next(bv) == nil then table.remove(av, bk) else bk = bk + 1 end
     end
   end
   table.sort(BroadPhaseAxes[1], SortX)
@@ -401,31 +391,25 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
   table.sort(BroadPhaseAxes[3], SortZ)
   local PossibleCollisions = {{}, {}, {}}
   for ak=1,3 do
-    local ActiveList = {}
     local av = BroadPhaseAxes[ak]
-    for bk=1,#av do
+    local av2 = PossibleCollisions[ak]
+    local ActiveList = {av[1]}
+    for bk=2,#av do
       local bv = av[bk]
       local ck = 1
     	while ck <= #ActiveList do
     		local cv = ActiveList[ck]
-    		local Exit = false
-        if cv.Translation[ak] + cv.Radius < bv.Translation[ak] - bv.Radius then
+        if cv.Max[ak] < bv.Min[ak] then
           table.remove(ActiveList, ck)
-          Exit = true
         else
-          if PossibleCollisions[ak][bv] then
-            PossibleCollisions[ak][bv][cv] = true
-          else
-            PossibleCollisions[ak][bv] = {}
-            PossibleCollisions[ak][bv][cv] = true
-          end
+          if av2[bv] == nil then av2[bv] = {} end
+          av2[bv][cv] = true
+          ck = ck + 1
         end
-    		if not Exit then ck = ck + 1 end
     	end
       ActiveList[#ActiveList + 1] = bv
     end
   end
-  table.sort(PossibleCollisions, SortByNumberOfElements)
   local RealCollisions = {}
   for ak,av in pairs(PossibleCollisions[1]) do
     for bk,bv in pairs(av) do
@@ -437,39 +421,28 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
   end
   for ak=1,#RealCollisions do
     local av = RealCollisions[ak]
-    if General.Library.SameLayer(av[1].PhysicsLayers, av[2].PhysicsLayers) then
-      for ck=1,#av[1].Objects do
-        local cv = av[1].Objects[ck]
-        for dk=1,#av[2].Objects do
-          local dv = av[2].Objects[dk]
-          local mtv = {}
-          if (ak ~= bk or ck ~= dk)
-          --[[and (not (ak == bk and Joint(av.FixedJoints, ck, dk)))--]] and
-          GiveBack.CollisionSphere(cv, dv, General) and
-          General.Library.SameLayer(cv.PhysicsLayers, dv.PhysicsLayers) and
-          GiveBack.GJK(cv, dv, mtv, Arguments) then
-            ---[[
-            if (av[1].Name == "Bullet" and av[2].Name == "Asteroid") or
-            (av[2].Name == "Bullet" and av[1].Name == "Asteroid") or
-            (av[1].Name == "SpaceShip" and av[2].Name == "Asteroid") or
-            (av[2].Name == "SpaceShip" and av[1].Name == "Asteroid") or
-            (av[1].Name == "Asteroid" and av[2].Name == "Asteroid") then
-              dv.Powers[1].Active = true
-              cv.Powers[1].Active = true
-              if (av[1].Name == "Bullet" and av[2].Name == "Asteroid") or
-              (av[2].Name == "Bullet" and av[1].Name == "Asteroid") then
-                Score = Score + 1
-              end
-            end
-            --]]
-            CollisionResponse.Library.ResponseWithoutTorque(cv, dv, mtv, CollisionResponseGive)
-            --TODO
-            --print(ak.." Device "..ck.." Object collided with "..bk.." Device "..dk.." Object")
-          else
-            --print(ak.." Device "..ck.." Object did not collided with "..bk.." Device "..dk.." Object")
-          end
+    local mtv = {}
+    if SameLayer(av[1].PhysicsLayers, av[2].PhysicsLayers) and
+    GiveBack.GJK(av[1], av[2], mtv, Arguments) then
+    ---[[
+      if (av[1].Parent.Name == "Bullet" and av[2].Parent.Name == "Asteroid") or
+      (av[2].Parent.Name == "Bullet" and av[1].Parent.Name == "Asteroid") or
+      (av[1].Parent.Name == "SpaceShip" and av[2].Parent.Name == "Asteroid") or
+      (av[2].Parent.Name == "SpaceShip" and av[1].Parent.Name == "Asteroid") or
+      (av[1].Parent.Name == "Asteroid" and av[2].Parent.Name == "Asteroid") then
+        av[2].Powers[1].Active = true
+        av[1].Powers[1].Active = true
+        if (av[1].Parent.Name == "Bullet" and av[2].Parent.Name == "Asteroid") or
+        (av[2].Parent.Name == "Bullet" and av[1].Parent.Name == "Asteroid") then
+          Score = Score + 1
         end
       end
+    --]]
+      ResponseWithoutTorque(av[1], av[2], mtv, CollisionResponseGive)
+      --TODO
+      --print(ak.." Device "..ck.." Object collided with "..bk.." Device "..dk.." Object")
+    else
+      --print(ak.." Device "..ck.." Object did not collided with "..bk.." Device "..dk.." Object")
     end
   end
 end

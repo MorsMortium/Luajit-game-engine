@@ -36,9 +36,9 @@ function GiveBack.Physics(Time, Arguments)
   local VectorNumberMult = General.Library.VectorNumberMult
   local QuaternionMultiplication = General.Library.QuaternionMultiplication
   local RotationMatrix = General.Library.RotationMatrix
+  local EulerToQuaternion = General.Library.EulerToQuaternion
   for ak=1,#AllDevices.Space.Devices do
     local av = AllDevices.Space.Devices[ak]
-    local UpdateDevice = false
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
       if not bv.Fixed then
@@ -52,7 +52,7 @@ function GiveBack.Physics(Time, Arguments)
         bv.RotationSpeed[2] ~= 0 or
         bv.RotationSpeed[3] ~= 0 then
           bv.Rotation = QuaternionMultiplication(bv.Rotation,
-          General.Library.EulerToQuaternion(VectorNumberMult(bv.RotationSpeed, Time)))
+          EulerToQuaternion(VectorNumberMult(bv.RotationSpeed, Time)))
           bv.MMcalc = true
         end
         if bv.JointSpeed[1] ~= 0 or
@@ -73,12 +73,8 @@ function GiveBack.Physics(Time, Arguments)
         if bv.MMcalc then
           General.Library.UpdateObject(bv, false, lgsl, AllDevices.Space.HelperMatrices)
           bv.MMcalc = false
-          UpdateDevice = true
         end
       end
-    end
-    if UpdateDevice then
-      General.Library.UpdateDevice(av)
     end
   end
   for ak=1,#AllDevices.Space.Devices do
