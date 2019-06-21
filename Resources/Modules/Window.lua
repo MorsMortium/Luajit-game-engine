@@ -43,7 +43,7 @@ function GiveBack.Create(GotWindow, Arguments)
 		if X ~= nil then
 			Window.X = X
 		end
-		localY = unpack(SDLNumberOrString({GotWindow.Y}, General, SDL.Library))
+		local Y = unpack(SDLNumberOrString({GotWindow.Y}, General, SDL.Library))
 		if Y ~= nil then
 			Window.Y = Y
 		end

@@ -9,7 +9,7 @@ local function NotInList(List, Object)
 end
 local JSON = require("json")
 local Inputs = JSON:DecodeFromFile("AllInputs.json")
-GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender"}
+GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender", "AllDevices"}
 for ak=1,#Inputs do
 	local av = Inputs[ak]
 	if type(av.Pass) == "table" then
@@ -66,9 +66,9 @@ function GiveBack.Stop(Arguments)
 	print("AllInputs Stopped")
 end
 function GiveBack.Input(Arguments)
-	local Space, SDL, ffi, Window, WindowGive, AllWindows, AllWindowsGive =
-	Arguments[1], Arguments[4], Arguments[8], Arguments[10], Arguments[11],
-	Arguments[12], Arguments[13]
+	local Space, SDL, ffi, Window, WindowGive, AllWindows, AllWindowsGive,
+	AllDevices = Arguments[1], Arguments[4], Arguments[8], Arguments[10],
+	Arguments[11],	Arguments[12], Arguments[13], Arguments[16]
 	local ReturnValue
 	while SDL.Library.pollEvent(Space.Event) ~=0 do
 		if Space.Event.type == SDL.Library.QUIT then
@@ -96,37 +96,53 @@ function GiveBack.Input(Arguments)
 					end
 				end
 			end
-		elseif Space.Event.type == SDL.Library.KEYDOWN and
-		Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
-			local v = Space.ButtonsDown[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))]
-			if type(v.Pass) == "table" then
-				for ak=1,#v.Pass do
-					local av = v.Pass[ak]
-					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av]
-					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av.."Give"]
+		elseif Space.Event.type == SDL.Library.KEYDOWN then
+			local Key = ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))
+			if Space.ButtonsDown[Key] then
+				local v = Space.ButtonsDown[Key]
+				if type(v.Pass) == "table" then
+					for ak=1,#v.Pass do
+						local av = v.Pass[ak]
+						Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av]
+						Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av.."Give"]
+					end
+				end
+				local Ran, Buffer = pcall(v.Command, unpack(Space.Pass))
+				Space.Pass = {}
+				ReturnValue = ReturnValue or Buffer
+				if Ran and ReturnValue then
+					return ReturnValue
 				end
 			end
-			local Ran, Buffer = pcall(v.Command, unpack(Space.Pass))
-			Space.Pass = {}
-			ReturnValue = ReturnValue or Buffer
-			if Ran and ReturnValue then
-				return ReturnValue
-			end
-		elseif Space.Event.type == SDL.Library.KEYUP and
-		Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))] then
-			local v = Space.ButtonsUp[ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))]
-			if type(v.Pass) == "table" then
-				for ak=1,#v.Pass do
-					local av = v.Pass[ak]
-					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av]
-					Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av.."Give"]
+			for ak=1,#AllDevices.Space.Devices do
+				local av = AllDevices.Space.Devices[ak]
+				if av.ButtonsDown[Key] then
+					pcall(av.ButtonsDown[Key].Command, av)
 				end
 			end
-			local Ran, Buffer = pcall(v.Command, unpack(Space.Pass))
-			Space.Pass = {}
-			ReturnValue = ReturnValue or Buffer
-			if Ran and ReturnValue then
-				return ReturnValue
+		elseif Space.Event.type == SDL.Library.KEYUP then
+			local Key = ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))
+			if Space.ButtonsUp[Key] then
+				local v = Space.ButtonsUp[Key]
+				if type(v.Pass) == "table" then
+					for ak=1,#v.Pass do
+						local av = v.Pass[ak]
+						Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av]
+						Space.Pass[#Space.Pass + 1] = Space.PlusRequ[av.."Give"]
+					end
+				end
+				local Ran, Buffer = pcall(v.Command, unpack(Space.Pass))
+				Space.Pass = {}
+				ReturnValue = ReturnValue or Buffer
+				if Ran and ReturnValue then
+					return ReturnValue
+				end
+			end
+			for ak=1,#AllDevices.Space.Devices do
+				local av = AllDevices.Space.Devices[ak]
+				if av.ButtonsUp[Key] then
+					pcall(av.ButtonsUp[Key].Command, av)
+				end
 			end
 		end
 	end

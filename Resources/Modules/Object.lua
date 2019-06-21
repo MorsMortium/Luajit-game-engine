@@ -89,7 +89,14 @@ function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
 		end
 	  if type(GotObject.Powers) == "table" then
 			Object.Powers = GotObject.Powers
-	  end
+	  else
+			Object.Powers = {}
+		end
+		if General.Library.GoodTypesOfTable(GotObject.OnCollisionPowers, "boolean") then
+			Object.OnCollisionPowers = GotObject.OnCollisionPowers
+		else
+			Object.OnCollisionPowers = {}
+		end
 		ObjectRender.Library.ObjectRenders[Object.ObjectRenderer].DataCheck(Object.RenderData, GotObject.RenderData, ObjectRenderGive)
 	else
 		ObjectRender.Library.ObjectRenders[Object.ObjectRenderer].DataCheck(Object.RenderData, nil, ObjectRenderGive)
@@ -138,6 +145,10 @@ function GiveBack.Copy(GotObject, Parent, Arguments, HelperMatrices)
 	Object.Powers = {}
 	for ak=1,#GotObject.Powers do
 		Object.Powers[ak] = GotObject.Powers[ak]
+	end
+	Object.OnCollisionPowers = {}
+	for ak=1,#GotObject.OnCollisionPowers do
+		Object.OnCollisionPowers[ak] = GotObject.OnCollisionPowers[ak]
 	end
 	Object.Mass = GotObject.Mass
 	Object.ObjectRenderer = GotObject.ObjectRenderer

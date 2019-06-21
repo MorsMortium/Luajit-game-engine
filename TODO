@@ -1,13 +1,13 @@
-reduce data conversion
+scopes for powers (object, device, all devices, inside object, later player)
 collision reaction/functions
+reduce data conversion
 max number of devices? (elements ffi new)
 -no collision check if no movement
 -Work Out deprecation
 -check SDL and OpenGL Init variables before using functions (or start module)
 -finish TODOs
 -error messages where needed (but no exit if not needed)
-performance: Pass Objects only once and Delete when deleted, send when new
-             multicore Physics
+performance: multicore Physics
              multicore rendering?
 looks: documentation
        shorter lines

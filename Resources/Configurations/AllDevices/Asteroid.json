@@ -13,16 +13,21 @@
     "Fixed": false,
     "Speed": [ 0.005, 0.005, 0.005 ],
     "RotationSpeed": [ 0.005, 0.005, 0.005 ],
+    "OnCollisionPowers": [ false, false, true ],
     "Powers": [ {
+        "Type": "Destroypara",
+        "String": "local Devices, Device, Object, Power, General = ... if Devices then local Own, Other = Object.Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 100 then return true else return false end end",
+        "IfObject": false,
+        "Active": true
+      }, {
         "Type": "Destroypara",
         "String": "return true",
         "IfObject": false,
         "Active": false
       }, {
-        "Type": "Destroypara",
-        "String": "local Devices, i, k, h, General = ... if Devices then local Own, Other = Devices[i].Objects[k].Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 100 then return true else return false end end",
-        "IfObject": false,
-        "Active": true
+        "Type": "Command",
+        "String": "local Devices, Device, Object, Power = ... if Power.Device and Power.Device.Name == 'Asteroid' then Object.Powers[2].Active = true Power.Active = false end",
+        "Active": false
       } ]
   } ]
 }

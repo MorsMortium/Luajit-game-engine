@@ -13,17 +13,22 @@
     "CollisionReaction": [ 0, 1 ],
     "VisualLayers": [ "All" ],
     "Fixed": false,
+    "OnCollisionPowers": [ false, false, true ],
     "Powers": [
       {
         "Type": "Destroypara",
-        "String": "return true",
-        "IfObject": false,
-        "Active": false
+        "String": "local Devices, Device, Object, Power, General = ... if Devices then local Own, Other = Object.Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 50 then return true else return false end end",
+        "IfObject": true,
+        "Active": true
       }, {
         "Type": "Destroypara",
-        "String": "local Devices, i, k, h, General = ... if Devices then local Own, Other = Devices[i].Objects[k].Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 50 then return true else return false end end",
-        "IfObject": false,
-        "Active": true
+        "String": "return true",
+        "IfObject": true,
+        "Active": false
+      }, {
+        "Type": "Command",
+        "String": "local Devices, Device, Object, Power = ... if Power.Device and Power.Device.Name == 'Asteroid' then Object.Powers[2].Active = true Power.Device.Objects[1].Powers[2].Active = true Power.Active = false Device.Objects[1].Powers[13].Score = Device.Objects[1].Powers[13].Score + 1 end",
+        "Active": false
       } ]
   } ]
 }

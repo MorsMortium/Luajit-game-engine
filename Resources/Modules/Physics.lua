@@ -109,7 +109,7 @@ function GiveBack.Physics(Time, Arguments)
       av.Objects[bv[3]].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[3]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(SecondBodyAxis, -General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
     end
   end
-  AllPowers.Library.DataCheckNewDevicesPowers(AllPowersGive)
+  AllPowers.Library.DataCheckNewDevicesPowers(Time, AllPowersGive)
   CollisionDetection.Library.CheckForCollisions(AllDevices, Space.BroadPhaseAxes, CollisionDetectionGive)
   AllDevices.Library.ClearDeviceChanges(AllDevicesGive)
   AllPowers.Library.UseAllPowers(Time, AllPowersGive)

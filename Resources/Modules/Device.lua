@@ -27,22 +27,65 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
     if GotDevice.Name then
       Device.Name = GotDevice.Name
     end
+    Device.ButtonsUp = {}
+    Device.ButtonsDown = {}
+    if type(GotDevice.Inputs) == "table" then
+      for ak=1,#GotDevice.Inputs do
+        local av = GotDevice.Inputs[ak]
+        av.Command = loadstring(av.String)
+        if av.Type == "Up" then
+          Device.ButtonsUp[av.Button] = av
+        else
+          Device.ButtonsDown[av.Button] = av
+        end
+      end
+    end
   else
     Device.Objects[1] = Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
   end
   return Device
 end
-function GiveBack.Copy(GotDevice, Arguments, HelperMatrices)
+function GiveBack.Copy(Device, Arguments, HelperMatrices)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
-  local Device = {}
-  Device.Objects = {}
-  Device.Name = GotDevice.Name
-  for ak=1,#GotDevice.Objects do
-    local av = GotDevice.Objects[ak]
-    Device.Objects[ak] = Object.Library.Copy(av, Device, ObjectGive, HelperMatrices)
+  local NewDevice = {}
+  NewDevice.Objects = {}
+  NewDevice.Name = Device.Name
+  for ak=1,#Device.Objects do
+    local av = Device.Objects[ak]
+    NewDevice.Objects[ak] = Object.Library.Copy(av, NewDevice, ObjectGive, HelperMatrices)
   end
-  Device.FixedJoints = General.Library.DeepCopy(GotDevice.FixedJoints)
-  return Device
+  NewDevice.FixedJoints = General.Library.DeepCopy(Device.FixedJoints)
+  NewDevice.ButtonsUp = General.Library.DeepCopy(Device.ButtonsUp)
+  NewDevice.ButtonsDown = General.Library.DeepCopy(Device.ButtonsDown)
+  return NewDevice
+end
+function GiveBack.Merge(Device1, Device2, Arguments, HelperMatrices)
+  local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
+  for ak=1,#Device2.Objects do
+    local av = Device2.Objects[ak]
+    Device1.Objects[#Device1.Objects + 1] = Device2.Objects[ak]
+  end
+  for ak=1,#Device1.Objects do
+    local av = Device1.Objects[ak]
+    av.Parent = Device1
+  end
+  local NewButtonsUp = {}
+  local NewButtonsDown = {}
+  for ak,av in pairs(Device2.ButtonsUp) do
+    NewButtonsUp[ak] = av
+  end
+  for ak,av in pairs(Device2.ButtonsDown) do
+    NewButtonsDown[ak] = av
+  end
+  for ak,av in pairs(Device1.ButtonsUp) do
+    NewButtonsUp[ak] = av
+  end
+  for ak,av in pairs(Device1.ButtonsDown) do
+    NewButtonsDown[ak] = av
+  end
+  Device1.ButtonsUp = NewButtonsUp
+  Device1.ButtonsDown = NewButtonsDown
+  --Device.FixedJoints = General.Library.DeepCopy(GotDevice.FixedJoints)
 end
 function GiveBack.Destroy(Device, Arguments)
   local Object, ObjectGive = Arguments[1], Arguments[2]

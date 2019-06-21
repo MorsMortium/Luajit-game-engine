@@ -1,11 +1,29 @@
 local GiveBack = {}
-function GiveBack.AddObject(DeviceID, Object, Arguments)
-	local Space, Object, ObjectGive = Arguments[1], Arguments[8], Arguments[9]
+function GiveBack.AddObject(DeviceID, DeviceName, ModifierForDevice, Arguments)
+	local Space, General, Device, DeviceGive, Object, ObjectGive, lgsl =
+	Arguments[1], Arguments[4], Arguments[6], Arguments[7], Arguments[8],
+	Arguments[9], Arguments[10]
 	local DeviceIndex = #Space.Devices
 	if type(DeviceID) == "number" and 0 < DeviceID and DeviceID < #Space.Devices then
 		DeviceIndex = DeviceID
 	end
-	Space.Devices[DeviceIndex].Objects[#Space.Devices[DeviceIndex].Objects + 1] = Object.Library.Create(Object, ObjectGive, Space.HelperMatrices)
+	if Space.DeviceTypes[DeviceName] then
+		NewDevice = Device.Library.Copy(Space.DeviceTypes[DeviceName], DeviceGive, Space.HelperMatrices)
+	else
+		NewDevice = Device.Library.Copy(Space.DeviceTypes.Default, DeviceGive, Space.HelperMatrices)
+	end
+	if ModifierForDevice then
+		pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General)
+		for ak=1,#NewDevice.Objects do
+			local av = NewDevice.Objects[ak]
+			General.Library.UpdateObject(av, true, lgsl, Space.HelperMatrices)
+		end
+	end
+	for ak=1,#NewDevice.Objects do
+		local av = NewDevice.Objects[ak]
+		Space.CreatedObjects[#Space.CreatedObjects + 1] = av
+	end
+	Device.Library.Merge(Space.Devices[DeviceID], NewDevice, DeviceGive, Space.HelperMatrices)
 end
 function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	local Space, General, Device, DeviceGive, lgsl = Arguments[1], Arguments[4],
@@ -24,7 +42,11 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	  end
 	end
 	Space.Devices[#Space.Devices + 1] = NewDevice
-	Space.CreatedDevices[#Space.CreatedDevices + 1] = NewDevice
+	for ak=1,#NewDevice.Objects do
+		local av = NewDevice.Objects[ak]
+		Space.CreatedObjects[#Space.CreatedObjects + 1] = av
+	end
+	--Space.CreatedObjects[#Space.CreatedObjects + 1] = NewDevice
 end
 function GiveBack.Start(Arguments)
 	local Space, JSON, General, Device, DeviceGive, Object, ObjectGive, lgsl =
@@ -37,7 +59,7 @@ function GiveBack.Start(Arguments)
 	end
 	Space.Devices = {}
 	Space.DeviceTypes = {}
-	Space.CreatedDevices = {}
+	Space.CreatedObjects = {}
 	local AllDevices = JSON.Library:DecodeFromFile("AllDevices.json")
 	if type(AllDevices) == "table" and General.Library.GoodTypesOfTable(AllDevices.DeviceTypes, "string") then
 		for ak=1,#AllDevices.DeviceTypes do
@@ -103,7 +125,7 @@ function GiveBack.Stop(Arguments)
 end
 function GiveBack.ClearDeviceChanges(Arguments)
 	local Space = Arguments[1]
-	Space.CreatedDevices = {}
+	Space.CreatedObjects = {}
 end
 GiveBack.Requirements = {"JSON", "General", "Device", "Object", "lgsl"}
 return GiveBack

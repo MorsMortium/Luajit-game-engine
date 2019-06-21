@@ -114,110 +114,35 @@ local function Stop()
 	end
 	Data = nil
 end
+local function LoadLibrary(Name, Command)
+	if type(Data[Name]) == "table" and Data[Name].Started then
+		return Data[Name].Library[Command], RequCalc(Data, Data[Name])
+	end
+	return loadstring("if not no" .. Name .. "print then print(" .. Name ..
+	"' not found') no" .. Name .. "print = true end"), {}
+end
 local function Game()
 	local Number = 0
+	local Time = 0
 	local MainExit = false
 	local InputExit = false
 	local LoadModule = false
 	local Modules
-	local Input
-	local CameraRender
-	local CameraRenderGive
-	local WindowRender
-	local WindowRenderGive
-	local Main
-	local InputGive
-	local MainGive
 	Start()
-	if type(Data.Main) == "table" and Data.Main.Started then
-		Main = Data.Main.Library.Main
-		MainGive = RequCalc(Data, Data.Main)
-	else
-		Main = loadstring("if not noMainprint then print('Main not found') noMainprint = true end")
-		MainGive = {}
-	end
-	if type(Data.AllInputs) == "table" and Data.AllInputs.Started then
-		Input = Data.AllInputs.Library.Input
-		InputGive = RequCalc(Data, Data.AllInputs)
-	else
-		Input = loadstring("if not noInputprint then print('Input not found') noInputprint = true end")
-		InputGive = {}
-	end
-	if type(Data.AllWindowRenders) == "table" and Data.AllWindowRenders.Started then
-		WindowRender = Data.AllWindowRenders.Library.RenderAllWindows
-		WindowRenderGive = RequCalc(Data, Data.AllWindowRenders)
-	else
-		WindowRender = loadstring("if not noRenderprint then print('Render not found') noRenderprint = true end")
-		WindowRenderGive = {}
-	end
-	if type(Data.AllCameraRenders) == "table" and Data.AllCameraRenders.Started then
-		CameraRender = Data.AllCameraRenders.Library.RenderAllCameras
-		CameraRenderGive = RequCalc(Data, Data.AllCameraRenders)
-	else
-		CameraRender = loadstring("if not noRenderprint then print(\"Render not found\") noRenderprint = true end")
-		CameraRenderGive = {}
-	end
-	Score = 0
-	local LastScore = 0
-	local Niceness = 100
-	local LastTime = Data.SDL.Library.getTicks()
-	local Time = 0
-	local SumTime = 0
-	---[[
+	local Input, InputGive = LoadLibrary("AllInputs", "Input")
+	local Main, MainGive = LoadLibrary("Main", "Main")
+	local WindowRender, WindowRenderGive = LoadLibrary("AllWindowRenders", "RenderAllWindows")
+	local CameraRender, CameraRenderGive = LoadLibrary("AllCameraRenders", "RenderAllCameras")
+	local SDL = Data.SDL.Library
+	local LastTime = SDL.getTicks()
 	while not (MainExit or InputExit) do
-		if 0 < Data.SDL.Library.getTicks() - LastTime then
-			Time = Data.SDL.Library.getTicks() - LastTime
-			LastTime = Data.SDL.Library.getTicks()
-			LoadModule, Modules, MainExit = Main(Time, MainGive)
-			InputExit = Input(InputGive)
-			if LoadModule then
-				LoadModules(Modules)
-				LoadModule = false
-			end
-			if LastScore < Score then
-				LastScore = Score
-				print("Score: "..Score)
-			end
-			if Number % Niceness == 0 and
-				Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-				Data.AllDevices.Space.Devices[1].Objects[1].Powers[9].Active = true
-			end
-			if Number % 1500 == 0 and Niceness ~= 1 and
-				Data.AllDevices.Space.Devices[1].Name == "SpaceShip" then
-				Niceness = Niceness - 1
-				print("Niceness: "..Niceness)
-			end
-			CameraRender(CameraRenderGive)
-			WindowRender(Number, WindowRenderGive)
-			Number = Number + 1
-		end
-	end
-	Stop()
-end
-Game()
---]]
---[[
-	local devicenumber = 0
-	while not (MainExit or InputExit) do
-		if 0 < Data.SDL.Library.getTicks() - LastTime then
-			Time = Data.SDL.Library.getTicks() - LastTime
-			LastTime = Data.SDL.Library.getTicks()
-			if devicenumber < #Data.AllDevices.Space.Devices - 9 then
-				devicenumber = #Data.AllDevices.Space.Devices
-				print(devicenumber)
-			end
+		Time = SDL.getTicks() - LastTime
+		if 0 < Time then
+			LastTime = SDL.getTicks()
 			LoadModule, Modules, MainExit = Main(Time, MainGive)
 			if LoadModule then
 				LoadModules(Modules)
 				LoadModule = false
-			end
-			SumTime = SumTime + Time
-			if SumTime > 100 then
-				SumTime = 0
-				Data.AllDevices.Space.Devices[1].Objects[1].Powers[7].Active = true
-				Data.AllDevices.Space.Devices[1].Objects[1].Powers[10].Active = true
-				Data.AllDevices.Space.Devices[1].Objects[1].Powers[11].Active = true
-				Data.AllDevices.Space.Devices[1].Objects[1].Powers[12].Active = true
 			end
 			CameraRender(CameraRenderGive)
 			WindowRender(Number, WindowRenderGive)
@@ -228,4 +153,3 @@ Game()
 	Stop()
 end
 Game()
---]]

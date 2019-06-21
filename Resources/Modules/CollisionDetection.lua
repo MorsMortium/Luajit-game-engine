@@ -35,9 +35,9 @@ local function Barycentric(p, a, b, c, General)
     local d20 = General.Library.DotProduct(v2, v0)
     local d21 = General.Library.DotProduct(v2, v1)
     local denom = d00 * d11 - d01 * d01
-    v = (d11 * d20 - d01 * d21) / denom
-    w = (d00 * d21 - d01 * d20) / denom
-    u = 1 - v - w
+    local v = (d11 * d20 - d01 * d21) / denom
+    local w = (d00 * d21 - d01 * d20) / denom
+    local u = 1 - v - w
     return u, v, w
 end
 local function ExtrapolateContactInformation(aClosestFace, General)
@@ -368,14 +368,11 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
   Arguments[3], Arguments[4]
   local SameLayer = General.Library.SameLayer
   local ResponseWithoutTorque = CollisionResponse.Library.ResponseWithoutTorque
-  for ak=1,#AllDevices.Space.CreatedDevices do
-    local av = AllDevices.Space.CreatedDevices[ak]
-    for bk=1,#av.Objects do
-      local bv = av.Objects[bk]
-      for ck=1,3 do
-        local cv = BroadPhaseAxes[ck]
-        cv[#cv + 1] = bv
-      end
+  for bk=1,#AllDevices.Space.CreatedObjects do
+    local bv = AllDevices.Space.CreatedObjects[bk]
+    for ck=1,3 do
+      local cv = BroadPhaseAxes[ck]
+      cv[#cv + 1] = bv
     end
   end
   for ak=1,3 do
@@ -424,20 +421,20 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
     local mtv = {}
     if SameLayer(av[1].PhysicsLayers, av[2].PhysicsLayers) and
     GiveBack.GJK(av[1], av[2], mtv, Arguments) then
-    ---[[
-      if (av[1].Parent.Name == "Bullet" and av[2].Parent.Name == "Asteroid") or
-      (av[2].Parent.Name == "Bullet" and av[1].Parent.Name == "Asteroid") or
-      (av[1].Parent.Name == "SpaceShip" and av[2].Parent.Name == "Asteroid") or
-      (av[2].Parent.Name == "SpaceShip" and av[1].Parent.Name == "Asteroid") or
-      (av[1].Parent.Name == "Asteroid" and av[2].Parent.Name == "Asteroid") then
-        av[2].Powers[1].Active = true
-        av[1].Powers[1].Active = true
-        if (av[1].Parent.Name == "Bullet" and av[2].Parent.Name == "Asteroid") or
-        (av[2].Parent.Name == "Bullet" and av[1].Parent.Name == "Asteroid") then
-          Score = Score + 1
+      for bk=1,#av[1].OnCollisionPowers do
+        local bv = av[1].OnCollisionPowers[bk]
+        if bv then
+          av[1].Powers[bk].Active = true
+          av[1].Powers[bk].Device = av[2].Parent
         end
       end
-    --]]
+      for bk=1,#av[2].OnCollisionPowers do
+        local bv = av[2].OnCollisionPowers[bk]
+        if bv then
+          av[2].Powers[bk].Active = true
+          av[2].Powers[bk].Device = av[1].Parent
+        end
+      end
       ResponseWithoutTorque(av[1], av[2], mtv, CollisionResponseGive)
       --TODO
       --print(ak.." Device "..ck.." Object collided with "..bk.." Device "..dk.." Object")
