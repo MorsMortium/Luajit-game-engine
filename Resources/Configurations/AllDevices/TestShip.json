@@ -57,6 +57,7 @@
     "Scale": [ 1, 1, 1 ],
     "VisualLayers": [ "All" ],
     "Fixed": false,
+    "OnCollisionPowers": [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, true ],
     "Powers": [
       {
         "Type": "Destroypara",
@@ -125,6 +126,15 @@
         "Type": "Command",
         "String": "local Devices, Device, Object, Power = ... if Power.DeviceNumber then if Power.DeviceNumber < #Devices - 9 then Power.DeviceNumber = #Devices print(Power.DeviceNumber) end else Power.DeviceNumber = #Devices end",
         "Active": true
+      }, {
+        "Type": "Command",
+        "String": "--local Devices, Device, Object, Power = ... if Power.Contact and not Power.Once then Power.Once = true Object.Powers[16].Active = true Object.Powers[16].Command = loadstring('local Created = ... Created.Objects[1].MMcalc = true local T = Created.Objects[1].Translation T[1], T[2], T[3] = ' .. Power.Contact[3][1] .. ', ' .. Power.Contact[3][2].. ', ' .. Power.Contact[3][3]) Power.Active = false end",
+        "Active": false
+      }, {
+        "Type": "Summon",
+        "Name": "Default",
+        "String": "",
+        "Active": false
       } ]
 } ],
 "FixedJoints": [  ]

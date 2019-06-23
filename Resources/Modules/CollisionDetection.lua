@@ -433,8 +433,10 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
   local RealCollisions = {}
   for ak,av in pairs(PossibleCollisions[1]) do
     for bk,bv in pairs(av) do
-      if PossibleCollisions[2][ak] and PossibleCollisions[2][ak][bk]
-        and PossibleCollisions[3][ak] and PossibleCollisions[3][ak][bk] then
+      if ((PossibleCollisions[2][ak] and PossibleCollisions[2][ak][bk]) or
+      (PossibleCollisions[2][bk] and PossibleCollisions[2][bk][ak]))
+      and ((PossibleCollisions[3][ak] and PossibleCollisions[3][ak][bk]) or
+      (PossibleCollisions[3][bk] and PossibleCollisions[3][bk][ak])) then
         RealCollisions[#RealCollisions + 1] = {ak, bk}
       end
     end
@@ -449,6 +451,7 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
         if bv then
           av[1].Powers[bk].Active = true
           av[1].Powers[bk].Device = av[2].Parent
+          av[1].Powers[bk].Contact = mtv
         end
       end
       for bk=1,#av[2].OnCollisionPowers do
@@ -456,9 +459,10 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
         if bv then
           av[2].Powers[bk].Active = true
           av[2].Powers[bk].Device = av[1].Parent
+          av[2].Powers[bk].Contact = mtv
         end
       end
-      ResponseWithoutTorque(av[1], av[2], mtv, CollisionResponseGive)
+      --ResponseWithoutTorque(av[1], av[2], mtv, CollisionResponseGive)
       --TODO
     end
   end

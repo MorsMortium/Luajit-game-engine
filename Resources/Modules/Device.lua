@@ -6,6 +6,9 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
   Device.FixedJoints = {}
   Device.Name = "UnknownDevice"
   if type(GotDevice) == "table" then
+    if GotDevice.Name then
+      Device.Name = GotDevice.Name
+    end
     if type(GotDevice.Objects) == "table" then
       for ak=1,#GotDevice.Objects do
         local av = GotDevice.Objects[ak]
@@ -27,9 +30,6 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
     else
       Device.Objects[1] =
       Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
-    end
-    if GotDevice.Name then
-      Device.Name = GotDevice.Name
     end
     Device.ButtonsUp = {}
     Device.ButtonsDown = {}

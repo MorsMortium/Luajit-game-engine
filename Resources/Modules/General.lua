@@ -214,10 +214,11 @@ end
 function GiveBack.CreateCollisionSphere(Object)
 	local Radius = 0
 	for ak=0,3 do
-		local NewRadius = GiveBack.VectorLength({
-		Object.Transformated.data[ak * 4],
-		Object.Transformated.data[ak * 4 + 1],
-		Object.Transformated.data[ak * 4 + 2]})
+		local NewRadius =
+		GiveBack.VectorLength(GiveBack.PointAToB(Object.Translation,
+																					{Object.Transformated.data[ak * 4],
+																					Object.Transformated.data[ak * 4 + 1],
+																					Object.Transformated.data[ak * 4 + 2]}))
 		if Radius < NewRadius then
 			Radius = NewRadius
 		end
