@@ -9,7 +9,8 @@ local function NotInList(List, Object)
 end
 local JSON = require("json")
 local Inputs = JSON:DecodeFromFile("AllInputs.json")
-GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender", "AllDevices"}
+GiveBack.Requirements =
+{"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender", "AllDevices"}
 for ak=1,#Inputs do
 	local av = Inputs[ak]
 	if type(av.Pass) == "table" then
@@ -78,26 +79,31 @@ function GiveBack.Input(Arguments)
 		print(Space.Text)
 		elseif Space.Event.type == SDL.Library.WINDOWEVENT then
 			if Space.Event.window.event == SDL.Library.WINDOWEVENT_CLOSE then
+				local EventWindowID = Space.Event.window.windowID
 				for ak=1,#AllWindows.Space.Windows do
 					local av = AllWindows.Space.Windows[ak]
-					if av.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
+					if av.WindowID == SDL.Library.getWindowFromID(EventWindowID) then
 						table.remove(AllWindows.Space.Windows, ak)
 						break
 					end
 				end
-				SDL.Library.destroyRenderer(SDL.Library.getRenderer(SDL.Library.getWindowFromID(Space.Event.window.windowID)))
+				SDL.Library.destroyRenderer(SDL.Library.getRenderer(
+				SDL.Library.getWindowFromID(Space.Event.window.windowID)))
 				--print(ffi.Library.string(SDL.Library.getError())) TODO
 				Window.Library.Destroy(Space.Event.window.windowID, WindowGive)
 			elseif Space.Event.window.event == SDL.Library.WINDOWEVENT_RESIZED then
+				local EventWindowID = Space.Event.window.windowID
 				for ak=1,#AllWindows.Space.Windows do
 					local av = AllWindows.Space.Windows[ak]
-					if av.WindowID == SDL.Library.getWindowFromID(Space.Event.window.windowID) then
-						SDL.Library.GetWindowSize(SDL.Library.getWindowFromID(Space.Event.window.windowID), av.Width, av.Height)
+					if av.WindowID == SDL.Library.getWindowFromID(EventWindowID) then
+						SDL.Library.GetWindowSize(SDL.Library.getWindowFromID(
+						EventWindowID), av.Width, av.Height)
 					end
 				end
 			end
 		elseif Space.Event.type == SDL.Library.KEYDOWN then
-			local Key = ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))
+			local Key = ffi.Library.string(
+			SDL.Library.getKeyName(Space.Event.key.keysym.sym))
 			if Space.ButtonsDown[Key] then
 				local v = Space.ButtonsDown[Key]
 				if type(v.Pass) == "table" then
@@ -121,7 +127,8 @@ function GiveBack.Input(Arguments)
 				end
 			end
 		elseif Space.Event.type == SDL.Library.KEYUP then
-			local Key = ffi.Library.string(SDL.Library.getKeyName(Space.Event.key.keysym.sym))
+			local Key = ffi.Library.string(
+			SDL.Library.getKeyName(Space.Event.key.keysym.sym))
 			if Space.ButtonsUp[Key] then
 				local v = Space.ButtonsUp[Key]
 				if type(v.Pass) == "table" then

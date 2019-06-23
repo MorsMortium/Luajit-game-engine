@@ -12,9 +12,11 @@ function GiveBack.Stop(Arguments)
 	print("AllWindowRenders Stopped")
 end
 function GiveBack.RenderAllWindows(Number, Arguments)
-	local Space, SDL, SDLInit, AllWindows, WindowRender, WindowRenderGive, OpenGLInit, ffi = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8], Arguments[9], Arguments[10], Arguments[12]
+	local Space, SDL, AllWindows, WindowRender, WindowRenderGive, OpenGLInit =
+	Arguments[1], Arguments[2], Arguments[6], Arguments[8], Arguments[9],
+	Arguments[10]
 	if Number % 30 == 0 then
-		Space.FramesPerSecond = (30 / (SDL.Library.getTicks() - Space.LastTime) * 1000) .. " FramesPerSecond"
+		Space.FramesPerSecond = 30 / (SDL.Library.getTicks() - Space.LastTime) * 1000
 		Space.LastTime = SDL.Library.getTicks()
 	end
 	for ak=1,#AllWindows.Space.Windows do
@@ -23,7 +25,8 @@ function GiveBack.RenderAllWindows(Number, Arguments)
 			SDL.Library.GL_MakeCurrent(av.WindowID, OpenGLInit.Space.Context)
 			Space.LastWindow = ak
 		end
-		WindowRender.Library.WindowRenders[av.WindowRenderer][av.Type].Render(av, WindowRender.Library.WindowRenders[av.WindowRenderer].Space, WindowRenderGive)
+		local WRender = WindowRender.Library.Renders[av.WindowRenderer]
+		WRender[av.Type].Render(av, WRender.Space, WindowRenderGive)
 		if av.Type == "OpenGL" then
 			SDL.Library.GL_SwapWindow(av.WindowID)
 		else
@@ -31,5 +34,6 @@ function GiveBack.RenderAllWindows(Number, Arguments)
 		end
 	end
 end
-GiveBack.Requirements = {"SDL", "SDLInit", "AllWindows", "WindowRender", "OpenGLInit", "ffi"}
+GiveBack.Requirements =
+{"SDL", "SDLInit", "AllWindows", "WindowRender", "OpenGLInit"}
 return GiveBack

@@ -9,20 +9,24 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
     if type(GotDevice.Objects) == "table" then
       for ak=1,#GotDevice.Objects do
         local av = GotDevice.Objects[ak]
-        Device.Objects[ak] = Object.Library.Create(av, Device, ObjectGive, HelperMatrices)
+        Device.Objects[ak] =
+        Object.Library.Create(av, Device, ObjectGive, HelperMatrices)
       end
       if General.Library.GoodTypesOfTable(GotDevice.FixedJoints, "table") then
         for ak=1,#GotDevice.FixedJoints do
           local av = GotDevice.FixedJoints[ak]
           if General.Library.GoodTypesOfTable(av, "number") then
-            if #av == 4 and av[1] ~= av[3] and 0 < av[2] and av[2] < 5 and 0 < av[4] and av[4] < 5 and av[1] <= #Device.Objects and av[3] <= #Device.Objects then
+            if #av == 4 and av[1] ~= av[3] and 0 < av[2] and av[2] < 5 and
+            0 < av[4] and av[4] < 5 and av[1] <= #Device.Objects and
+            av[3] <= #Device.Objects then
               Device.FixedJoints[ak] = av
             end
           end
         end
       end
     else
-      Device.Objects[1] = Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
+      Device.Objects[1] =
+      Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
     end
     if GotDevice.Name then
       Device.Name = GotDevice.Name
@@ -41,7 +45,8 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
       end
     end
   else
-    Device.Objects[1] = Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
+    Device.Objects[1] =
+    Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
   end
   return Device
 end
@@ -52,7 +57,8 @@ function GiveBack.Copy(Device, Arguments, HelperMatrices)
   NewDevice.Name = Device.Name
   for ak=1,#Device.Objects do
     local av = Device.Objects[ak]
-    NewDevice.Objects[ak] = Object.Library.Copy(av, NewDevice, ObjectGive, HelperMatrices)
+    NewDevice.Objects[ak] =
+    Object.Library.Copy(av, NewDevice, ObjectGive, HelperMatrices)
   end
   NewDevice.FixedJoints = General.Library.DeepCopy(Device.FixedJoints)
   NewDevice.ButtonsUp = General.Library.DeepCopy(Device.ButtonsUp)
@@ -93,9 +99,6 @@ function GiveBack.Destroy(Device, Arguments)
     local av = Device.Objects[ak]
     Object.Library.Destroy(av, ObjectGive)
   end
-  --for ak,av in pairs(Device) do
-  --  Device[ak] = nil
-  --end
 end
 GiveBack.Requirements = {"Object", "General"}
 return GiveBack

@@ -1,17 +1,23 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
-	local Space, JSON, SDL, SDLInit, OpenGL, ffi = Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[8], Arguments[10]
+	local Space, JSON, SDL, SDLInit, OpenGL = Arguments[1], Arguments[2],
+	Arguments[4], Arguments[6], Arguments[8]
+	local SDL = SDL.Library
 	Space.OpenGLData = JSON.Library:DecodeFromFile("OpenGLData.json")
-	Space.DummyWindow = SDL.Library.createWindow("Default", SDL.Library.WINDOWPOS_UNDEFINED, SDL.Library.WINDOWPOS_UNDEFINED, 256, 256, bit.bor(SDL.Library.WINDOW_OPENGL, SDL.Library.WINDOW_HIDDEN))
-
+	Space.DummyWindow = SDL.createWindow("", SDL.WINDOWPOS_UNDEFINED,
+	SDL.WINDOWPOS_UNDEFINED, 64, 64, bit.bor(SDL.WINDOW_OPENGL, SDL.WINDOW_HIDDEN))
 	if type(Space.OpenGLData) == "table" then
-		if type(Space.OpenGLData.OpenGLVersion) == "table" and type(Space.OpenGLData.OpenGLVersion.Minor) == "number" and type(Space.OpenGLData.OpenGLVersion.Major) == "number" then
-			SDL.Library.GL_SetAttribute(SDL.Library.GL_CONTEXT_MAJOR_VERSION,Space.OpenGLData.OpenGLVersion.Major)
-			SDL.Library.GL_SetAttribute(SDL.Library.GL_CONTEXT_MINOR_VERSION,Space.OpenGLData.OpenGLVersion.Minor)
+		if type(Space.OpenGLData.OpenGLVersion) == "table" and
+		type(Space.OpenGLData.OpenGLVersion.Minor) == "number" and
+		type(Space.OpenGLData.OpenGLVersion.Major) == "number" then
+			SDL.GL_SetAttribute(SDL.GL_CONTEXT_MAJOR_VERSION,
+			Space.OpenGLData.OpenGLVersion.Major)
+			SDL.GL_SetAttribute(SDL.GL_CONTEXT_MINOR_VERSION,
+			Space.OpenGLData.OpenGLVersion.Minor)
 		end
 	end
-	Space.Context = SDL.Library.GL_CreateContext(Space.DummyWindow)
-	--SDL.Library.GL_SetSwapInterval(1)
+	Space.Context = SDL.GL_CreateContext(Space.DummyWindow)
+	--SDL.GL_SetSwapInterval(1)
 	if not Space.Context then
 		Space.OpenGL = false
 	else
@@ -33,19 +39,21 @@ function GiveBack.Start(Arguments)
 end
 function GiveBack.DeleteDummyWindow(Arguments)
 	local Space, SDL = Arguments[1], Arguments[4]
+	local SDL = SDL.Library
 	if Space.DummyWindow then
-		SDL.Library.destroyWindow(Space.DummyWindow)
+		SDL.destroyWindow(Space.DummyWindow)
 		Space.DummyWindow = nil
 	end
 end
 function GiveBack.Stop(Arguments)
 	local Space, SDL = Arguments[1], Arguments[4]
+	local SDL = SDL.Library
 	GiveBack.DeleteDummyWindow(Arguments)
-	SDL.Library.GL_DeleteContext(Space.Context)
+	SDL.GL_DeleteContext(Space.Context)
 	for ak,av in pairs(Space) do
 		Space[ak] = nil
 	end
 	print("openglinit Stopped")
 end
-GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "OpenGL", "ffi"}
+GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "OpenGL"}
 return GiveBack

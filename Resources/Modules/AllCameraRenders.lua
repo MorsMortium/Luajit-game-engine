@@ -48,24 +48,39 @@ function GiveBack.Stop(Arguments)
 	print("AllCameras Stopped")
 end
 local function UpdateCamera(av, General, lgsl, AllDevices)
+  local PointAToB = General.Library.PointAToB
+  local VectorLength = General.Library.VectorLength
+  local VectorAddition = General.Library.VectorAddition
+  local VectorNumberMult = General.Library.VectorNumberMult
   if av.FollowDevice and AllDevices.Space.Devices[av.FollowDevice] and
   AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject] then
-    local FollowObject = AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject]
-    av.Direction = {FollowObject.Transformated.data[(av.FollowPoint-1) * 4], FollowObject.Transformated.data[(av.FollowPoint-1) * 4 + 1], FollowObject.Transformated.data[(av.FollowPoint-1) * 4 + 2]}
-    local Translationv = {FollowObject.Points.data[(av.FollowPoint-1) * 4], FollowObject.Points.data[(av.FollowPoint-1) * 4 + 1], FollowObject.Points.data[(av.FollowPoint-1) * 4 + 2]}
-    local Length = av.FollowDistance/General.Library.VectorLength(Translationv)
+    local FollowObject =
+    AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject]
+    av.Direction = {FollowObject.Transformated.data[(av.FollowPoint-1) * 4],
+                    FollowObject.Transformated.data[(av.FollowPoint-1) * 4 + 1],
+                    FollowObject.Transformated.data[(av.FollowPoint-1) * 4 + 2]}
+    local Translationv = {FollowObject.Points.data[(av.FollowPoint-1) * 4],
+                          FollowObject.Points.data[(av.FollowPoint-1) * 4 + 1],
+                          FollowObject.Points.data[(av.FollowPoint-1) * 4 + 2]}
+    local Length = av.FollowDistance/VectorLength(Translationv)
     local Center = FollowObject.Translation
-    local PointUp = {FollowObject.Transformated.data[(av.FollowPointUp-1) * 4], FollowObject.Transformated.data[(av.FollowPointUp-1) * 4 + 1], FollowObject.Transformated.data[(av.FollowPointUp-1) * 4 + 2]}
-    local CenterToPoint = General.Library.PointAToB(Center, av.Direction)
-    av.UpVector = General.Library.PointAToB(Center, PointUp)
-    av.Translation = General.Library.VectorAddition(av.Direction, General.Library.VectorNumberMult(CenterToPoint, Length))
+    local PointUp = {FollowObject.Transformated.data[(av.FollowPointUp-1) * 4],
+                    FollowObject.Transformated.data[(av.FollowPointUp-1) * 4 + 1],
+                    FollowObject.Transformated.data[(av.FollowPointUp-1) * 4 + 2]}
+    local CenterToPoint = PointAToB(Center, av.Direction)
+    av.UpVector = PointAToB(Center, PointUp)
+    av.Translation = VectorAddition(av.Direction, VectorNumberMult(CenterToPoint, Length))
     av.ViewMatrixCalc = true
   end
   if av.ViewMatrixCalc then
-    av.ViewMatrix = ViewMatrix(av.Translation, av.Direction, av.UpVector, lgsl, General)
+    av.ViewMatrix =
+    ViewMatrix(av.Translation, av.Direction, av.UpVector, lgsl, General)
   end
   if av.ProjectionMatrixCalc then
-    av.ProjectionMatrix = ProjectionMatrix(av.FieldOfView, av.HorizontalResolution/av.VerticalResolution, av.MinimumDistance, av.MaximumDistance, lgsl)
+    av.ProjectionMatrix =
+    ProjectionMatrix(av.FieldOfView,
+    av.HorizontalResolution/av.VerticalResolution, av.MinimumDistance,
+    av.MaximumDistance, lgsl)
   end
   if av.ViewMatrixCalc or av.ProjectionMatrixCalc then
     av.ViewProjectionMatrix = av.ProjectionMatrix * av.ViewMatrix
@@ -75,30 +90,37 @@ local function UpdateCamera(av, General, lgsl, AllDevices)
 end
 function GiveBack.RenderAllCameras(Arguments)
   local Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender,
-  CameraRenderGive, AllCameras, AllCamerasGive = Arguments[1], Arguments[2], Arguments[4],
+  CameraRenderGive, AllCameras = Arguments[1], Arguments[2], Arguments[4],
   Arguments[6], Arguments[8], Arguments[10], Arguments[12], Arguments[13],
-  Arguments[14], Arguments[15]
+  Arguments[14]
+  local OpenGL = OpenGL.Library
   for ak=1,#AllCameras.Space.OpenGLCameras do
     local av = AllCameras.Space.OpenGLCameras[ak]
     UpdateCamera(av, General, lgsl, AllDevices)
-    OpenGL.Library.glFramebufferRenderbuffer(OpenGL.Library.GL_FRAMEBUFFER, OpenGL.Library.GL_DEPTH_ATTACHMENT, OpenGL.Library.GL_RENDERBUFFER, av.DBO[0])
-    OpenGL.Library.glBindFramebuffer(OpenGL.Library.GL_FRAMEBUFFER, AllCameras.Space.FBO[0])
-    OpenGL.Library.glFramebufferTexture(OpenGL.Library.GL_FRAMEBUFFER, OpenGL.Library.GL_COLOR_ATTACHMENT0, av.Texture[0], 0)
+    OpenGL.glFramebufferRenderbuffer(OpenGL.GL_FRAMEBUFFER,
+    OpenGL.GL_DEPTH_ATTACHMENT, OpenGL.GL_RENDERBUFFER, av.DBO[0])
+    OpenGL.glBindFramebuffer(OpenGL.GL_FRAMEBUFFER, AllCameras.Space.FBO[0])
+    OpenGL.glFramebufferTexture(OpenGL.GL_FRAMEBUFFER,
+    OpenGL.GL_COLOR_ATTACHMENT0, av.Texture[0], 0)
     if Space.LastCamera ~= ak then
-      OpenGL.Library.glViewport(0,0,av.HorizontalResolution,av.VerticalResolution)
+      OpenGL.glViewport(0,0,av.HorizontalResolution,av.VerticalResolution)
     end
     Space.LastCamera = ak
     for bk=0,15 do
       Space.ViewProjectionMatrix[bk] = av.ViewProjectionMatrix.data[bk]
     end
-    CameraRender.Library.CameraRenders[av.CameraRenderer][av.Type].Render(AllCameras.Space.VBO, AllCameras.Space.RDBO, av, Space.ViewProjectionMatrix, CameraRender.Library.CameraRenders[av.CameraRenderer].Space, CameraRenderGive)
+    local CRender = CameraRender.Library.CameraRenders[av.CameraRenderer]
+    CRender[av.Type].Render(AllCameras.Space.VBO, AllCameras.Space.RDBO, av,
+    Space.ViewProjectionMatrix, CRender.Space, CameraRenderGive)
   end
   for ak=1,#AllCameras.Space.SoftwareCameras do
     local av = AllCameras.Space.SoftwareCameras[ak]
     UpdateCamera(av, General, lgsl, AllDevicesGive)
-    CameraRender.Library.CameraRenders[av.CameraRenderer][av.Type].Render(av, Space.Renderer, CameraRender.Library.CameraRenders[av.CameraRenderer].Space, CameraRenderGive)
+    local CRender = CameraRender.Library.CameraRenders[av.CameraRenderer]
+    CRender[av.Type].Render(av, Space.Renderer, CRender.Space, CameraRenderGive)
     SDL.Library.upperBlitScaled(Space.RendererSurface, nil, av.Surface, nil)
   end
 end
-GiveBack.Requirements = {"OpenGL", "AllDevices", "lgsl", "General", "SDL", "CameraRender", "AllCameras", "ffi"}
+GiveBack.Requirements =
+{"OpenGL", "AllDevices", "lgsl", "General", "SDL", "CameraRender", "AllCameras", "ffi"}
 return GiveBack

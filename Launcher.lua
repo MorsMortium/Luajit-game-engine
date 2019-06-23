@@ -26,10 +26,13 @@ local function RequCalc(MainTable, Table)
 	if type(Table) == "table" and type(Table.Space) == "table" then
 		Give[1] = Table.Space
 	end
-	if type(Table) == "table" and type(Table.Library) == "table" and type(Table.Library.Requirements) == "table" then
+	if type(Table) == "table" and type(Table.Library) == "table" and
+	type(Table.Library.Requirements) == "table" then
 		for ak=1,#Table.Library.Requirements do
 			local av = Table.Library.Requirements[ak]
-			if type(MainTable[av]) == "table" and type(MainTable[av].Library) == "table" and type(MainTable[av].Library.Requirements) == "table" then
+			if type(MainTable[av]) == "table" and
+			type(MainTable[av].Library) == "table" and
+			type(MainTable[av].Library.Requirements) == "table" then
 				Give[#Give + 1] = MainTable[av]
 				Give[#Give + 1] = RequCalc(MainTable, MainTable[av])
 			else
@@ -52,7 +55,8 @@ local function Start()
 		for ak, av in pairs(Data) do
 			if not av.Started then
 				local Allrequisgood = true
-				if type(av) == "table" and type(av.Library) == "table" and type(av.Library.Requirements) == "table" then
+				if type(av) == "table" and type(av.Library) == "table" and
+				type(av.Library.Requirements) == "table" then
 					for bk=1,#av.Library.Requirements do
 						local bv = av.Library.Requirements[bk]
 						if Data[bv] == nil or Data[bv].Started ~= true then
@@ -107,7 +111,8 @@ end
 local function Stop()
 	for ak=(#Order),1,-1 do
 		local av = Order[ak]
-		if type(Data[av]) == "table" and type(Data[av].Library) == "table" and type(Data[av].Library.Stop) == "function" then
+		if type(Data[av]) == "table" and type(Data[av].Library) == "table" and
+		type(Data[av].Library.Stop) == "function" then
 			Data[av].Library.Stop(RequCalc(Data, Data[av]))
 		end
 		Data[av] = nil
@@ -122,17 +127,15 @@ local function LoadLibrary(Name, Command)
 	"' not found') no" .. Name .. "print = true end"), {}
 end
 local function Game()
-	local Number = 0
-	local Time = 0
-	local MainExit = false
-	local InputExit = false
-	local LoadModule = false
-	local Modules
+	local Number, Time, MainExit, InputExit = 0, 0, false, false
+	local LoadModule, Modules = false
 	Start()
 	local Input, InputGive = LoadLibrary("AllInputs", "Input")
 	local Main, MainGive = LoadLibrary("Main", "Main")
-	local WindowRender, WindowRenderGive = LoadLibrary("AllWindowRenders", "RenderAllWindows")
-	local CameraRender, CameraRenderGive = LoadLibrary("AllCameraRenders", "RenderAllCameras")
+	local WindowRender, WindowRenderGive =
+	LoadLibrary("AllWindowRenders", "RenderAllWindows")
+	local CameraRender, CameraRenderGive =
+	LoadLibrary("AllCameraRenders", "RenderAllCameras")
 	local SDL = Data.SDL.Library
 	local LastTime = SDL.getTicks()
 	while not (MainExit or InputExit) do

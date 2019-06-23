@@ -1,6 +1,7 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
-	local Space, Shader, ShaderGive, JSON = Arguments[1], Arguments[2], Arguments[3], Arguments[4]
+	local Space, Shader, ShaderGive, JSON = Arguments[1], Arguments[2],
+	Arguments[3], Arguments[4]
 	local Shaders = JSON.Library:DecodeFromFile("AllShaders.json")
 	Space.Shaders = {}
 	if Shaders then
@@ -14,17 +15,22 @@ function GiveBack.Start(Arguments)
 	DefaultShader.Inputs = {}
 	DefaultShader.Name = "DefaultOpenGLWindowFragmentShader"
 	DefaultShader.IfPath = true
-	DefaultShader.String = "./Resources/Shaders/DefaultOpenGLWindowFragmentShader.txt"
+	DefaultShader.String =
+	"./Resources/Shaders/DefaultOpenGLWindowFragmentShader.txt"
 	DefaultShader.ShaderType = "GL_FRAGMENT_SHADER"
 	--TODO
 	--DefaultShader.Uniforms[1] =
-	Space.Shaders[DefaultShader.Name] = Shader.Library.Create(DefaultShader, ShaderGive)
+	Space.Shaders[DefaultShader.Name] =
+	Shader.Library.Create(DefaultShader, ShaderGive)
 	DefaultShader.Name = "DefaultObjectFragmentShader"
-	DefaultShader.String = "./Resources/Shaders/DefaultObjectFragmentShader.txt"
+	DefaultShader.String =
+	"./Resources/Shaders/DefaultObjectFragmentShader.txt"
 	DefaultShader.Uniforms[1] = "COLOR"
-	Space.Shaders[DefaultShader.Name] = Shader.Library.Create(DefaultShader, ShaderGive)
+	Space.Shaders[DefaultShader.Name] =
+	Shader.Library.Create(DefaultShader, ShaderGive)
 	DefaultShader.Name = "DefaultObjectVertexShader"
-	DefaultShader.String = "./Resources/Shaders/DefaultObjectVertexShader.txt"
+	DefaultShader.String =
+	"./Resources/Shaders/DefaultObjectVertexShader.txt"
 	DefaultShader.ShaderType = "GL_VERTEX_SHADER"
 	DefaultShader.Inputs = nil
 	DefaultShader.Uniforms = nil
@@ -32,14 +38,17 @@ function GiveBack.Start(Arguments)
 	DefaultShader.Inputs = {}
 	DefaultShader.Inputs[1] = "Position"
 	DefaultShader.Uniforms[1] = "MVP"
-	Space.Shaders[DefaultShader.Name] = Shader.Library.Create(DefaultShader, ShaderGive)
+	Space.Shaders[DefaultShader.Name] =
+	Shader.Library.Create(DefaultShader, ShaderGive)
 	DefaultShader.Name = "DefaultOpenGLWindowVertexShader"
-	DefaultShader.String = "./Resources/Shaders/DefaultOpenGLWindowVertexShader.txt"
+	DefaultShader.String =
+	"./Resources/Shaders/DefaultOpenGLWindowVertexShader.txt"
 	DefaultShader.Inputs = nil
 	DefaultShader.Uniforms = nil
 	--TODO
 	--DefaultShader.Inputs[1] =
-	Space.Shaders[DefaultShader.Name] = Shader.Library.Create(DefaultShader, ShaderGive)
+	Space.Shaders[DefaultShader.Name] =
+	Shader.Library.Create(DefaultShader, ShaderGive)
 	print("AllShaders Started")
 end
 function GiveBack.Stop(Arguments)

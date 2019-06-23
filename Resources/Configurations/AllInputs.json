@@ -15,7 +15,7 @@
 }, {
   "Button": "P",
   "Type": "Down",
-  "String": "local AllWindowRenders = ... print(AllWindowRenders.Space.FramesPerSecond)",
+  "String": "local AllWindowRenders = ... print(AllWindowRenders.Space.FramesPerSecond,  'FramesPerSecond')",
   "Pass": [ "AllWindowRenders" ]
 }, {
   "Button": "Backspace",

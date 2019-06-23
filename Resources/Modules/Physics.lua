@@ -25,11 +25,11 @@ function GiveBack.Stop(Arguments)
   end
 end
 function GiveBack.Physics(Time, Arguments)
-  local Space, AllDevices, AllDevicesGive, SDL, SDLInit, lgsl, ffi, General,
+  local Space, AllDevices, AllDevicesGive, SDL, SDLInit, lgsl, ffi, General, GeneralGive,
   AllPowers, AllPowersGive, CollisionDetection, CollisionDetectionGive,
   CollisionResponse, CollisionResponseGive = Arguments[1], Arguments[2],
   Arguments[3], Arguments[4], Arguments[6], Arguments[8], Arguments[10],
-  Arguments[12], Arguments[14], Arguments[15], Arguments[16], Arguments[17],
+  Arguments[12], Arguments[13], Arguments[14], Arguments[15], Arguments[16], Arguments[17],
   Arguments[18], Arguments[19]
   local gsl = lgsl.Library.gsl
   local VectorAddition = General.Library.VectorAddition
@@ -37,6 +37,7 @@ function GiveBack.Physics(Time, Arguments)
   local QuaternionMultiplication = General.Library.QuaternionMultiplication
   local RotationMatrix = General.Library.RotationMatrix
   local EulerToQuaternion = General.Library.EulerToQuaternion
+  local UpdateObject = General.Library.UpdateObject
   for ak=1,#AllDevices.Space.Devices do
     local av = AllDevices.Space.Devices[ak]
     for bk=1,#av.Objects do
@@ -45,7 +46,8 @@ function GiveBack.Physics(Time, Arguments)
         if bv.Speed[1] ~= 0 or
         bv.Speed[2] ~= 0 or
         bv.Speed[3] ~= 0 then
-          bv.Translation = VectorAddition(bv.Translation, VectorNumberMult(bv.Speed, Time))
+          bv.Translation =
+          VectorAddition(bv.Translation, VectorNumberMult(bv.Speed, Time))
           bv.MMcalc = true
         end
         if bv.RotationSpeed[1] ~= 0 or
@@ -58,7 +60,8 @@ function GiveBack.Physics(Time, Arguments)
         if bv.JointSpeed[1] ~= 0 or
         bv.JointSpeed[2] ~= 0 or
         bv.JointSpeed[3] ~= 0 then
-          bv.Translation = VectorAddition(bv.Translation, VectorNumberMult(bv.JointSpeed, Time))
+          bv.Translation =
+          VectorAddition(bv.Translation, VectorNumberMult(bv.JointSpeed, Time))
           bv.JointSpeed = {0, 0, 0}
           bv.MMcalc = true
         end
@@ -66,12 +69,13 @@ function GiveBack.Physics(Time, Arguments)
         bv.JointRotationSpeed[2] ~= 0 or
         bv.JointRotationSpeed[3] ~= 0 or
          bv.JointRotationSpeed[4] ~= 0 then
-          bv.Rotation = QuaternionMultiplication(bv.Rotation, bv.JointRotationSpeed)
+          bv.Rotation =
+          QuaternionMultiplication(bv.Rotation, bv.JointRotationSpeed)
           bv.JointRotationSpeed = {1, 0, 0, 0}
           bv.MMcalc = true
         end
         if bv.MMcalc then
-          General.Library.UpdateObject(bv, false, lgsl, AllDevices.Space.HelperMatrices)
+          UpdateObject(bv, false, AllDevices.Space.HelperMatrices, GeneralGive)
           bv.MMcalc = false
         end
       end
@@ -110,10 +114,13 @@ function GiveBack.Physics(Time, Arguments)
     end
   end
   AllPowers.Library.DataCheckNewDevicesPowers(Time, AllPowersGive)
-  CollisionDetection.Library.CheckForCollisions(AllDevices, Space.BroadPhaseAxes, CollisionDetectionGive)
+  CollisionDetection.Library.CheckForCollisions(AllDevices,
+  Space.BroadPhaseAxes, CollisionDetectionGive)
   AllDevices.Library.ClearDeviceChanges(AllDevicesGive)
   AllPowers.Library.UseAllPowers(Time, AllPowersGive)
 end
 
-GiveBack.Requirements = {"AllDevices", "SDL", "SDLInit", "lgsl", "ffi", "General", "AllPowers", "CollisionDetection", "CollisionResponse"}
+GiveBack.Requirements =
+{"AllDevices", "SDL", "SDLInit", "lgsl", "ffi", "General", "AllPowers",
+"CollisionDetection", "CollisionResponse"}
 return GiveBack

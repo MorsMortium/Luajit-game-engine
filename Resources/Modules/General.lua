@@ -167,9 +167,9 @@ function GiveBack.CrossProduct(u, v)
           u[3] * v[1] - u[1] * v[3],
           u[1] * v[2] - u[2] * v[1]}
 end
-function GiveBack.RotationMatrix(gsl, q, Center, Matrix)
+function GiveBack.RotationMatrix(q, Center, Matrix, gsl, ffi)
   local sqw, sqx, sqy, sqz = q[1]*q[1], q[2]*q[2], q[3]*q[3], q[4]*q[4]
-	local m = {}
+	local m = ffi.Library.new("double[16]")
   m[0] = sqx - sqy - sqz + sqw --// since sqw + sqx + sqy + sqz =1
   m[5], m[10] = -sqx + sqy - sqz + sqw, -sqx - sqy + sqz + sqw
   local tmp1, tmp2 = q[2]*q[3], q[4]*q[1]
@@ -186,25 +186,26 @@ function GiveBack.RotationMatrix(gsl, q, Center, Matrix)
 	m[7] = a2 - a1 * m[4] - a2 * m[5] - a3 * m[6]
 	m[11] = a3 - a1 * m[8] - a2 * m[9] - a3 * m[10]
 	m[12], m[13], m[14], m[15] = 0, 0, 0, 1
-	for ak=0,15 do
-		Matrix.data[ak] = m[ak]
-	end
+	Matrix.data = m
 end
 function GiveBack.TranslationMatrix(gsl, Translation, Matrix)
 	gsl.gsl_matrix_set_identity(Matrix)
-	Matrix.data[3], Matrix.data[7], Matrix.data[11] = Translation[1], Translation[2], Translation[3]
+	Matrix.data[3], Matrix.data[7], Matrix.data[11] =
+	Translation[1], Translation[2], Translation[3]
 end
 function GiveBack.ScaleMatrix(gsl, Scale, Matrix)
 	gsl.gsl_matrix_set_zero(Matrix)
-	Matrix.data[0], Matrix.data[5], Matrix.data[10], Matrix.data[15] = Scale[1],
-	Scale[2], Scale[3], 1
+	Matrix.data[0], Matrix.data[5], Matrix.data[10], Matrix.data[15] =
+	Scale[1], Scale[2], Scale[3], 1
 end
-function GiveBack.ModelMatrix(Object, gsl, HelperMatrices)
+function GiveBack.ModelMatrix(Object, HelperMatrices, gsl, ffi)
 	GiveBack.ScaleMatrix(gsl, Object.Scale, HelperMatrices[1])
-	GiveBack.RotationMatrix(gsl, Object.Rotation, nil, HelperMatrices[2])
-	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, HelperMatrices[1], HelperMatrices[2], 0, HelperMatrices[3])
+	GiveBack.RotationMatrix(Object.Rotation, nil, HelperMatrices[2], gsl, ffi)
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, HelperMatrices[1],
+	HelperMatrices[2], 0, HelperMatrices[3])
 	GiveBack.TranslationMatrix(gsl, Object.Translation, HelperMatrices[2])
-	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, HelperMatrices[2], HelperMatrices[3], 0, HelperMatrices[1])
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, HelperMatrices[2],
+	HelperMatrices[3], 0, HelperMatrices[1])
 end
 function GiveBack.Normalise(a)
 	local Length = GiveBack.VectorLength(a)
@@ -229,10 +230,12 @@ end
 function GiveBack.VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 end
-function GiveBack.UpdateObject(Object, IfSphere, lgsl, HelperMatrices)
+function GiveBack.UpdateObject(Object, IfSphere, HelperMatrices, Arguments)
+	local lgsl, ffi = Arguments[1], Arguments[3]
 	local gsl = lgsl.Library.gsl
-	GiveBack.ModelMatrix(Object, gsl, HelperMatrices)
-	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, Object.Points, HelperMatrices[1], 0, Object.Transformated)
+	GiveBack.ModelMatrix(Object, HelperMatrices, gsl, ffi)
+	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, Object.Points,
+	HelperMatrices[1], 0, Object.Transformated)
 	if IfSphere then
 		GiveBack.CreateCollisionSphere(Object)
 	end
@@ -248,9 +251,10 @@ function GiveBack.ConcatenateCArrays(CArrays, ArrayLength, Type, ffi)
   local SizeOfAll = ArrayLength * #CArrays
   local NewCArray = ffi.Library.new(Type .. "[?]", SizeOfAll)
   for i=1,#CArrays do
-    ffi.Library.copy(NewCArray + (i - 1) * ArrayLength, CArrays[i], ArraySize * ArrayLength)
+    ffi.Library.copy(NewCArray + (i - 1) * ArrayLength, CArrays[i],
+		ArraySize * ArrayLength)
   end
   return NewCArray
 end
-GiveBack.Requirements = {}
+GiveBack.Requirements = {"lgsl", "ffi"}
 return GiveBack

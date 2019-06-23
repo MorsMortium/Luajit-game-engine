@@ -1,8 +1,8 @@
 local GiveBack = {}
 function GiveBack.Start(Arguments)
-	local Space, JSON, OpenGL, OpenGLInit, OpenGLInitGive, SDL, SDLInit, Window,
-	WindowGive = Arguments[1], Arguments[2], Arguments[4], Arguments[6],
-	Arguments[7], Arguments[8], Arguments[10], Arguments[12], Arguments[13]
+	local Space, JSON, OpenGLInit, OpenGLInitGive, SDL, Window, WindowGive =
+	Arguments[1], Arguments[2], Arguments[4], Arguments[5], Arguments[6],
+	Arguments[10], Arguments[11]
 	local Error
 	local AllWindows = JSON.Library:DecodeFromFile("AllWindows.json")
 	Space.Windows = {}
@@ -16,7 +16,8 @@ function GiveBack.Start(Arguments)
 			end
 		end
 		if Space.OpenGLWindow then
-			SDL.Library.GL_MakeCurrent(Space.Windows[Space.OpenGLWindow].WindowID, OpenGLInit.Space.Context)
+			SDL.Library.GL_MakeCurrent(Space.Windows[Space.OpenGLWindow].WindowID,
+			OpenGLInit.Space.Context)
 		end
 	else
 		Space.Windows[1] = Window.Library.Create(nil, WindowGive)
@@ -26,8 +27,8 @@ function GiveBack.Start(Arguments)
 	print("AllWindows Started")
 end
 function GiveBack.Stop(Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[8],
-	Arguments[12], Arguments[13]
+	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
+	Arguments[10], Arguments[11]
 	for ak=1,#Space.Windows do
 		local av = Space.Windows[ak]
 		SDL.Library.destroyRenderer(SDL.Library.getRenderer(av.WindowID))
@@ -39,21 +40,22 @@ function GiveBack.Stop(Arguments)
 	print("AllWindows Stopped")
 end
 function GiveBack.Add(Window, Arguments)
-	local Space, JSON, OpenGL, OpenGLInit, OpenGLInitGive, SDL, SDLInit, Window,
-	WindowGive = Arguments[1], Arguments[2], Arguments[4], Arguments[6],
-	Arguments[7], Arguments[8], Arguments[10], Arguments[12], Arguments[13]
+	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
+	Arguments[10], Arguments[11]
 	if type(Window) == "table" then
 		Space.Windows[#Space.Windows + 1] = Window.Library.Create(Window, WindowGive)
 		if Window.Type == "OpenGL" then
 			Space.Windows[#Space.Windows].OpenGL = true
-			SDL.Library.GL_MakeCurrent(Space.Windows[#Space.Windows].WindowID, OpenGLInit.Space.Context)
+			SDL.Library.GL_MakeCurrent(Space.Windows[#Space.Windows].WindowID,
+			OpenGLInit.Space.Context)
 		end
 	else
 		Space.Windows[#Space.Windows + 1] = Window.Library.Create(nil, WindowGive)
 	end
 end
 function GiveBack.Remove(Number, Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[8], Arguments[12], Arguments[13]
+	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
+	Arguments[10], Arguments[11]
 	local av = Space.Windows[#Space.Windows]
 	local Index = #Space.Windows
 	if type(Number) == "number" and Number < Index then
@@ -64,5 +66,5 @@ function GiveBack.Remove(Number, Arguments)
 	Window.Library.Destroy(av.WindowID, WindowGive)
 	table.remove(Space.Windows, Index)
 end
-GiveBack.Requirements = {"JSON", "OpenGL", "OpenGLInit", "SDL", "SDLInit", "Window"}
+GiveBack.Requirements = {"JSON", "OpenGLInit", "SDL", "SDLInit", "Window"}
 return GiveBack

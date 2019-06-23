@@ -10,6 +10,6 @@ max number of devices? (elements ffi new)
 performance: multicore Physics
              multicore rendering?
 looks: documentation
-       shorter lines
+       comments
 functions: sound
            network
