@@ -143,9 +143,10 @@ function string_split(s, d)
 
 	return t
 end
-function loader.makedevice(Name)
+function loader.makedevice(Name, DeviceName)
 	local obj = loader.load(Name)
 	local device = {}
+	device.Name = DeviceName
 	device.Objects = {}
 	for ak=1,#obj.f do
 		device.Objects[ak] = {Mass = 1, ObjectRenderer = "WireFrame", PhysicsLayers = "All", VisualLayers = "All", Fixed = false}

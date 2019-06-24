@@ -339,21 +339,23 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   b = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
   b.supporta = Support(coll1, MinusVector(search_dir), General)
   b.supportb = Support(coll2, search_dir, General)
-  if(DotProduct(b, search_dir)<0) then return false; end--we didn't reach the origin, won't enclose it
+  if DotProduct(b, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
   search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)); --search perpendicular to line segment towards origin
-  if(search_dir=={0,0,0})then --origin is on this line segment
+  if VectorEqual(search_dir, {0, 0, 0}) then --origin is on this line segment
     --Apparently any normal search vector will do?
     search_dir = CrossProduct(VectorSubtraction(c, b), {1,0,0}); --normal with x-axis
-    if(search_dir=={0,0,0}) then search_dir = CrossProduct(VectorSubtraction(c, b), {0,0,-1});end --normal with z-axis
+    if VectorEqual(search_dir, {0, 0, 0}) then
+      search_dir = CrossProduct(VectorSubtraction(c, b), {0,0,-1})
+    end --normal with z-axis
   end
-  local simp_dim = {2}; --simplex dimension
+  local simp_dim = {2} --simplex dimension
   for iterations=1, GJK_MAX_NUM_ITERATIONS do
     a = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
     a.supporta = Support(coll1, MinusVector(search_dir), General)
     a.supportb = Support(coll2, search_dir, General)
-    if(DotProduct(a, search_dir)<0)then return false end--we didn't reach the origin, won't enclose it
+    if DotProduct(a, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
     simp_dim[1] = simp_dim[1] + 1
-    if(simp_dim[1]==3) then
+    if simp_dim[1] == 3 then
       update_simplex3(a,b,c,d,simp_dim,search_dir, General);
     elseif(update_simplex4(a,b,c,d,simp_dim,search_dir, General)) then
       if mtv then

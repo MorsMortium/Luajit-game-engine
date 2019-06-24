@@ -199,7 +199,7 @@ function Destroypara.DataCheck(Devices, Device, Object, Power, Time)
 	return Data
 end
 function Destroypara.Use(Devices, Device, Object, Power, Time, Arguments)
-  local AllDevices, AllDevicesGive = Arguments[9], Arguments[10]
+  local General, AllDevices, AllDevicesGive = Arguments[1], Arguments[9], Arguments[10]
   local Ran, IfDestroy =
   pcall(Power.Command, Devices, Device, Object, Power, General)
   if Ran and IfDestroy then

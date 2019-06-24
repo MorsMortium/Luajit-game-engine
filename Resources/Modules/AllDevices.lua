@@ -55,8 +55,8 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	end
 end
 function GiveBack.Start(Arguments)
-	local Space, JSON, General, Device, DeviceGive, lgsl = Arguments[1],
-	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10]
+	local Space, JSON, General, Device, DeviceGive, lgsl, OBJ = Arguments[1],
+	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10], Arguments[12]
 	local gsl = lgsl.Library.gsl
 	Space.HelperMatrices = {}
 	for ak=1,3 do
@@ -91,7 +91,11 @@ function GiveBack.Start(Arguments)
 		Device.Library.Create(NewDevice, DeviceGive, Space.HelperMatrices)
 		GiveBack.AddDevice("Default", nil, Arguments)
 	end
-	--Space.Devices[#Space.Devices + 1] = Device.Library.Create(OBJ.Library.makedevice("./Resources/hand.obj"), "Hand", DeviceGive)
+	--[[
+	Space.DeviceTypes.Hand =
+	Device.Library.Create(OBJ.Library.makedevice("./Resources/hand.obj", "Hand"), DeviceGive, Space.HelperMatrices)
+	GiveBack.AddDevice("Hand", nil, Arguments)
+	--]]
 	print("AllDevices Started")
 end
 function GiveBack.RemoveObject(DeviceID, ObjectID, Arguments)
@@ -140,5 +144,5 @@ function GiveBack.ClearDeviceChanges(Arguments)
 	local Space = Arguments[1]
 	Space.CreatedObjects = {}
 end
-GiveBack.Requirements = {"JSON", "General", "Device", "Object", "lgsl"}
+GiveBack.Requirements = {"JSON", "General", "Device", "Object", "lgsl", "OBJ"}
 return GiveBack
