@@ -38,32 +38,27 @@ function GiveBack.Physics(Time, Arguments)
   local RotationMatrix = General.Library.RotationMatrix
   local EulerToQuaternion = General.Library.EulerToQuaternion
   local UpdateObject = General.Library.UpdateObject
+  local VectorEqual = General.Library.VectorEqual
   for ak=1,#AllDevices.Space.Devices do
     local av = AllDevices.Space.Devices[ak]
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
       if not bv.Fixed then
-        if bv.Speed[1] ~= 0 or
-        bv.Speed[2] ~= 0 or
-        bv.Speed[3] ~= 0 then
+        if not VectorEqual(bv.Speed, {0, 0, 0}) then
           bv.Translation =
           VectorAddition(bv.Translation, VectorNumberMult(bv.Speed, Time))
-          bv.MMcalc = true
+          bv.TranslationCalc = true
         end
-        if bv.RotationSpeed[1] ~= 0 or
-        bv.RotationSpeed[2] ~= 0 or
-        bv.RotationSpeed[3] ~= 0 then
+        if not VectorEqual(bv.RotationSpeed, {0, 0, 0}) then
           bv.Rotation = QuaternionMultiplication(bv.Rotation,
           EulerToQuaternion(VectorNumberMult(bv.RotationSpeed, Time)))
-          bv.MMcalc = true
+          bv.RotationCalc = true
         end
-        if bv.JointSpeed[1] ~= 0 or
-        bv.JointSpeed[2] ~= 0 or
-        bv.JointSpeed[3] ~= 0 then
+        if not VectorEqual(bv.JointSpeed, {0, 0, 0}) then
           bv.Translation =
           VectorAddition(bv.Translation, VectorNumberMult(bv.JointSpeed, Time))
           bv.JointSpeed = {0, 0, 0}
-          bv.MMcalc = true
+          bv.TranslationCalc = true
         end
         if bv.JointRotationSpeed[1] ~= 1 or
         bv.JointRotationSpeed[2] ~= 0 or
@@ -72,27 +67,27 @@ function GiveBack.Physics(Time, Arguments)
           bv.Rotation =
           QuaternionMultiplication(bv.Rotation, bv.JointRotationSpeed)
           bv.JointRotationSpeed = {1, 0, 0, 0}
-          bv.MMcalc = true
+          bv.RotationCalc = true
         end
-        if bv.MMcalc then
-          UpdateObject(bv, false, AllDevices.Space.HelperMatrices, GeneralGive)
-          bv.MMcalc = false
+        if bv.TranslationCalc or bv.RotationCalc or bv.ScaleCalc then
+          UpdateObject(bv, GeneralGive)
         end
       end
     end
   end
+  --[[
   for ak=1,#AllDevices.Space.Devices do
     local av = AllDevices.Space.Devices[ak]
     for bk=1,#av.FixedJoints do
       local bv = av.FixedJoints[bk]
-      local c1 = av.Objects[bv[1]].Translation
-      local c2 = av.Objects[bv[3]].Translation
+      local c1 = av.Objects[bv[1] ].Translation
+      local c2 = av.Objects[bv[3] ].Translation
 
-      RotationMatrix(lgsl, av.Objects[bv[1]].JointRotationSpeed, c1, AllDevices.Space.HelperMatrices[1])
-      RotationMatrix(lgsl, av.Objects[bv[3]].JointRotationSpeed, c2, AllDevices.Space.HelperMatrices[2])
+      RotationMatrix(lgsl, av.Objects[bv[1] ].JointRotationSpeed, c1, AllDevices.Space.HelperMatrices[1])
+      RotationMatrix(lgsl, av.Objects[bv[3] ].JointRotationSpeed, c2, AllDevices.Space.HelperMatrices[2])
 
-      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, av.Objects[bv[1]].Transformated, AllDevices.Space.HelperMatrices[1], 0, Space.AfterJointRotationSpeedMatrix1)
-      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, av.Objects[bv[3]].Transformated, AllDevices.Space.HelperMatrices[2], 0, Space.AfterJointRotationSpeedMatrix2)
+      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, av.Objects[bv[1] ].Transformated, AllDevices.Space.HelperMatrices[1], 0, Space.AfterJointRotationSpeedMatrix1)
+      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, av.Objects[bv[3] ].Transformated, AllDevices.Space.HelperMatrices[2], 0, Space.AfterJointRotationSpeedMatrix2)
 
       local p1 = {Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4], Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4 + 1], Space.AfterJointRotationSpeedMatrix1.data[(bv[2]-1) * 4 + 2]}
       local p2 = {Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4], Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4 + 1], Space.AfterJointRotationSpeedMatrix2.data[(bv[4]-1) * 4 + 2]}
@@ -106,13 +101,14 @@ function GiveBack.Physics(Time, Arguments)
       local SecondBodyAxis = General.Library.PerpendicularToBoth(MoveVector, VectorFromCenter2ToPoint2)
 
       local SpeedSmaller = 80000000
-      av.Objects[bv[1]].JointSpeed = VectorAddition(av.Objects[bv[1]].JointSpeed, VectorNumberMult(MoveVector, SpeedSmaller))
-      av.Objects[bv[3]].JointSpeed = General.Library.VectorSubtraction(av.Objects[bv[3]].JointSpeed, VectorNumberMult(MoveVector, SpeedSmaller))
+      av.Objects[bv[1] ].JointSpeed = VectorAddition(av.Objects[bv[1] ].JointSpeed, VectorNumberMult(MoveVector, SpeedSmaller))
+      av.Objects[bv[3] ].JointSpeed = General.Library.VectorSubtraction(av.Objects[bv[3] ].JointSpeed, VectorNumberMult(MoveVector, SpeedSmaller))
       local AngleSmaller = 80000000
-      av.Objects[bv[1]].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[1]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(FirstBodyAxis, General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
-      av.Objects[bv[3]].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[3]].JointRotationSpeed, General.Library.AxisAngleToQuaternion(SecondBodyAxis, -General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
+      av.Objects[bv[1] ].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[1] ].JointRotationSpeed, General.Library.AxisAngleToQuaternion(FirstBodyAxis, General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
+      av.Objects[bv[3] ].JointRotationSpeed = QuaternionMultiplication(av.Objects[bv[3] ].JointRotationSpeed, General.Library.AxisAngleToQuaternion(SecondBodyAxis, -General.Library.VectorLength(MoveVector) / AngleSmaller * Time))
     end
   end
+  --]]
   AllPowers.Library.DataCheckNewDevicesPowers(Time, AllPowersGive)
   CollisionDetection.Library.CheckForCollisions(AllDevices,
   Space.BroadPhaseAxes, CollisionDetectionGive)

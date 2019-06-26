@@ -1,5 +1,5 @@
 local GiveBack = {}
-function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
+function GiveBack.Create(GotDevice, Arguments)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   local Device = {}
   Device.Objects = {}
@@ -13,7 +13,7 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
       for ak=1,#GotDevice.Objects do
         local av = GotDevice.Objects[ak]
         Device.Objects[ak] =
-        Object.Library.Create(av, Device, ObjectGive, HelperMatrices)
+        Object.Library.Create(av, Device, ObjectGive)
       end
       if General.Library.GoodTypesOfTable(GotDevice.FixedJoints, "table") then
         for ak=1,#GotDevice.FixedJoints do
@@ -29,7 +29,7 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
       end
     else
       Device.Objects[1] =
-      Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
+      Object.Library.Create(nil, Device, ObjectGive)
     end
     Device.ButtonsUp = {}
     Device.ButtonsDown = {}
@@ -46,11 +46,11 @@ function GiveBack.Create(GotDevice, Arguments, HelperMatrices)
     end
   else
     Device.Objects[1] =
-    Object.Library.Create(nil, Device, ObjectGive, HelperMatrices)
+    Object.Library.Create(nil, Device, ObjectGive)
   end
   return Device
 end
-function GiveBack.Copy(Device, Arguments, HelperMatrices)
+function GiveBack.Copy(Device, Arguments)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   local NewDevice = {}
   NewDevice.Objects = {}
@@ -58,14 +58,14 @@ function GiveBack.Copy(Device, Arguments, HelperMatrices)
   for ak=1,#Device.Objects do
     local av = Device.Objects[ak]
     NewDevice.Objects[ak] =
-    Object.Library.Copy(av, NewDevice, ObjectGive, HelperMatrices)
+    Object.Library.Copy(av, NewDevice, ObjectGive)
   end
   NewDevice.FixedJoints = General.Library.DeepCopy(Device.FixedJoints)
   NewDevice.ButtonsUp = General.Library.DeepCopy(Device.ButtonsUp)
   NewDevice.ButtonsDown = General.Library.DeepCopy(Device.ButtonsDown)
   return NewDevice
 end
-function GiveBack.Merge(Device1, Device2, Arguments, HelperMatrices)
+function GiveBack.Merge(Device1, Device2, Arguments)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   for ak=1,#Device2.Objects do
     local av = Device2.Objects[ak]

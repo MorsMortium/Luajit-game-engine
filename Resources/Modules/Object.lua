@@ -1,5 +1,5 @@
 local GiveBack = {}
-function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
+function GiveBack.Create(GotObject, Parent, Arguments)
 	local General, GeneralGive, ffi, ObjectRender, ObjectRenderGive, lgsl =
 	Arguments[1], Arguments[2], Arguments[3], Arguments[5], Arguments[6], Arguments[7]
 	local IsVector3 = General.Library.IsVector3
@@ -9,6 +9,18 @@ function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
 	local Object = {}
 	Object.Parent = Parent
 	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
+	-- The coordinates of each Point, specifies the shape of the tetrahedron
+	-- Default shape: All Point is perpendicular to the first
+	Object.Points = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_set_identity(Object.Points)
+	Object.Points.data[3], Object.Points.data[7], Object.Points.data[11] = 1, 1, 1
+	Object.ScaleMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.BufferMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.ModelMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = true, true,
+	true
 	-- The Translation in the world, it will be the Object's center of Mass too
 	-- Default: center
 	Object.Translation = {0, 0, 0}
@@ -21,11 +33,6 @@ function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
 	Object.RotationSpeed = {0, 0, 0}
 	Object.JointSpeed = {0, 0, 0}
 	Object.JointRotationSpeed = {1, 0, 0, 0}
-	-- The coordinates of each Point, specifies the shape of the tetrahedron
-	-- Default shape: All Point is perpendicular to the first
-	Object.Points = gsl.gsl_matrix_alloc(4, 4)
-	gsl.gsl_matrix_set_identity(Object.Points)
-	Object.Points.data[3], Object.Points.data[7], Object.Points.data[11] = 1, 1, 1
 	-- Defines, which of the Cameras can see it, Default: All
 	Object.VisualLayers = {"All"}
 	-- Defines, which Other bodies, effects can affect it, Default: All
@@ -37,7 +44,6 @@ function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
 	Object.CollisionDecay = 0
 	Object.CollisionReaction = {0.5, 0.5}
 	Object.Powers = {}
-	Object.MMcalc = false
 	Object.RenderData = {}
 	if type(GotObject) == "table" then
 		if IsVector3(GotObject.Translation) then
@@ -126,16 +132,25 @@ function GiveBack.Create(GotObject, Parent, Arguments, HelperMatrices)
 			end
 		end
 	end
-	General.Library.UpdateObject(Object, true, HelperMatrices, GeneralGive)
+	General.Library.UpdateObject(Object, GeneralGive)
 	return Object
 end
-function GiveBack.Copy(GotObject, Parent, Arguments, HelperMatrices)
+function GiveBack.Copy(GotObject, Parent, Arguments)
 	local General, GeneralGive, ffi, lgsl = Arguments[1], Arguments[2],
 	Arguments[3], Arguments[7]
 	local gsl = lgsl.Library.gsl
 	local Object = {}
 	Object.Parent = Parent
 	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
+	Object.Points = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
+	Object.ScaleMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.BufferMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.ModelMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = true, true,
+	true
 	Object.Translation = {GotObject.Translation[1],
 												GotObject.Translation[2],
 												GotObject.Translation[3]}
@@ -160,8 +175,6 @@ function GiveBack.Copy(GotObject, Parent, Arguments, HelperMatrices)
 															GotObject.JointRotationSpeed[2],
 															GotObject.JointRotationSpeed[3],
 															GotObject.JointRotationSpeed[4]}
-	Object.Points = gsl.gsl_matrix_alloc(4, 4)
-	gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
 	Object.VisualLayers = {}
 	for ak=1,#GotObject.VisualLayers do
 		Object.VisualLayers[ak] = GotObject.VisualLayers[ak]
@@ -184,7 +197,7 @@ function GiveBack.Copy(GotObject, Parent, Arguments, HelperMatrices)
 	Object.CollisionReaction = {GotObject.CollisionReaction[1],
 															GotObject.CollisionReaction[2]}
 	Object.RenderData = General.Library.DeepCopy(GotObject.RenderData, ffi)
-	General.Library.UpdateObject(Object, true, HelperMatrices, GeneralGive)
+	General.Library.UpdateObject(Object, GeneralGive)
 	return Object
 end
 function GiveBack.Destroy(Object, Arguments)
@@ -192,6 +205,11 @@ function GiveBack.Destroy(Object, Arguments)
 	local gsl = lgsl.Library.gsl
 	gsl.gsl_matrix_free(Object.Transformated)
 	gsl.gsl_matrix_free(Object.Points)
+	gsl.gsl_matrix_free(Object.ScaleMatrix)
+	gsl.gsl_matrix_free(Object.RotationMatrix)
+	gsl.gsl_matrix_free(Object.TranslationMatrix)
+	gsl.gsl_matrix_free(Object.BufferMatrix)
+	gsl.gsl_matrix_free(Object.ModelMatrix)
 	for ak,av in pairs(Object) do
 		Object[ak] = nil
 	end

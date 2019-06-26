@@ -130,28 +130,26 @@ local function Game()
 	local Number, Time, MainExit, InputExit = 0, 0, false, false
 	local LoadModule, Modules = false
 	Start()
-	local Input, InputGive = LoadLibrary("AllInputs", "Input")
-	local Main, MainGive = LoadLibrary("Main", "Main")
-	local WindowRender, WindowRenderGive =
-	LoadLibrary("AllWindowRenders", "RenderAllWindows")
-	local CameraRender, CameraRenderGive =
-	LoadLibrary("AllCameraRenders", "RenderAllCameras")
+	local Input = {LoadLibrary("AllInputs", "Input")}
+	local Main = {LoadLibrary("Main", "Main")}
+	local WindowRender = {LoadLibrary("AllWindowRenders", "RenderAllWindows")}
+	local CameraRender = {LoadLibrary("AllCameraRenders", "RenderAllCameras")}
 	local SDL = Data.SDL.Library
 	local LastTime = SDL.getTicks()
 	while not (MainExit or InputExit) do
 		Time = SDL.getTicks() - LastTime
 		if 0 < Time then
 			LastTime = SDL.getTicks()
-			LoadModule, Modules, MainExit = Main(Time, MainGive)
+			LoadModule, Modules, MainExit = Main[1](Time, Main[2])
 			if LoadModule then
 				LoadModules(Modules)
 				LoadModule = false
 			end
-			CameraRender(CameraRenderGive)
-			WindowRender(Number, WindowRenderGive)
+			CameraRender[1](CameraRender[2])
+			WindowRender[1](Number, WindowRender[2])
 			Number = Number + 1
 		end
-		InputExit = Input(InputGive)
+		InputExit = Input[1](Input[2])
 	end
 	Stop()
 end

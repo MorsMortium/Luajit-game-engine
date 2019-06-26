@@ -274,11 +274,10 @@ function Summon.DataCheck(Devices, Device, Object, Power, Time, Arguments)
     Data.Name = Power.Name
   end
   local NewDevice =
-  Devicel.Library.Copy(AllDevices.Space.DeviceTypes[Data.Name], DeviceGive,
-  AllDevices.Space.HelperMatrices)
+  Devicel.Library.Copy(AllDevices.Space.DeviceTypes[Data.Name], DeviceGive)
   local DefaultCommand =
   "local Created, Creator = ... for ak=1,#Created.Objects do " ..
-  "local av = Created.Objects[ak] av.MMcalc = true for bk=1,3 do " ..
+  "local av = Created.Objects[ak] for bk=1,3 do " ..
   "av.Translation[bk] = Creator.Translation[bk] end end " ..
   "print('Bad modifier function')"
   if Power.String == nil then

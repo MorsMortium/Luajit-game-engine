@@ -11,23 +11,24 @@ function GiveBack.AddObject(DeviceID, DeviceName, ModifierForDevice, Arguments)
 	end
 	if Space.DeviceTypes[DeviceName] then
 		NewDevice =
-		Copy(Space.DeviceTypes[DeviceName], DeviceGive, Space.HelperMatrices)
+		Copy(Space.DeviceTypes[DeviceName], DeviceGive)
 	else
 		NewDevice =
-		Copy(Space.DeviceTypes.Default, DeviceGive, Space.HelperMatrices)
+		Copy(Space.DeviceTypes.Default, DeviceGive)
 	end
 	if ModifierForDevice then
 		pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General)
 		for ak=1,#NewDevice.Objects do
 			local av = NewDevice.Objects[ak]
-			General.Library.UpdateObject(av, true, Space.HelperMatrices, GeneralGive)
+			av.ScaleCalc, av.RotationCalc, av.TranslationCalc = true, true, true
+			General.Library.UpdateObject(av, GeneralGive)
 		end
 	end
 	for ak=1,#NewDevice.Objects do
 		local av = NewDevice.Objects[ak]
 		Space.CreatedObjects[#Space.CreatedObjects + 1] = av
 	end
-	Merge(Space.Devices[DeviceID], NewDevice, DeviceGive, Space.HelperMatrices)
+	Merge(Space.Devices[DeviceID], NewDevice, DeviceGive)
 end
 function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	local Space, General, GeneralGive, Device, DeviceGive = Arguments[1],
@@ -36,16 +37,17 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	local NewDevice
 	if Space.DeviceTypes[DeviceName] then
 		NewDevice =
-		Copy(Space.DeviceTypes[DeviceName], DeviceGive, Space.HelperMatrices)
+		Copy(Space.DeviceTypes[DeviceName], DeviceGive)
 	else
 		NewDevice =
-		Copy(Space.DeviceTypes.Default, DeviceGive, Space.HelperMatrices)
+		Copy(Space.DeviceTypes.Default, DeviceGive)
 	end
 	if ModifierForDevice then
 		pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General)
 		for ak=1,#NewDevice.Objects do
 	    local av = NewDevice.Objects[ak]
-	    General.Library.UpdateObject(av, true, Space.HelperMatrices, GeneralGive)
+			av.ScaleCalc, av.RotationCalc, av.TranslationCalc = true, true, true
+	    General.Library.UpdateObject(av, GeneralGive)
 	  end
 	end
 	Space.Devices[#Space.Devices + 1] = NewDevice
@@ -55,13 +57,8 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	end
 end
 function GiveBack.Start(Arguments)
-	local Space, JSON, General, Device, DeviceGive, lgsl, OBJ = Arguments[1],
-	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10], Arguments[12]
-	local gsl = lgsl.Library.gsl
-	Space.HelperMatrices = {}
-	for ak=1,3 do
-		Space.HelperMatrices[ak] = gsl.gsl_matrix_alloc(4, 4)
-	end
+	local Space, JSON, General, Device, DeviceGive, OBJ = Arguments[1],
+	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10]
 	Space.Devices = {}
 	Space.DeviceTypes = {}
 	Space.CreatedObjects = {}
@@ -72,12 +69,12 @@ function GiveBack.Start(Arguments)
 			local av = AllDevices.DeviceTypes[ak]
 			local NewDevice = JSON.Library:DecodeFromFile("AllDevices/" .. av .. ".json")
 			Space.DeviceTypes[NewDevice.Name] =
-			Device.Library.Create(NewDevice, DeviceGive, Space.HelperMatrices)
+			Device.Library.Create(NewDevice, DeviceGive)
 		end
 		if Space.DeviceTypes.Default == nil then
 			local NewDevice = JSON.Library:DecodeFromFile("AllDevices/Default.json")
 			Space.DeviceTypes.Default =
-			Device.Library.Create(NewDevice, DeviceGive, Space.HelperMatrices)
+			Device.Library.Create(NewDevice, DeviceGive)
 		end
 		if General.Library.GoodTypesOfTable(AllDevices.Devices, "string") then
 			for ak=1,#AllDevices.Devices do
@@ -88,12 +85,12 @@ function GiveBack.Start(Arguments)
 	else
 		local NewDevice = JSON.Library:DecodeFromFile("AllDevices/Default.json")
 		Space.DeviceTypes.Default =
-		Device.Library.Create(NewDevice, DeviceGive, Space.HelperMatrices)
+		Device.Library.Create(NewDevice, DeviceGive)
 		GiveBack.AddDevice("Default", nil, Arguments)
 	end
 	--[[
 	Space.DeviceTypes.Hand =
-	Device.Library.Create(OBJ.Library.makedevice("./Resources/hand.obj", "Hand"), DeviceGive, Space.HelperMatrices)
+	Device.Library.Create(OBJ.Library.makedevice("./Resources/hand.obj", "Hand"), DeviceGive)
 	GiveBack.AddDevice("Hand", nil, Arguments)
 	--]]
 	print("AllDevices Started")
@@ -125,12 +122,8 @@ function GiveBack.RemoveDevice(DeviceID, Arguments)
 	table.remove(Space.Devices, DeviceIndex)
 end
 function GiveBack.Stop(Arguments)
-	local Space, Device, DeviceGive, lgsl = Arguments[1], Arguments[6],
-	Arguments[7], Arguments[10]
-	local gsl = lgsl.Library.gsl
-	for ak=1,3 do
-		gsl.gsl_matrix_free(Space.HelperMatrices[ak])
-	end
+	local Space, Device, DeviceGive = Arguments[1], Arguments[6],
+	Arguments[7]
 	for ak=1,#Space.Devices do
 		local av = Space.Devices[ak]
 		Device.Library.Destroy(av, DeviceGive)
@@ -144,5 +137,5 @@ function GiveBack.ClearDeviceChanges(Arguments)
 	local Space = Arguments[1]
 	Space.CreatedObjects = {}
 end
-GiveBack.Requirements = {"JSON", "General", "Device", "Object", "lgsl", "OBJ"}
+GiveBack.Requirements = {"JSON", "General", "Device", "Object", "OBJ"}
 return GiveBack

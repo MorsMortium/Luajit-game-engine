@@ -22,9 +22,6 @@ local function VectorCopy(c, o)
   c[2] = o[2]
   c[3] = o[3]
 end
-local function VectorEqual(a, b)
-  return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
-end
 local function Barycentric(p, a, b, c, General)
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
@@ -46,22 +43,22 @@ local function ExtrapolateContactInformation(aClosestFace, General)
   local DotProduct = General.Library.DotProduct
   local VectorNumberMult = General.Library.VectorNumberMult
   local VectorAddition = General.Library.VectorAddition
-	local distanceFromOrigin = DotProduct(aClosestFace[4], aClosestFace[3]);
+	local distanceFromOrigin = DotProduct(aClosestFace[4], aClosestFace[1]);
   local aContactData = {}
   aContactData[1] = General.Library.Normalise(aClosestFace[4])
 	-- calculate the barycentric coordinates of the closest triangle with respect to
 	-- the projection of the origin onto the triangle
-	local bary_u, bary_v, bary_w = Barycentric(VectorNumberMult(aClosestFace[4], distanceFromOrigin), aClosestFace[3], aClosestFace[2], aClosestFace[1], General);
-	-- A Contact points
-	local supportLocal1 = aClosestFace[3].supporta
+	local bary_u, bary_v, bary_w = Barycentric(VectorNumberMult(aClosestFace[4], distanceFromOrigin), aClosestFace[1], aClosestFace[2], aClosestFace[3], General);
+  -- A Contact points
+	local supportLocal1 = aClosestFace[1].supporta
 	local supportLocal2 = aClosestFace[2].supporta
-	local supportLocal3 = aClosestFace[1].supporta
+	local supportLocal3 = aClosestFace[3].supporta
 	-- Contact point on object A in local space
 	aContactData[2] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
 	-- B contact points
-  supportLocal1 = aClosestFace[3].supportb
+  supportLocal1 = aClosestFace[1].supportb
 	supportLocal2 = aClosestFace[2].supportb
-	supportLocal3 = aClosestFace[1].supportb
+	supportLocal3 = aClosestFace[3].supportb
 	-- Contact point on object B in local space
   aContactData[3] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
   return aContactData;
@@ -217,6 +214,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
   local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorEqual = General.Library.VectorEqual
   faces[1] = {a, b, c, Normalise(CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)))}--ABC
   faces[2] = {a, c, d, Normalise(CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a)))}--ACD
   faces[3] = {a, d, b, Normalise(CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a)))}--ADB
@@ -328,6 +326,7 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
   local CrossProduct = General.Library.CrossProduct
+  local VectorEqual = General.Library.VectorEqual
   local a, b, c, d = {}, {}, {}, {}; --Simplex: just a set of points (a is always most recently added)
   local search_dir = VectorSubtraction(coll1.Translation, coll2.Translation); --initial search direction between colliders
   --Get initial point for simplex
@@ -388,6 +387,19 @@ end
 local function SortZ(Object1, Object2)
   if Object1.Min[3] < Object2.Min[3] then return true end
 end
+local function InsertionSort(Array, Command)
+    local Length = #Array
+    local ak
+    for ak = 2, Length do
+        local av = Array[ak]
+        local bk = ak - 1
+        while bk > 0 and Command(av, Array[bk]) do
+            Array[bk + 1] = Array[bk]
+            bk = bk - 1
+        end
+        Array[bk + 1] = av
+    end
+end
 function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
   local General, CollisionResponse, CollisionResponseGive = Arguments[1],
   Arguments[3], Arguments[4]
@@ -408,9 +420,9 @@ function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
       if next(bv) == nil then table.remove(av, bk) else bk = bk + 1 end
     end
   end
-  table.sort(BroadPhaseAxes[1], SortX)
-  table.sort(BroadPhaseAxes[2], SortY)
-  table.sort(BroadPhaseAxes[3], SortZ)
+  InsertionSort(BroadPhaseAxes[1], SortX)
+  InsertionSort(BroadPhaseAxes[2], SortY)
+  InsertionSort(BroadPhaseAxes[3], SortZ)
   local PossibleCollisions = {{}, {}, {}}
   for ak=1,3 do
     local av = BroadPhaseAxes[ak]
