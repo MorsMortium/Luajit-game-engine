@@ -12,6 +12,6 @@ More to come...
 For ideas on what You can do to help the project, see the [TODO](TODO) file
 ## Sponsoring
 If You like the project, consider sponsoring it via patreon:  
-[www.patreon.com/MorsMortium](www.patreon.com/MorsMortium)
+[https://www.patreon.com/MorsMortium]
 ## License
 This project is licensed under the GPL v3.0 License - see the [LICENSE.md](LICENSE.md) file for details
