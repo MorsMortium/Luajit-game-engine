@@ -13,13 +13,13 @@ function GiveBack.Add(CameraData, Arguments)
     OpenGL.Library.glGenRenderbuffers(1, NewCamera.DBO)
     OpenGL.Library.glBindTexture(OpenGL.Library.GL_TEXTURE_2D, NewCamera.Texture[0])
     OpenGL.Library.glTexImage2D(OpenGL.Library.GL_TEXTURE_2D, 0,
-    OpenGL.Library.GL_RGB, NewCamera.VerticalResolution,
-    NewCamera.HorizontalResolution, 0, OpenGL.Library.GL_RGB,
+    OpenGL.Library.GL_RGB, NewCamera.HorizontalResolution,
+    NewCamera.VerticalResolution, 0, OpenGL.Library.GL_RGB,
     OpenGL.Library.GL_UNSIGNED_BYTE, nil)
     OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, NewCamera.DBO[0])
     OpenGL.Library.glRenderbufferStorage(OpenGL.Library.GL_RENDERBUFFER,
-    OpenGL.Library.GL_DEPTH_COMPONENT, NewCamera.VerticalResolution,
-    NewCamera.HorizontalResolution)
+    OpenGL.Library.GL_DEPTH_COMPONENT, NewCamera.HorizontalResolution,
+    NewCamera.VerticalResolution)
     OpenGL.Library.glBindRenderbuffer(OpenGL.Library.GL_RENDERBUFFER, 0)
     Space.OpenGLCameras[#Space.OpenGLCameras + 1] = NewCamera
   elseif NewCamera.Type == "Software" then
