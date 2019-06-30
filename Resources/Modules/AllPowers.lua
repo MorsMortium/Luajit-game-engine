@@ -1,15 +1,19 @@
 local GiveBack = {}
+
+--Checks whether every Power has all it's functions, if not, it deletes it
 function GiveBack.Start(Arguments)
 	local Space, Power, PowerGive, AllDevices = Arguments[1], Arguments[2],
-		Arguments[3], Arguments[4]
-	for ak=1,#Power.Library.Powers do
-		local av = Power.Library.Powers[ak]
+	Arguments[3], Arguments[4]
+	for ak,av in pairs(Power.Library.Powers) do
 		if type(av.DataCheck) ~= "function" or type(av.Use) ~= "function" then
 			Power.Library.Powers[ak] = nil
 		end
 	end
 	print("AllPowers Started")
 end
+
+--DataChecks every new Device's every Object, needed because Summon's AllDevices
+--dependency
 function GiveBack.DataCheckNewDevicesPowers(Time, Arguments)
 	local Space, Power, PowerGive, AllDevices = Arguments[1], Arguments[2],
 	Arguments[3], Arguments[4]
@@ -35,6 +39,8 @@ function GiveBack.DataCheckNewDevicesPowers(Time, Arguments)
 		end
 	end
 end
+
+--Uses every Power that is active
 function GiveBack.UseAllPowers(Time, Arguments)
 	local Space, Power, PowerGive, AllDevices = Arguments[1], Arguments[2],
 		Arguments[3], Arguments[4]

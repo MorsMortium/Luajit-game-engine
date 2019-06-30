@@ -1,5 +1,9 @@
 local GiveBack = {}
+
+--Different Camera rendering scripts are stored here
 GiveBack.CameraRenders = {}
+
+--The default Camera fills the Camera with a color
 GiveBack.CameraRenders.Default = {}
 local Default = GiveBack.CameraRenders.Default
 Default.Software = {}
@@ -14,6 +18,9 @@ function Default.OpenGL.Render(VBO, RDBO, CameraObject, MVP, Space, Arguments)
 	OpenGL.glClearColor(1, 1, 0, 1)
 	OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT)
 end
+
+--The Test Camera render draws every Device onto the Camera
+--TODO: Software support
 GiveBack.CameraRenders.Test = {}
 local Test = GiveBack.CameraRenders.Test
 Test.OpenGL = {}
@@ -31,6 +38,10 @@ function Test.Software.Render(CameraObject, Renderer, Space, Arguments)
 	SDL.setRenderDrawColor(Renderer, 0, 0, 0, 255)
 	SDL.renderClear(Renderer)
 end
+
+--Check whether every renderer has both software and OpenGL counterpart.
+--If it has, then it creates a space for it, that is persistent
+--If not, it deletes it
 function GiveBack.Start(Arguments)
 	for ak, av in pairs(GiveBack.CameraRenders) do
 		if type(av.Software.Render) == "function" and
@@ -42,6 +53,8 @@ function GiveBack.Start(Arguments)
 	end
 	print("WindowRender Started")
 end
+
+--Deletes the space it allocated for the renderers
 function GiveBack.Stop(Arguments)
 	for ak, av in pairs(GiveBack.CameraRenders) do
     av.Space = nil

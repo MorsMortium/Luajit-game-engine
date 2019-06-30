@@ -23,6 +23,5 @@
   "Scale": [ 1, 1, 1 ],
   "VisualLayers": [ "All" ],
   "Fixed": false
-} ],
-"FixedJoints": [  ]
+} ]
 }

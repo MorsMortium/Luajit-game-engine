@@ -1,4 +1,7 @@
 local GiveBack = {}
+
+--Thist script is responsible for drawing every Device to a Camera
+--GLuint Is for the Elements of the Devices
 function GiveBack.Start(Arguments)
   local Space, ffi = Arguments[1], Arguments[6]
   Space.GLuint = ffi.Library.typeof("GLuint[?]")
@@ -11,12 +14,17 @@ function GiveBack.Stop(Arguments)
   end
   print("AllDeviceRenders Stopped")
 end
+
+--Checks whether an Object is in the same visual layers as the Camera, if true
+--Then puts its vertex data and rendering data in layers
+--After that it merges the arrays into two C arrays, creates the Elements for
+--Each renderer from ObjectRenders.lua and renders them
 function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP, Arguments)
 	local Space, General, ffi, ObjectRender, ObjectRenderGive, AllDevices =
   Arguments[1], Arguments[4], Arguments[6], Arguments[8], Arguments[9],
   Arguments[10]
-  local SameLayer = General.Library.SameLayer
-  local ConcatenateCArrays = General.Library.ConcatenateCArrays
+  local SameLayer, ConcatenateCArrays = General.Library.SameLayer,
+  General.Library.ConcatenateCArrays
   local ObjectRenders = ObjectRender.Library.ObjectRenders
 	local NumberPerType = {}
 	local notfound = true

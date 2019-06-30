@@ -59,7 +59,7 @@ local function Start()
 				type(av.Library.Requirements) == "table" then
 					for bk=1,#av.Library.Requirements do
 						local bv = av.Library.Requirements[bk]
-						if Data[bv] == nil or Data[bv].Started ~= true then
+						if Data[bv] == nil or not Data[bv].Started then
 							Allrequisgood = false
 						end
 					end

@@ -1,9 +1,12 @@
 local GiveBack = {}
+
+--This script manages Windows
+
+--Loads data for every Window and creates them
 function GiveBack.Start(Arguments)
 	local Space, JSON, OpenGLInit, OpenGLInitGive, SDL, Window, WindowGive =
 	Arguments[1], Arguments[2], Arguments[4], Arguments[5], Arguments[6],
 	Arguments[10], Arguments[11]
-	local Error
 	local AllWindows = JSON.Library:DecodeFromFile("AllWindows.json")
 	Space.Windows = {}
 	if type(AllWindows) == "table" then
@@ -26,19 +29,23 @@ function GiveBack.Start(Arguments)
 	SDL.Library.GL_SetSwapInterval(0)
 	print("AllWindows Started")
 end
+
+--Deletes every Window
 function GiveBack.Stop(Arguments)
 	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
 	Arguments[10], Arguments[11]
 	for ak=1,#Space.Windows do
 		local av = Space.Windows[ak]
 		SDL.Library.destroyRenderer(SDL.Library.getRenderer(av.WindowID))
-		Window.Library.Destroy(av.WindowID, WindowGive)
+		Window.Library.Destroy(av, WindowGive)
 	end
 	for ak,av in pairs(Space) do
 		Space[ak] = nil
 	end
 	print("AllWindows Stopped")
 end
+
+--Adds one Window
 function GiveBack.Add(Window, Arguments)
 	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
 	Arguments[10], Arguments[11]
@@ -53,6 +60,8 @@ function GiveBack.Add(Window, Arguments)
 		Space.Windows[#Space.Windows + 1] = Window.Library.Create(nil, WindowGive)
 	end
 end
+
+--Removes one Window
 function GiveBack.Remove(Number, Arguments)
 	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
 	Arguments[10], Arguments[11]

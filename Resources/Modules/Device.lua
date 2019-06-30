@@ -1,38 +1,42 @@
 local GiveBack = {}
+
+--Creates and returns one Device. Devices contain multiple objects, take input
+--from buttons and in the future contain constraints
 function GiveBack.Create(GotDevice, Arguments)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
+
+  --Creating the Device table
   local Device = {}
+
+  --The objects of the Device
   Device.Objects = {}
-  Device.FixedJoints = {}
+
+  --The name of the Device2
   Device.Name = "UnknownDevice"
+
+  --Creating the Device from the actual data
   if type(GotDevice) == "table" then
+
     if GotDevice.Name then
       Device.Name = GotDevice.Name
     end
+
+    --Creating the objects with Object.lua
     if type(GotDevice.Objects) == "table" then
       for ak=1,#GotDevice.Objects do
         local av = GotDevice.Objects[ak]
         Device.Objects[ak] =
         Object.Library.Create(av, Device, ObjectGive)
       end
-      if General.Library.GoodTypesOfTable(GotDevice.FixedJoints, "table") then
-        for ak=1,#GotDevice.FixedJoints do
-          local av = GotDevice.FixedJoints[ak]
-          if General.Library.GoodTypesOfTable(av, "number") then
-            if #av == 4 and av[1] ~= av[3] and 0 < av[2] and av[2] < 5 and
-            0 < av[4] and av[4] < 5 and av[1] <= #Device.Objects and
-            av[3] <= #Device.Objects then
-              Device.FixedJoints[ak] = av
-            end
-          end
-        end
-      end
     else
       Device.Objects[1] =
       Object.Library.Create(nil, Device, ObjectGive)
     end
+
+    --Different commands for keypress and release
     Device.ButtonsUp = {}
     Device.ButtonsDown = {}
+
     if type(GotDevice.Inputs) == "table" then
       for ak=1,#GotDevice.Inputs do
         local av = GotDevice.Inputs[ak]
@@ -45,11 +49,15 @@ function GiveBack.Create(GotDevice, Arguments)
       end
     end
   else
+
+    --Default
     Device.Objects[1] =
     Object.Library.Create(nil, Device, ObjectGive)
   end
   return Device
 end
+
+--This function copies a Device with every data it has
 function GiveBack.Copy(Device, Arguments)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   local NewDevice = {}
@@ -60,20 +68,20 @@ function GiveBack.Copy(Device, Arguments)
     NewDevice.Objects[ak] =
     Object.Library.Copy(av, NewDevice, ObjectGive)
   end
-  NewDevice.FixedJoints = General.Library.DeepCopy(Device.FixedJoints)
   NewDevice.ButtonsUp = General.Library.DeepCopy(Device.ButtonsUp)
   NewDevice.ButtonsDown = General.Library.DeepCopy(Device.ButtonsDown)
   return NewDevice
 end
+
+--This function merges two devices together
+--If there is a conflict in the taken input, the first Device will be accepted
+--TODO:OnCollisionPowers
 function GiveBack.Merge(Device1, Device2, Arguments)
   local Object, ObjectGive, General = Arguments[1], Arguments[2], Arguments[3]
   for ak=1,#Device2.Objects do
     local av = Device2.Objects[ak]
-    Device1.Objects[#Device1.Objects + 1] = Device2.Objects[ak]
-  end
-  for ak=1,#Device1.Objects do
-    local av = Device1.Objects[ak]
     av.Parent = Device1
+    Device1.Objects[#Device1.Objects + 1] = av
   end
   local NewButtonsUp = {}
   local NewButtonsDown = {}
@@ -91,8 +99,9 @@ function GiveBack.Merge(Device1, Device2, Arguments)
   end
   Device1.ButtonsUp = NewButtonsUp
   Device1.ButtonsDown = NewButtonsDown
-  --Device.FixedJoints = General.Library.DeepCopy(GotDevice.FixedJoints)
 end
+
+--Destroys a Device
 function GiveBack.Destroy(Device, Arguments)
   local Object, ObjectGive = Arguments[1], Arguments[2]
   for ak=1,#Device.Objects do

@@ -11,6 +11,10 @@ function GiveBack.Stop(Arguments)
 	end
 	print("AllWindowRenders Stopped")
 end
+
+--Renders every Window
+--Recalculates fps for every 30 frames
+--TODO: Move fps out of here
 function GiveBack.RenderAllWindows(Number, Arguments)
 	local Space, SDL, AllWindows, WindowRender, WindowRenderGive, OpenGLInit =
 	Arguments[1], Arguments[2], Arguments[6], Arguments[8], Arguments[9],

@@ -1,4 +1,6 @@
 local GiveBack = {}
+
+--Adds one Camera to the Game
 function GiveBack.Add(CameraData, Arguments)
   local Space, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1],
   Arguments[4], Arguments[5], Arguments[6], Arguments[8],
@@ -7,9 +9,9 @@ function GiveBack.Add(CameraData, Arguments)
   if NewCamera.Type == "OpenGL" then
     NewCamera.Texture = ffi.Library.new("GLuint[1]")
     NewCamera.DBO = ffi.Library.new("GLuint[1]")
-    OpenGL.Library.glGenTextures(1, NewCamera.Texture);
+    OpenGL.Library.glGenTextures(1, NewCamera.Texture)
     OpenGL.Library.glGenRenderbuffers(1, NewCamera.DBO)
-    OpenGL.Library.glBindTexture(OpenGL.Library.GL_TEXTURE_2D, NewCamera.Texture[0]);
+    OpenGL.Library.glBindTexture(OpenGL.Library.GL_TEXTURE_2D, NewCamera.Texture[0])
     OpenGL.Library.glTexImage2D(OpenGL.Library.GL_TEXTURE_2D, 0,
     OpenGL.Library.GL_RGB, NewCamera.VerticalResolution,
     NewCamera.HorizontalResolution, 0, OpenGL.Library.GL_RGB,
@@ -27,6 +29,8 @@ function GiveBack.Add(CameraData, Arguments)
     Space.SoftwareCameras[#Space.SoftwareCameras + 1] = NewCamera
   end
 end
+
+--Adds every starting Camera to the Game
 function GiveBack.Start(Arguments)
   local Space, JSON, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1],
   Arguments[2], Arguments[4], Arguments[5], Arguments[6], Arguments[8],
@@ -57,6 +61,8 @@ function GiveBack.Start(Arguments)
   end
 	print("AllCameras Started")
 end
+
+--Deletes every Camera
 function GiveBack.Stop(Arguments)
   local Space, OpenGL, SDL = Arguments[1], Arguments[8], Arguments[16]
   for ak=1,#Space.OpenGLCameras do
@@ -71,6 +77,8 @@ function GiveBack.Stop(Arguments)
   end
 	print("AllCameras Stopped")
 end
+
+--Deletes one Camera
 function GiveBack.Remove(Number, Type, Arguments)
   local Space, OpenGL, SDL = Arguments[1], Arguments[8], Arguments[10]
   if Type == "OpenGL" then

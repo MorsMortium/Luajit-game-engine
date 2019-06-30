@@ -1,16 +1,17 @@
-scopes for powers (object, device, all devices, inside object, later player)
-collision reaction/functions
-reduce data conversion
-max number of devices? (elements ffi new)
--no collision check if no movement
--Work Out deprecation
--check SDL and OpenGL Init variables before using functions (or start module)
--finish TODOs
+-Work out deprecation
+-finish TODOs in files
 -error messages where needed (but no exit if not needed)
 performance: multicore Physics
              multicore rendering?
-looks: documentation
-       comments
+             max number of devices? (elements ffi new)
+             reduce data conversion
+             no collision check if no movement
+looks: clean Launcher.lua
+       documentation
+       better comments
        redo shorter lines without splitting them into two lines
-functions: sound
-           network
+features: sound
+          network
+          scopes for powers (object, device, all devices, inside object, later player)
+          collision response (constraint/impulses)
+          check SDL and OpenGL Init variables before using functions (or start module)

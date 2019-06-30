@@ -9,15 +9,13 @@
     "RenderData": [ [ 0, 255, 0, 255 ], [ 0, 255, 0, 255 ], [ 0, 255, 0, 255 ], [ 0, 255, 0, 255 ] ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 0.5, 0.5, 0.5 ],
-    "CollisionDecay": 1,
-    "CollisionReaction": [ 0, 1 ],
     "VisualLayers": [ "All" ],
     "Fixed": false,
     "OnCollisionPowers": [ false, false, true ],
     "Powers": [
       {
         "Type": "Destroypara",
-        "String": "local Devices, Device, Object, Power, General = ... if Devices then local Own, Other = Object.Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 50 then return true else return false end end",
+        "String": "local Devices, Device, Object, Power, General = ... if Devices then local Own, Other = Object.Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.VectorSubtraction(Other, Own)) > 50 then return true else return false end end",
         "IfObject": true,
         "Active": true
       }, {

@@ -1,5 +1,9 @@
 local GiveBack = {}
+
+--Different Window rendering scripts are stored here
 GiveBack.Renders = {}
+
+--The default Window render fills the Window with a color
 GiveBack.Renders.Default = {}
 GiveBack.Renders.Default.Software = {}
 function GiveBack.Renders.Default.Software.Render(WindowObject, Space, Arguments)
@@ -16,6 +20,8 @@ function GiveBack.Renders.Default.OpenGL.Render(WindowObject, Space, Arguments)
 	OpenGL.glClearColor(1, 0, 0, 1)
 	OpenGL.glClear(OpenGL.GL_COLOR_BUFFER_BIT)
 end
+
+--The Test Window render draws the first camera onto the Window
 GiveBack.Renders.Test = {}
 GiveBack.Renders.Test.OpenGL = {}
 function GiveBack.Renders.Test.OpenGL.Render(WindowObject, Space, Arguments)
@@ -41,6 +47,10 @@ function GiveBack.Renders.Test.Software.Render(WindowObject, Space, Arguments)
 		SDL.upperBlitScaled(Camera1.Surface, nil, WindowSurface, nil)
 	end
 end
+
+--Check whether every renderer has both software and OpenGL counterpart.
+--If it has, then it creates a space for it, that is persistent
+--If not, it deletes it
 function GiveBack.Start(Arguments)
 	local Space = Arguments[1]
 	Space.lasttime = 0
@@ -54,6 +64,8 @@ function GiveBack.Start(Arguments)
 	end
 	print("WindowRender Started")
 end
+
+--Deletes the space it allocated for the renderers
 function GiveBack.Stop(Arguments)
 	local Space = Arguments[1]
 	for ak, av in pairs(GiveBack.Renders) do

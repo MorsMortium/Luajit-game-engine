@@ -1,39 +1,20 @@
 local GiveBack = {}
-local function FileExists(Name)
-   local f=io.open(Name,"r")
-   if f~=nil then io.close(f) return true else return false end
-end
-local function ToEuler(Axis, Angle, General)
-	local s = math.sin(Angle)
-	local c = math.cos(Angle)
-	local t = 1 - c
-	--  if Axis is not already normalised then uncomment this
-	local Magnitude = General.Library.VectorLength(Axis)
-	--// if (Magnitude==0) throw error;
-  General.Library.VectorNumberMult(Axis, 1/Magnitude)
-	local X
-	local Y
-	local Z
-	if (Axis[1]*Axis[2] * t + Axis[3] * s) > 0.998 then
-    --north pole singularity detected
-		X = 2 * math.atan2(Axis[1] * math.sin(Angle / 2), math.cos(Angle / 2))
-		Y = math.pi / 2
-		Z = 0
-	elseif (Axis[1]*Axis[2] * t + Axis[3] * s) < -0.998 then
-    --south pole singularity detected
-		X = -2 * math.atan2(Axis[1] * math.sin(Angle / 2), math.cos(Angle / 2))
-		Y = -math.pi / 2
-		Z = 0
-	else
-		X = math.atan2(Axis[2] * s - Axis[1] * Axis[3] * t,
-                  1 - (Axis[2] * Axis[2] + Axis[3] * Axis[3] ) * t)
-		Y = math.asin(Axis[1] * Axis[2] * t + Axis[3] * s)
-		Z = math.atan2(Axis[1] * s - Axis[2] * Axis[3] * t,
-                  1 - (Axis[1] * Axis[1] + Axis[3] * Axis[3]) * t)
-	end
-	return {Z, X, Y}
+--This script is responsible for mechanics that aren't derived from physics
+--DataCheck functions convert data stored in json into data the power uses
+--Use functions evaluate the power
+
+--Converts an axis-angle rotatiton into a quaternion rotatiton
+local function AxisAngleToQuaternion(Axis, Angle)
+  return {math.cos(Angle / 2),
+          Axis[1] * math.sin(Angle/2),
+          Axis[2] * math.sin(Angle/2),
+          Axis[3] * math.sin(Angle/2)}
 end
 GiveBack.Powers = {}
+
+--Gravity pulls or pushes every object within Distance with a constant force
+--In the direction of the Object using it
+--TODO: dependency on mass, Distance
 GiveBack.Powers.Gravity = {}
 local Gravity = GiveBack.Powers.Gravity
 function Gravity.DataCheck(Devices, Device, Object, Power, Time)
@@ -55,36 +36,40 @@ function Gravity.DataCheck(Devices, Device, Object, Power, Time)
 end
 function Gravity.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
+  local SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
+  VectorAddition, VectorNumberMult, MinusVector = General.Library.SameLayer,
+  General.Library.VectorLength, General.Library.VectorSubtraction,
+  General.Library.Normalise, General.Library.VectorSign,
+  General.Library.VectorAddition, General.Library.VectorNumberMult,
+  General.Library.MinusVector
   for ak=1,#Devices do
     local av = Devices[ak]
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
   		if (Device ~= ak or Object ~= bk) and
-      General.Library.SameLayer(Object.PhysicsLayers, bv.PhysicsLayers) and
-  		math.sqrt((bv.Translation[1] - Object.Translation[1])^2 +
-  							(bv.Translation[2] - Object.Translation[2])^2 +
-  							(bv.Translation[3] - Object.Translation[3])^2)
-                < Power.Distance then
-  			for ck=1,3 do
-          if not bv.Fixed then
-            if bv.Translation[ck] > Object.Translation[ck] then
-  						bv.Speed[ck] = bv.Speed[ck] - Time * Power.Force
-  					elseif bv.Translation[ck] < Object.Translation[ck] then
-  						bv.Speed[ck] = bv.Speed[ck] + Time * Power.Force
-  					end
-          end
-          if not Object.Fixed then
-            if bv.Translation[ck] > Object.Translation[ck] then
-    					Object.Speed[ck] = Object.Speed[ck] + Time * Power.Force
-    				elseif bv.Translation[ck] < Object.Translation[ck] then
-    					Object.Speed[ck] = Object.Speed[ck] - Time * Power.Force
-    				end
-  				end
+      SameLayer(Object.PhysicsLayers, bv.PhysicsLayers) and
+      VectorLength(VectorSubtraction(Object.Translation, bv.Translation))
+      < Power.Distance then
+        local Direction = Normalise(VectorSubtraction(Object.Translation, bv.Translation))
+        if true then
+          Direction = VectorSign(Direction)
+        end
+        if not bv.Fixed then
+          bv.Speed =
+          VectorAddition(bv.Speed, VectorNumberMult(Direction, Time * Power.Force))
+        end
+        Direction = MinusVector(Direction)
+        if not Object.Fixed then
+          Object.Speed =
+          VectorAddition(Object.Speed, VectorNumberMult(Direction, Time * Power.Force))
   			end
   		end
     end
   end
 end
+
+--Thruster pulls or pushes the object using it with a constant force
+--In the direction of one of its points
 GiveBack.Powers.Thruster = {}
 local Thruster = GiveBack.Powers.Thruster
 function Thruster.DataCheck(Devices, Device, Object, Power, Time)
@@ -110,15 +95,18 @@ function Thruster.Use(Devices, Device, Object, Power, Time, Arguments)
   local VectorAddition = General.Library.VectorAddition
   local VectorNumberMult = General.Library.VectorNumberMult
   if not Object.Fixed then
-    local p1 = {Object.Transformated.data[(Power.Point-1) * 4],
+    local p = {Object.Transformated.data[(Power.Point-1) * 4],
                 Object.Transformated.data[(Power.Point-1) * 4 + 1],
                 Object.Transformated.data[(Power.Point-1) * 4 + 2]}
-    local c1 = Object.Translation
-    local vfc1tp1 = General.Library.PointAToB(c1, p1)
+    local c = Object.Translation
+    local vfctp = General.Library.VectorSubtraction(p, c)
     Object.Speed =
-    VectorAddition(Object.Speed, VectorNumberMult(vfc1tp1, Time*Power.Force))
+    VectorAddition(Object.Speed, VectorNumberMult(vfctp, Time*Power.Force))
   end
 end
+
+--SelfRotate rotates the object using it with a constant angle
+--Around one of its points
 GiveBack.Powers.SelfRotate = {}
 local SelfRotate = GiveBack.Powers.SelfRotate
 function SelfRotate.DataCheck(Devices, Device, Object, Power, Time)
@@ -143,17 +131,20 @@ function SelfRotate.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local VectorAddition = General.Library.VectorAddition
   local VectorNumberMult = General.Library.VectorNumberMult
+	local QuaternionMultiplication = General.Library.QuaternionMultiplication
   if not Object.Fixed then
-		local p1 = {Object.Transformated.data[(Power.Point-1) * 4],
+		local p = {Object.Transformated.data[(Power.Point-1) * 4],
                 Object.Transformated.data[(Power.Point-1) * 4 + 1],
                 Object.Transformated.data[(Power.Point-1) * 4 + 2]}
-		local c1 = Object.Translation
-		local vfc1tp1 = General.Library.PointAToB(c1, p1)
-		local euler = ToEuler(vfc1tp1, Power.Angle, General)
+		local c = Object.Translation
+		local vfctp = General.Library.VectorSubtraction(p, c)
+		local Quaternion = AxisAngleToQuaternion(vfctp, Power.Angle * Time)
     Object.RotationSpeed =
-    VectorAddition(Object.RotationSpeed, VectorNumberMult(euler, Time))
+		QuaternionMultiplication(Object.RotationSpeed, Quaternion)
   end
 end
+
+--SelfSlow slows the object using it with a constant rate on every axes
 GiveBack.Powers.SelfSlow = {}
 local SelfSlow = GiveBack.Powers.SelfSlow
 function SelfSlow.DataCheck(Devices, Device, Object, Power, Time)
@@ -172,21 +163,28 @@ end
 function SelfSlow.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local VectorNumberMult = General.Library.VectorNumberMult
-  Object.Speed = VectorNumberMult(Object.Speed, 1/Power.Rate ^ Time)
-  Object.RotationSpeed =
-  VectorNumberMult(Object.RotationSpeed, 1/Power.Rate ^ Time)
+	local Slerp = General.Library.Slerp
+  Object.Speed = VectorNumberMult(Object.Speed, 1 / Power.Rate ^ Time)
+	Object.RotationSpeed =
+	Slerp({1, 0, 0, 0}, Object.RotationSpeed, 1 / Power.Rate ^ Time)
 end
+local function DefaultDestroypara(...)
+  return false
+end
+
+--Destroypara destroys the object using it if it's command returns true
 GiveBack.Powers.Destroypara = {}
 local Destroypara = GiveBack.Powers.Destroypara
 function Destroypara.DataCheck(Devices, Device, Object, Power, Time)
 	local Data = {}
 	Data.Type = "Destroypara"
   if Power.String == nil then
-    Power.String = "return false"
-  end
-  Data.Command = loadstring(Power.String)
-  if not pcall(Data.Command) then
-    Data.Command = loadstring("return false")
+    Data.Command = DefaultDestroypara
+  else
+    Data.Command = loadstring(Power.String)
+    if not pcall(Data.Command) then
+      Data.Command = DefaultDestroypara
+    end
   end
   Data.IfObject = false
   if type(Power.IfObject) == "boolean" then
@@ -239,17 +237,24 @@ function Destroypara.Use(Devices, Device, Object, Power, Time, Arguments)
     return true
   end
 end
+
+--Command runs small script which can be custom mechanics for the object/device
+--Or all devices
+local function DefaultCommand(...)
+  return false
+end
 GiveBack.Powers.Command = {}
 local Command = GiveBack.Powers.Command
 function Command.DataCheck(Devices, Device, Object, Power, Time)
 	local Data = {}
 	Data.Type = "Command"
   if Power.String == nil then
-    Power.String = "return false"
-  end
-  Data.Command = loadstring(Power.String)
-  if not pcall(Data.Command, Devices, Device, Object, Power, Time) then
-    Data.Command = loadstring("return false")
+    Data.Command = DefaultCommand
+  else
+    Data.Command = loadstring(Power.String)
+    if not pcall(Data.Command, Devices, Device, Object, Power, Time) then
+      Data.Command = DefaultCommand
+    end
   end
   Data.Active = false
   if type(Power.Active) == "boolean" then
@@ -260,6 +265,20 @@ end
 function Command.Use(Devices, Device, Object, Power, Time)
   pcall(Power.Command, Devices, Device, Object, Power, Time)
 end
+local function DefaultSummon(...)
+  local Created, Creator = ...
+    for ak=1,#Created.Objects do
+      local av = Created.Objects[ak]
+      for bk=1,3 do
+        av.Translation[bk] = Creator.Translation[bk]
+        av.Rotation[bk] = Creator.Rotation[bk]
+      end
+      av.Rotation[4] = Creator.Rotation[4]
+    end
+    print('Bad modifier function')
+end
+
+--Summon adds an object or device, then modifies it with it's command
 GiveBack.Powers.Summon = {}
 local Summon = GiveBack.Powers.Summon
 function Summon.DataCheck(Devices, Device, Object, Power, Time, Arguments)
@@ -275,18 +294,14 @@ function Summon.DataCheck(Devices, Device, Object, Power, Time, Arguments)
   end
   local NewDevice =
   Devicel.Library.Copy(AllDevices.Space.DeviceTypes[Data.Name], DeviceGive)
-  local DefaultCommand =
-  "local Created, Creator = ... for ak=1,#Created.Objects do " ..
-  "local av = Created.Objects[ak] for bk=1,3 do " ..
-  "av.Translation[bk] = Creator.Translation[bk] end end " ..
-  "print('Bad modifier function')"
   if Power.String == nil then
-    Power.String = DefaultCommand
+    Data.Command = DefaultSummon
+  else
+    Data.Command = loadstring(Power.String)
+    if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], General) then
+		  Data.Command = DefaultSummon
+	  end
   end
-  Data.Command = loadstring(Power.String)
-  if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], General) then
-		Data.Command = loadstring(DefaultCommand)
-	end
   Data.IfObject = false
   if type(Power.IfObject) == "boolean" then
     Data.IfObject = Power.IfObject

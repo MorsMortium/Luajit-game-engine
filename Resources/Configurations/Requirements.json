@@ -35,10 +35,6 @@
   "Path": "luaglew",
   "Name": "OpenGL"
 }, {
-  "StartStopSpace": false,
-  "Path": "GLU",
-  "Name": "GLU"
-}, {
   "StartStopSpace": true,
   "Path": "SDLInit",
   "Name": "SDLInit"

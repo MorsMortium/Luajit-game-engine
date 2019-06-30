@@ -1,4 +1,6 @@
 local GiveBack = {}
+
+--Creates Requirements based on the needs of the inputs
 local function NotInList(List, Object)
 	for ak=1,#List do
 		if List[ak] == Object then
@@ -23,6 +25,8 @@ for ak=1,#Inputs do
 	end
 end
 Inputs = nil
+
+--Sets up inputs based on button presses and releases
 function GiveBack.Start(Arguments)
 	local Space, JSON, SDL, SDLInit, SDLInitGive, ffi, Window, WindowGive,
 	AllWindows, AllWindowsGive, WindowRender, WindowRenderGive = Arguments[1],
@@ -66,6 +70,9 @@ function GiveBack.Stop(Arguments)
 	end
 	print("AllInputs Stopped")
 end
+
+--Takes inputs and runs commands if there is button for it
+--TODO: Answer to every type of input
 function GiveBack.Input(Arguments)
 	local Space, SDL, ffi, Window, WindowGive, AllWindows, AllWindowsGive,
 	AllDevices = Arguments[1], Arguments[4], Arguments[8], Arguments[10],
@@ -84,13 +91,10 @@ function GiveBack.Input(Arguments)
 					local av = AllWindows.Space.Windows[ak]
 					if av.WindowID == SDL.Library.getWindowFromID(EventWindowID) then
 						table.remove(AllWindows.Space.Windows, ak)
+						Window.Library.Destroy(av, WindowGive)
 						break
 					end
 				end
-				SDL.Library.destroyRenderer(SDL.Library.getRenderer(
-				SDL.Library.getWindowFromID(Space.Event.window.windowID)))
-				--print(ffi.Library.string(SDL.Library.getError())) TODO
-				Window.Library.Destroy(Space.Event.window.windowID, WindowGive)
 			elseif Space.Event.window.event == SDL.Library.WINDOWEVENT_RESIZED then
 				local EventWindowID = Space.Event.window.windowID
 				for ak=1,#AllWindows.Space.Windows do
@@ -157,6 +161,8 @@ function GiveBack.Input(Arguments)
 		return true
 	end
 end
+
+--Adds a new input
 function GiveBack.Add(Command, Arguments)
 	local Space = Arguments[1]
 	local Object = {}
@@ -172,6 +178,8 @@ function GiveBack.Add(Command, Arguments)
 		end
 	end
 end
+
+--Removes an input
 function GiveBack.Remove(Letter, Type,  Arguments)
 	local Space = Arguments[1]
 	if type(Letter) == "string" then

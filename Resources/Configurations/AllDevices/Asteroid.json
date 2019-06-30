@@ -16,7 +16,7 @@
     "OnCollisionPowers": [ false, false, true ],
     "Powers": [ {
         "Type": "Destroypara",
-        "String": "local Devices, Device, Object, Power, General = ... if Devices then local Own, Other = Object.Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.PointAToB(Own, Other)) > 100 then return true else return false end end",
+        "String": "local Devices, Device, Object, Power, General = ... if Devices then local Own, Other = Object.Translation, Devices[1].Objects[1].Translation if General.Library.VectorLength(General.Library.VectorSubtraction(Other, Own)) > 100 then return true else return false end end",
         "IfObject": false,
         "Active": true
       }, {

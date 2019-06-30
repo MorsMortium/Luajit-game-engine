@@ -1,4 +1,6 @@
 local GiveBack = {}
+
+--Loads every Shader with Shader.lua
 function GiveBack.Start(Arguments)
 	local Space, Shader, ShaderGive, JSON = Arguments[1], Arguments[2],
 	Arguments[3], Arguments[4]
@@ -10,6 +12,8 @@ function GiveBack.Start(Arguments)
 			Space.Shaders[av.Name] = Shader.Library.Create(av, ShaderGive)
 		end
 	end
+	--TODO: Default shaders full redo
+	--[[
 	local DefaultShader = {}
 	DefaultShader.Uniforms = {}
 	DefaultShader.Inputs = {}
@@ -18,7 +22,6 @@ function GiveBack.Start(Arguments)
 	DefaultShader.String =
 	"./Resources/Shaders/DefaultOpenGLWindowFragmentShader.txt"
 	DefaultShader.ShaderType = "GL_FRAGMENT_SHADER"
-	--TODO
 	--DefaultShader.Uniforms[1] =
 	Space.Shaders[DefaultShader.Name] =
 	Shader.Library.Create(DefaultShader, ShaderGive)
@@ -45,12 +48,14 @@ function GiveBack.Start(Arguments)
 	"./Resources/Shaders/DefaultOpenGLWindowVertexShader.txt"
 	DefaultShader.Inputs = nil
 	DefaultShader.Uniforms = nil
-	--TODO
 	--DefaultShader.Inputs[1] =
 	Space.Shaders[DefaultShader.Name] =
 	Shader.Library.Create(DefaultShader, ShaderGive)
+	--]]
 	print("AllShaders Started")
 end
+
+--Deletes every Shader
 function GiveBack.Stop(Arguments)
 	local Space, Shader, ShaderGive = Arguments[1], Arguments[2], Arguments[3]
 	for ak=1,#Space.Shaders do

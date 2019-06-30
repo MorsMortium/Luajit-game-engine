@@ -1,5 +1,9 @@
 local GiveBack = {}
+
+--Different Object rendering scripts are stored here
 GiveBack.ObjectRenders = {}
+
+--The default Object render maps one color per vertex
 GiveBack.ObjectRenders.Default = {}
 local Default = GiveBack.ObjectRenders.Default
 function Default.DataCheck(RenderData, GotData, Arguments)
@@ -64,6 +68,8 @@ function Default.Render(VBO, RDBO, FullTransformatedMatrix, MVP,
 	OpenGL.glDisableVertexAttribArray(TestProgram.Inputs.vertexPosition_modelspace)
 	OpenGL.glDisableVertexAttribArray(TestProgram.Inputs.vertexColor)
 end
+
+--The WireFrame Object render works like the Default but with lines
 GiveBack.ObjectRenders.WireFrame = {}
 local WireFrame = GiveBack.ObjectRenders.WireFrame
 function WireFrame.DataCheck(RenderData, GotData, Arguments)
@@ -128,6 +134,8 @@ function WireFrame.Render(VBO, RDBO, FullTransformatedMatrix, MVP,
 	OpenGL.glDisableVertexAttribArray(TestProgram.Inputs.vertexPosition_modelspace)
 	OpenGL.glDisableVertexAttribArray(TestProgram.Inputs.vertexColor)
 end
+
+--The ColorPerSide Object render maps one color per face
 GiveBack.ObjectRenders.ColorPerSide = {}
 local ColorPerSide = GiveBack.ObjectRenders.ColorPerSide
 function ColorPerSide.DataCheck(RenderData, GotData, Arguments)
@@ -224,6 +232,8 @@ function ColorPerSide.Render(VBO, RDBO, FullTransformatedMatrix, MVP,
 	OpenGL.glDisableVertexAttribArray(TestProgram.Inputs.vertexPosition_modelspace)
 	OpenGL.glDisableVertexAttribArray(TestProgram.Inputs.vertexColor)
 end
+
+--Checks whether every Object render has all needed functions, if not, it's deleted
 function GiveBack.Start(Arguments)
 	for ak, av in pairs(GiveBack.ObjectRenders) do
 		if type(av.Render) == "function" and

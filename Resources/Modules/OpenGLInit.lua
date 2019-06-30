@@ -1,4 +1,8 @@
 local GiveBack = {}
+
+--Inits the OpenGL system, and glew, if needed.
+--Creates a dummy window, sets OpenGL version, and
+--Creates an OpenGL context
 function GiveBack.Start(Arguments)
 	local Space, JSON, SDL, SDLInit, OpenGL = Arguments[1], Arguments[2],
 	Arguments[4], Arguments[6], Arguments[8]
@@ -37,6 +41,8 @@ function GiveBack.Start(Arguments)
 	OpenGL.Library.glEnable(OpenGL.Library.GL_DEPTH_TEST)
 	print("openglinit Started")
 end
+
+--Destroys the dummy window
 function GiveBack.DeleteDummyWindow(Arguments)
 	local Space, SDL = Arguments[1], Arguments[4]
 	local SDL = SDL.Library
@@ -45,6 +51,8 @@ function GiveBack.DeleteDummyWindow(Arguments)
 		Space.DummyWindow = nil
 	end
 end
+
+--Destroys the dummy window if needed and the context
 function GiveBack.Stop(Arguments)
 	local Space, SDL = Arguments[1], Arguments[4]
 	local SDL = SDL.Library

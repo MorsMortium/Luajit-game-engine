@@ -1,78 +1,121 @@
 local GiveBack = {}
-function GiveBack.Create(GotObject, Arguments)
-	local General, CameraRender = Arguments[1], Arguments[3]
-	local Object = {}
-	Object.Translation = {0,1,0}
-	Object.Direction = {0,-1,0}
-	Object.UpVector = {0,1,0}
-	Object.VisualLayers = {"All"}
-	Object.MinimumDistance = 1
-	Object.MaximumDistance = 100
-	Object.HorizontalResolution = 640
-	Object.VerticalResolution = 480
-	Object.FieldOfView = 90
-	Object.Type = "Software"
-	Object.CameraRenderer = "Default"
-	Object.ViewMatrixCalc = true
-	Object.ProjectionMatrixCalc = true
-	if type(GotObject) == "table" then
-		if General.Library.IsVector3(GotObject.Translation) then
-			Object.Translation = GotObject.Translation
+
+--Creates and returns one Camera
+function GiveBack.Create(GotCamera, Arguments)
+	local General, CameraRender, lgsl = Arguments[1], Arguments[3], Arguments[5]
+	local IsVector3 = General.Library.IsVector3
+	local type = type
+	local gsl = lgsl.Library.gsl
+
+	--Creating the Camera table
+	local Camera = {}
+
+	Camera.ViewMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Camera.ProjectionMatrix = gsl.gsl_matrix_alloc(4, 4)
+	Camera.ViewProjectionMatrix = gsl.gsl_matrix_alloc(4, 4)
+	--The translation in the world, Default: origin
+	Camera.Translation = {0,1,0}
+
+	--The direction the Camera faces
+	Camera.Direction = {0,-1,0}
+
+	--The vector that points to the top of the Camera
+	Camera.UpVector = {0,1,0}
+
+	--Defines, which of the Objects it can see, Default: All
+	Camera.VisualLayers = {"All"}
+
+	--Closest vertices it renders
+	Camera.MinimumDistance = 1
+
+	--Farthest vertices it renders
+	Camera.MaximumDistance = 100
+
+	--Resolutions of the Camera
+	Camera.HorizontalResolution = 640
+	Camera.VerticalResolution = 480
+
+	--Field Of View of the Camera
+	Camera.FieldOfView = 90
+
+	--Type of the Camera, it can be "Software" or "OpenGL"
+	Camera.Type = "Software"
+
+	--Camera Renderer from CameraRender.lua
+	Camera.CameraRenderer = "Default"
+
+	--Flags for upgrading the matrices
+	Camera.ViewMatrixCalc = true
+	Camera.ProjectionMatrixCalc = true
+
+	--Creating the Camera from the actual data
+	if type(GotCamera) == "table" then
+		if IsVector3(GotCamera.Translation) then
+			Camera.Translation = GotCamera.Translation
 		end
-		if General.Library.IsVector3(GotObject.Direction) then
-			Object.Direction = GotObject.Direction
+		if IsVector3(GotCamera.Direction) then
+			Camera.Direction = GotCamera.Direction
 		end
-		if General.Library.IsVector3(GotObject.UpVector) then
-			Object.UpVector = GotObject.UpVector
+		if IsVector3(GotCamera.UpVector) then
+			Camera.UpVector = GotCamera.UpVector
 		end
-		if type(GotObject.VisualLayers) == "table" then
-			Object.VisualLayers = GotObject.VisualLayers
+		if type(GotCamera.VisualLayers) == "table" then
+			Camera.VisualLayers = GotCamera.VisualLayers
 		end
-		if type(GotObject.MinimumDistance) == "number" then
-			Object.MinimumDistance = GotObject.MinimumDistance
+		if type(GotCamera.MinimumDistance) == "number" then
+			Camera.MinimumDistance = GotCamera.MinimumDistance
 		end
-		if type(GotObject.MaximumDistance) == "number" then
-			Object.MaximumDistance = GotObject.MaximumDistance
+		if type(GotCamera.MaximumDistance) == "number" then
+			Camera.MaximumDistance = GotCamera.MaximumDistance
 		end
-		if type(GotObject.HorizontalResolution) == "number" then
-			Object.HorizontalResolution = GotObject.HorizontalResolution
+		if type(GotCamera.HorizontalResolution) == "number" then
+			Camera.HorizontalResolution = GotCamera.HorizontalResolution
 		end
-		if type(GotObject.VerticalResolution) == "number" then
-			Object.VerticalResolution = GotObject.VerticalResolution
+		if type(GotCamera.VerticalResolution) == "number" then
+			Camera.VerticalResolution = GotCamera.VerticalResolution
 		end
-		if type(GotObject.FieldOfView) == "number" then
-			Object.FieldOfView = GotObject.FieldOfView
+		if type(GotCamera.FieldOfView) == "number" then
+			Camera.FieldOfView = GotCamera.FieldOfView
 		end
-		if GotObject.Type == "OpenGL" then
-			Object.Type = "OpenGL"
+		if GotCamera.Type == "OpenGL" then
+			Camera.Type = "OpenGL"
 		end
-		if CameraRender.Library.CameraRenders[GotObject.CameraRenderer] ~= nil then
-			Object.CameraRenderer = GotObject.CameraRenderer
+		if CameraRender.Library.CameraRenders[GotCamera.CameraRenderer] then
+			Camera.CameraRenderer = GotCamera.CameraRenderer
 		end
-		if type(GotObject.FollowDevice) == "number" then
-			Object.FollowDevice = GotObject.FollowDevice
-			if type(GotObject.FollowObject) == "number" then
-				Object.FollowObject = GotObject.FollowObject
+
+		--The Camera is able to follow a Device's Object from any distance with
+		--One of it's vertices as direction and up vector
+		if type(GotCamera.FollowDevice) == "number" then
+			Camera.FollowDevice = GotCamera.FollowDevice
+			if type(GotCamera.FollowObject) == "number" then
+				Camera.FollowObject = GotCamera.FollowObject
 			end
-			if type(GotObject.FollowPoint) == "number" and
-			GotObject.FollowPoint > 0 and GotObject.FollowPoint < 5 then
-				Object.FollowPoint = GotObject.FollowPoint
+			if type(GotCamera.FollowPoint) == "number" and
+			GotCamera.FollowPoint > 0 and GotCamera.FollowPoint < 5 then
+				Camera.FollowPoint = GotCamera.FollowPoint
 			end
-			if type(GotObject.FollowPointUp) == "number" and
-			GotObject.FollowPointUp > 0 and GotObject.FollowPointUp < 5 then
-				Object.FollowPointUp = GotObject.FollowPointUp
+			if type(GotCamera.FollowPointUp) == "number" and
+			GotCamera.FollowPointUp > 0 and GotCamera.FollowPointUp < 5 then
+				Camera.FollowPointUp = GotCamera.FollowPointUp
 			end
-			if type(GotObject.FollowDistance) == "number" then
-				Object.FollowDistance = GotObject.FollowDistance
+			if type(GotCamera.FollowDistance) == "number" then
+				Camera.FollowDistance = GotCamera.FollowDistance
 			end
 		end
 	end
-	return Object
+	return Camera
 end
-function GiveBack.Destroy(GotObject, Arguments)
-	for ak,av in pairs(GotObject) do
-		GotObject[ak] = nil
+
+--Destroys a Camera, freeing up all it's matrices, then clearing the other data
+function GiveBack.Destroy(GotCamera, Arguments)
+	local gsl = Arguments[5].gsl
+	gsl.gsl_matrix_free(GotCamera.ViewMatrix)
+	gsl.gsl_matrix_free(GotCamera.ProjectionMatrix)
+	gsl.gsl_matrix_free(GotCamera.ViewProjectionMatrix)
+	for ak,av in pairs(GotCamera) do
+		GotCamera[ak] = nil
 	end
 end
-GiveBack.Requirements = {"General", "CameraRender"}
+GiveBack.Requirements = {"General", "CameraRender", "lgsl"}
 return GiveBack

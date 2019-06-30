@@ -14,9 +14,6 @@
 -- Good breakdown of EPA with demo for visualisation
 -- https://www.youtube.com/watch?v=6rgiPrzqt9w
 -------------------------------------------------------------------------------
-local function MinusVector(a)
-  return {-a[1], -a[2], -a[3]}
-end
 local function VectorCopy(c, o)
   c[1] = o[1]
   c[2] = o[2]
@@ -78,6 +75,7 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   local CrossProduct = General.Library.CrossProduct
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
+  local MinusVector = General.Library.MinusVector
   --triangle's normal
   local n = CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a))
   local AO = MinusVector(a) --direction to origin
@@ -135,6 +133,7 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   local CrossProduct = General.Library.CrossProduct
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
+  local MinusVector = General.Library.MinusVector
   local ABC = CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a))
   local ACD = CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a))
   local ADB = CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a))
@@ -156,14 +155,14 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
     b.supporta = a.supporta
     b.supportb = a.supportb
     VectorCopy(search_dir, ABC)
-  	return false;
+  	return false
   end
   if DotProduct(ACD, AO) > 0 then --In front of ACD
   	VectorCopy(b, a)
     b.supporta = a.supporta
     b.supportb = a.supportb
     VectorCopy(search_dir, ACD)
-  	return false;
+  	return false
   end
   if DotProduct(ADB, AO) > 0 then --In front of ADB
   	VectorCopy(c, d)
@@ -207,7 +206,7 @@ local EPA_MAX_NUM_FACES = 64
 local EPA_MAX_NUM_LOOSE_EDGES = 32
 local EPA_MAX_NUM_ITERATIONS = 64
 function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
-  local faces = {}--[EPA_MAX_NUM_FACES][4]; --Array of faces, each with 3 verts and a normal
+  local faces = {}--[EPA_MAX_NUM_FACES][4] --Array of faces, each with 3 verts and a normal
   --Init with final simplex from GJK
   local Normalise = General.Library.Normalise
   local CrossProduct = General.Library.CrossProduct
@@ -215,6 +214,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
   local DotProduct = General.Library.DotProduct
   local VectorNumberMult = General.Library.VectorNumberMult
   local VectorEqual = General.Library.VectorEqual
+  local MinusVector = General.Library.MinusVector
   faces[1] = {a, b, c, Normalise(CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)))}--ABC
   faces[2] = {a, c, d, Normalise(CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a)))}--ACD
   faces[3] = {a, d, b, Normalise(CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a)))}--ADB
@@ -245,7 +245,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
       local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
       return VectorNumberMult(faces[closest_face][3], DotProduct(p, search_dir)), contactdata[1], contactdata[2], contactdata[3] --dot vertex with normal to resolve collision along normal!
     end
-    local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2]; --keep track of edges we need to fix after removing faces
+    local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2] --keep track of edges we need to fix after removing faces
     for i=1,EPA_MAX_NUM_LOOSE_EDGES do
       loose_edges[i] = {}--[2]
     end
@@ -276,7 +276,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
           end--endfor loose_edges
           k = nil
           if not found_edge then --add current edge to list
-            -- assert(num_loose_edges<EPA_MAX_NUM_LOOSE_EDGES);
+            -- assert(num_loose_edges<EPA_MAX_NUM_LOOSE_EDGES)
             if num_loose_edges>=EPA_MAX_NUM_LOOSE_EDGES then break end
             num_loose_edges = num_loose_edges + 1
             loose_edges[num_loose_edges][1] = current_edge[1]
@@ -296,7 +296,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
     i = nil
     --Reconstruct polytope with p added
     for i=1, num_loose_edges do
-      -- assert(num_faces<EPA_MAX_NUM_FACES);
+      -- assert(num_faces<EPA_MAX_NUM_FACES)
       if num_faces >= EPA_MAX_NUM_FACES then break end
       num_faces = num_faces + 1
       faces[num_faces][1] = loose_edges[i][1]
@@ -321,28 +321,29 @@ end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
 --If supplied the EPA will be used to find the vector to separate coll1 from coll2
-function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider* coll2, vec3* mtv=NULL);
+function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider* coll2, vec3* mtv=NULL)
   local General = Arguments[1]
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
   local CrossProduct = General.Library.CrossProduct
   local VectorEqual = General.Library.VectorEqual
-  local a, b, c, d = {}, {}, {}, {}; --Simplex: just a set of points (a is always most recently added)
-  local search_dir = VectorSubtraction(coll1.Translation, coll2.Translation); --initial search direction between colliders
+  local MinusVector = General.Library.MinusVector
+  local a, b, c, d = {}, {}, {}, {} --Simplex: just a set of points (a is always most recently added)
+  local search_dir = VectorSubtraction(coll1.Translation, coll2.Translation) --initial search direction between colliders
   --Get initial point for simplex
   c = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
   c.supporta = Support(coll1, MinusVector(search_dir), General)
   c.supportb = Support(coll2, search_dir, General)
-  search_dir = MinusVector(c); --search in direction of origin
+  search_dir = MinusVector(c) --search in direction of origin
   --Get second point for a line segment simplex
   b = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
   b.supporta = Support(coll1, MinusVector(search_dir), General)
   b.supportb = Support(coll2, search_dir, General)
   if DotProduct(b, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
-  search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)); --search perpendicular to line segment towards origin
+  search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)) --search perpendicular to line segment towards origin
   if VectorEqual(search_dir, {0, 0, 0}) then --origin is on this line segment
     --Apparently any normal search vector will do?
-    search_dir = CrossProduct(VectorSubtraction(c, b), {1,0,0}); --normal with x-axis
+    search_dir = CrossProduct(VectorSubtraction(c, b), {1,0,0}) --normal with x-axis
     if VectorEqual(search_dir, {0, 0, 0}) then
       search_dir = CrossProduct(VectorSubtraction(c, b), {0,0,-1})
     end --normal with z-axis
@@ -355,7 +356,7 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
     if DotProduct(a, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
     simp_dim[1] = simp_dim[1] + 1
     if simp_dim[1] == 3 then
-      update_simplex3(a,b,c,d,simp_dim,search_dir, General);
+      update_simplex3(a,b,c,d,simp_dim,search_dir, General)
     elseif(update_simplex4(a,b,c,d,simp_dim,search_dir, General)) then
       if mtv then
         local EPAFailed = false
@@ -364,20 +365,13 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
           return false
         end
       end
-      return true;
+      return true
     end
   end--endfor
-  return false;
+  return false
 end
-function GiveBack.CollisionSphere(FirstObject, SecondObject, General, IfEquals)
-  local Distance = General.Library.VectorLength(General.Library.PointAToB(FirstObject.Translation, SecondObject.Translation))
-  local SumRadius = FirstObject.Radius + SecondObject.Radius
-  if IfEquals then
-    return Distance <= SumRadius
-  else
-    return Distance < SumRadius
-  end
-end
+
+--Sorting functions for sweep and prune Broad Phase collision detection
 local function SortX(Object1, Object2)
   if Object1.Min[1] < Object2.Min[1] then return true end
 end
@@ -387,6 +381,13 @@ end
 local function SortZ(Object1, Object2)
   if Object1.Min[3] < Object2.Min[3] then return true end
 end
+local Sorts = {SortX, SortY, SortZ}
+local function SortList(List1, List2)
+  if List1.Counter < List2.Counter then return true end
+end
+
+--Faster than lua's quicksort
+--TODO:Timsort
 local function InsertionSort(Array, Command)
     local Length = #Array
     local ak
@@ -400,86 +401,88 @@ local function InsertionSort(Array, Command)
         Array[bk + 1] = av
     end
 end
-function GiveBack.CheckForCollisions(AllDevices, BroadPhaseAxes, Arguments)
-  local General, CollisionResponse, CollisionResponseGive = Arguments[1],
-  Arguments[3], Arguments[4]
+
+function GiveBack.DetectCollisions(AllDevices, BroadPhaseAxes, Arguments)
+  local General = Arguments[1]
   local SameLayer = General.Library.SameLayer
-  local ResponseWithoutTorque = CollisionResponse.Library.ResponseWithoutTorque
-  for bk=1,#AllDevices.Space.CreatedObjects do
-    local bv = AllDevices.Space.CreatedObjects[bk]
-    for ck=1,3 do
-      local cv = BroadPhaseAxes[ck]
-      cv[#cv + 1] = bv
-    end
-  end
+  local remove = table.remove
+  local pairs = pairs
+  local sort = table.sort
+  local PossibleCollisions = {{}, {}, {}}
+
   for ak=1,3 do
     local av = BroadPhaseAxes[ak]
+
+    --Updates lists of objects
     local bk = 1
     while bk <= #av do
       local bv = av[bk]
-      if next(bv) == nil then table.remove(av, bk) else bk = bk + 1 end
+      if bv.Parent == nil then remove(av, bk) else bk = bk + 1 end
     end
-  end
-  InsertionSort(BroadPhaseAxes[1], SortX)
-  InsertionSort(BroadPhaseAxes[2], SortY)
-  InsertionSort(BroadPhaseAxes[3], SortZ)
-  local PossibleCollisions = {{}, {}, {}}
-  for ak=1,3 do
-    local av = BroadPhaseAxes[ak]
+    bk = nil
+    for bk=1,#AllDevices.Space.CreatedObjects do
+      local bv = AllDevices.Space.CreatedObjects[bk]
+      av[#av + 1] = bv
+    end
+
+    --Sorts lists
+    InsertionSort(av, Sorts[ak])
+
+    --Finds collision on each axes
     local av2 = PossibleCollisions[ak]
+    av2.Counter = 1
     local ActiveList = {av[1]}
     for bk=2,#av do
       local bv = av[bk]
       local ck = 1
-    	while ck <= #ActiveList do
-    		local cv = ActiveList[ck]
+      while ck <= #ActiveList do
+        local cv = ActiveList[ck]
         if cv.Max[ak] < bv.Min[ak] then
-          table.remove(ActiveList, ck)
+          remove(ActiveList, ck)
         else
           if av2[bv] == nil then av2[bv] = {} end
           av2[bv][cv] = true
+          av2.Counter = av2.Counter + 1
           ck = ck + 1
         end
-    	end
+      end
       ActiveList[#ActiveList + 1] = bv
     end
   end
-  local RealCollisions = {}
+
+  --Sorts the lists of collisions on each axes by their number for less checks
+  sort(PossibleCollisions, SortList)
+
+  --Deletes Counters to not cause error with pairs
+  for ak=1,3 do
+    PossibleCollisions[ak].Counter = nil
+  end
+
+  --Finds collisions present on all axes
+  local BroadCollisions = {}
   for ak,av in pairs(PossibleCollisions[1]) do
     for bk,bv in pairs(av) do
       if ((PossibleCollisions[2][ak] and PossibleCollisions[2][ak][bk]) or
       (PossibleCollisions[2][bk] and PossibleCollisions[2][bk][ak]))
       and ((PossibleCollisions[3][ak] and PossibleCollisions[3][ak][bk]) or
       (PossibleCollisions[3][bk] and PossibleCollisions[3][bk][ak])) then
-        RealCollisions[#RealCollisions + 1] = {ak, bk}
+        BroadCollisions[#BroadCollisions + 1] = {ak, bk}
       end
     end
   end
-  for ak=1,#RealCollisions do
-    local av = RealCollisions[ak]
+
+  --Finds collisions that are in the same layers and are approved by GJK
+  local RealCollisions = {}
+  for ak=1,#BroadCollisions do
+    local av = BroadCollisions[ak]
     local mtv = {}
     if SameLayer(av[1].PhysicsLayers, av[2].PhysicsLayers) and
     GiveBack.GJK(av[1], av[2], mtv, Arguments) then
-      for bk=1,#av[1].OnCollisionPowers do
-        local bv = av[1].OnCollisionPowers[bk]
-        if bv then
-          av[1].Powers[bk].Active = true
-          av[1].Powers[bk].Device = av[2].Parent
-          av[1].Powers[bk].Contact = mtv
-        end
-      end
-      for bk=1,#av[2].OnCollisionPowers do
-        local bv = av[2].OnCollisionPowers[bk]
-        if bv then
-          av[2].Powers[bk].Active = true
-          av[2].Powers[bk].Device = av[1].Parent
-          av[2].Powers[bk].Contact = mtv
-        end
-      end
-      --ResponseWithoutTorque(av[1], av[2], mtv, CollisionResponseGive)
-      --TODO
+      RealCollisions[#RealCollisions + 1] = av
+      RealCollisions[#RealCollisions][3] = mtv
     end
   end
+  return RealCollisions
 end
-GiveBack.Requirements = {"General", "CollisionResponse"}
+GiveBack.Requirements = {"General"}
 return GiveBack

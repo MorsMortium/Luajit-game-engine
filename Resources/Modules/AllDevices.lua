@@ -1,9 +1,10 @@
 local GiveBack = {}
+
+--Adds an Object or multiple Objects to a Device (merges two Devices)
 function GiveBack.AddObject(DeviceID, DeviceName, ModifierForDevice, Arguments)
 	local Space, General, GeneralGive, Device, DeviceGive = Arguments[1],
 	Arguments[4], Arguments[5], Arguments[6], Arguments[7]
-	local Copy = Device.Library.Copy
-	local Merge = Device.Library.Merge
+	local Copy, Merge = Device.Library.Copy, Device.Library.Merge
 	local DeviceIndex = #Space.Devices
 	if type(DeviceID) == "number" and
 	0 < DeviceID and DeviceID < #Space.Devices then
@@ -30,6 +31,8 @@ function GiveBack.AddObject(DeviceID, DeviceName, ModifierForDevice, Arguments)
 	end
 	Merge(Space.Devices[DeviceID], NewDevice, DeviceGive)
 end
+
+--Adds a new Device to the game
 function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 	local Space, General, GeneralGive, Device, DeviceGive = Arguments[1],
 	Arguments[4], Arguments[5], Arguments[6], Arguments[7]
@@ -56,6 +59,8 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 		Space.CreatedObjects[#Space.CreatedObjects + 1] = av
 	end
 end
+
+--Creates every Device with Device.lua
 function GiveBack.Start(Arguments)
 	local Space, JSON, General, Device, DeviceGive, OBJ = Arguments[1],
 	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10]
@@ -68,8 +73,10 @@ function GiveBack.Start(Arguments)
 		for ak=1,#AllDevices.DeviceTypes do
 			local av = AllDevices.DeviceTypes[ak]
 			local NewDevice = JSON.Library:DecodeFromFile("AllDevices/" .. av .. ".json")
-			Space.DeviceTypes[NewDevice.Name] =
-			Device.Library.Create(NewDevice, DeviceGive)
+			if type(NewDevice) == "table" and NewDevice.Name then
+				Space.DeviceTypes[NewDevice.Name] =
+				Device.Library.Create(NewDevice, DeviceGive)
+			end
 		end
 		if Space.DeviceTypes.Default == nil then
 			local NewDevice = JSON.Library:DecodeFromFile("AllDevices/Default.json")
@@ -95,6 +102,8 @@ function GiveBack.Start(Arguments)
 	--]]
 	print("AllDevices Started")
 end
+
+--Removes one Object from a Device
 function GiveBack.RemoveObject(DeviceID, ObjectID, Arguments)
 	local Space, Object, ObjectGive = Arguments[1], Arguments[8], Arguments[9]
 	local DeviceIndex = #Space.Devices
@@ -111,6 +120,8 @@ function GiveBack.RemoveObject(DeviceID, ObjectID, Arguments)
 	Object.Library.Destroy(RObjects[ObjectIndex], ObjectGive)
 	table.remove(RObjects, ObjectIndex)
 end
+
+--Removes a Device from the game
 function GiveBack.RemoveDevice(DeviceID, Arguments)
 	local Space, Device, DeviceGive = Arguments[1], Arguments[6], Arguments[7]
 	local DeviceIndex = #Space.Devices
@@ -133,6 +144,8 @@ function GiveBack.Stop(Arguments)
 	end
 	print("AllDevices Stopped")
 end
+
+--Clears created Objects list (CollisionDetection and AllPowers)
 function GiveBack.ClearDeviceChanges(Arguments)
 	local Space = Arguments[1]
 	Space.CreatedObjects = {}

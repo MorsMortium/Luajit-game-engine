@@ -9,8 +9,6 @@
     "RenderData": [ [ 0, 255, 0, 255 ], [ 0, 255, 0, 255 ], [ 0, 255, 0, 255 ], [ 0, 255, 0, 255 ] ],
     "Rotation": [ 0, 0, 0 ],
     "Scale": [ 0.5, 0.5, 0.5 ],
-    "CollisionDecay": 1,
-    "CollisionReaction": [ 0, 1 ],
     "VisualLayers": [ "All" ],
     "Fixed": false
   } ]

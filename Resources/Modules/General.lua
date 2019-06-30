@@ -1,4 +1,9 @@
 local GiveBack = {}
+--General functions used in various places
+--Mostly vector functions
+--TODO: Move vector stuff into different file, and use gsl where possible
+
+--Checks if a variable is a table, and all of it's values are of one type
 function GiveBack.GoodTypesOfTable(Table, GoodType)
 	if type(Table) == "table" then
     for ak=1,#Table do
@@ -11,15 +16,18 @@ function GiveBack.GoodTypesOfTable(Table, GoodType)
 	end
 	return false
 end
+
+--Recursive deep copy with support for C types
 function GiveBack.DeepCopy(Original, ffi)
+	local DeepCopy = GiveBack.DeepCopy
   local OriginalType = type(Original)
   local Copy
   if OriginalType == 'table' then
     Copy = {}
     for ak, av in next, Original, nil do
-      Copy[GiveBack.DeepCopy(ak, ffi)] = GiveBack.DeepCopy(av, ffi)
+      Copy[DeepCopy(ak, ffi)] = DeepCopy(av, ffi)
     end
-    setmetatable(Copy, GiveBack.DeepCopy(getmetatable(Original), ffi))
+    setmetatable(Copy, DeepCopy(getmetatable(Original), ffi))
   elseif OriginalType == "cdata" then
 		Copy = ffi.Library.new(ffi.Library.typeof(Original), Original)
 	else -- number, string, boolean, etc
@@ -27,17 +35,18 @@ function GiveBack.DeepCopy(Original, ffi)
   end
   return Copy
 end
+
+--Checks if a variable is a vector containing 3 numbers
 function GiveBack.IsVector3(Table)
-	if(type(Table) == "table" and (#Table == 3 or #Table == 4) and
+	if(type(Table) == "table" and #Table == 3 and
     type(Table[1]) == "number" and type(Table[2]) == "number" and
     type(Table[3]) == "number") then
-		if(#Table == 4) then
-			Table[4] = nil
-		end
 		return true
 	end
 	return false
 end
+
+--Checks if a variable is a vector containing 4 numbers
 function GiveBack.IsVector4(Table)
 	if(type(Table) == "table" and #Table == 4 and type(Table[1]) == "number" and
   type(Table[2]) == "number" and type(Table[3]) == "number" and
@@ -46,6 +55,8 @@ function GiveBack.IsVector4(Table)
 	end
 	return false
 end
+
+--Checks if a variable is a matrix containing 4 vectors which each contains 4 numbers
 function GiveBack.IsMatrix4(Table)
 	if(type(Table) == "table" and GiveBack.IsVector4(Table[1]) and
   GiveBack.IsVector4(Table[2]) and GiveBack.IsVector4(Table[3]) and
@@ -54,18 +65,23 @@ function GiveBack.IsMatrix4(Table)
 	end
 	return false
 end
+
+--Looks up values from a hashtable, and returns them in an array in the order of
+--The keytable. Nil values are discarded
 function GiveBack.DataFromKeys(DataTable, KeyTable)
 	local ReturnTable = {}
 	if type(DataTable) == "table" and type(KeyTable) == "table" then
     for ak=1,#KeyTable do
       local av = KeyTable[ak]
-			if type(DataTable[av]) ~= nil then
+			if DataTable[av] ~= nil then
 				ReturnTable[#ReturnTable + 1] = DataTable[av]
 			end
 		end
 	end
 	return ReturnTable
 end
+
+--Checks wether two physics or visual layers are overlapping
 function GiveBack.SameLayer(Layers1, Layers2)
   for ak=1,#Layers1 do
 		local av = Layers1[ak]
@@ -114,36 +130,40 @@ function GiveBack.SameLayer(Layers1, Layers2)
   end
   return false
 end
+
+--Returns the length of a vector
 function GiveBack.VectorLength(a)
    return math.sqrt(a[1]*a[1] + a[2]*a[2] + a[3]*a[3])
 end
-function GiveBack.PointAToB(a, b)
-  return {b[1] - a[1], b[2] - a[2], b[3] - a[3]}
-end
+
+--Calculates the dot product of two vectors with the length of 3
 function GiveBack.DotProduct(a, b)
-  local result = 0
-  for ak=1,3 do
-    result = result + a[ak] * b[ak]
-  end
-  return result
+  return a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
 end
+
+--Multiplies the values of a vector with a number
 function GiveBack.VectorNumberMult(v, n)
   return {v[1] * n, v[2] * n, v[3] * n}
 end
-function GiveBack.PerpendicularToBoth(a, b)
-  local Unit = {
-    a[2] * b[3] - a[3] * b[2],
-    a[3] * b[1] - a[1] * b[3],
-    a[1] * b[2] - a[2] * b[1]}
-  local Length = GiveBack.VectorLength(Unit)
-  return GiveBack.VectorNumberMult(Unit, 1/Length)
+
+--Returns 1 for numbers more than 0, -1 for less than 0, and 0 for 0
+function GiveBack.Sign(n)
+  if 0 < n then
+  	return 1
+  elseif n < 0 then
+		return -1
+	else
+		return 0
+	end
 end
-function GiveBack.AxisAngleToQuaternion(Axis, Angle)
-  return {math.cos(Angle / 2),
-          Axis[1] * math.sin(Angle/2),
-          Axis[2] * math.sin(Angle/2),
-          Axis[3] * math.sin(Angle/2)}
+
+--Uses GiveBack.Sign on every value of the vector, and returns it
+function GiveBack.VectorSign(v)
+	local Sign = GiveBack.Sign
+  return {Sign(v[1]), Sign(v[2]), Sign(v[3])}
 end
+
+--Converts an euler rotation into a quaternion
 function GiveBack.EulerToQuaternion(Euler)
 	local cy, sy, cp, sp, cr, sr =
 		math.cos(Euler[3] / 2), math.sin(Euler[3] / 2), math.cos(Euler[2] / 2),
@@ -154,6 +174,8 @@ function GiveBack.EulerToQuaternion(Euler)
 		sy * cp * sr + cy * sp * cr,
 		sy * cp * cr - cy * sp * sr}
 end
+
+--Multiplies two quaternions
 function GiveBack.QuaternionMultiplication(a, b)
     return {
         a[1] * b[1] - a[2] * b[2] - a[3] * b[3] - a[4] * b[4],
@@ -162,12 +184,17 @@ function GiveBack.QuaternionMultiplication(a, b)
         a[1] * b[4] + a[2] * b[3] - a[3] * b[2] + a[4] * b[1]
     }
 end
+
+--Calculates the cross product of two vectors
 function GiveBack.CrossProduct(u, v)
   return {u[2] * v[3] - u[3] * v[2],
           u[3] * v[1] - u[1] * v[3],
           u[1] * v[2] - u[2] * v[1]}
 end
-function GiveBack.RotationMatrix(q, Center, Matrix, gsl, ffi)
+
+--Fills Matrix with a rotation matrix calculated from a quaternion and a center,
+--If it exist
+function GiveBack.RotationMatrix(q, Center, Matrix, ffi)
   local sqw, sqx, sqy, sqz = q[1]*q[1], q[2]*q[2], q[3]*q[3], q[4]*q[4]
 	local m = ffi.Library.new("double[16]")
   m[0] = sqx - sqy - sqz + sqw --// since sqw + sqx + sqy + sqz =1
@@ -178,68 +205,123 @@ function GiveBack.RotationMatrix(q, Center, Matrix, gsl, ffi)
   m[2], m[8] = 2 * (tmp1 - tmp2), 2 * (tmp1 + tmp2)
   tmp1, tmp2 = q[3]*q[4], q[2]*q[1]
   m[6], m[9] = 2 * (tmp1 + tmp2), 2 * (tmp1 - tmp2)
-  local a1, a2, a3 = 0, 0, 0
+	local a = {0, 0, 0}
   if Center then
-    a1, a2, a3 = Center[1], Center[2], Center[3]
+    a = Center
 	end
-	m[3] = a1 - a1 * m[0] - a2 * m[1] - a3 * m[2]
-	m[7] = a2 - a1 * m[4] - a2 * m[5] - a3 * m[6]
-	m[11] = a3 - a1 * m[8] - a2 * m[9] - a3 * m[10]
+	m[3] = a[1] - a[1] * m[0] - a[2] * m[1] - a[3] * m[2]
+	m[7] = a[2] - a[1] * m[4] - a[2] * m[5] - a[3] * m[6]
+	m[11] = a[3] - a[1] * m[8] - a[2] * m[9] - a[3] * m[10]
 	m[12], m[13], m[14], m[15] = 0, 0, 0, 1
 	ffi.Library.copy(Matrix.data, m, ffi.Library.sizeof(m))
 end
-function GiveBack.TranslationMatrix(gsl, Translation, Matrix)
+
+--Fills Matrix with a translation matrix
+function GiveBack.TranslationMatrix(Translation, Matrix, gsl)
 	gsl.gsl_matrix_set_identity(Matrix)
 	Matrix.data[3], Matrix.data[7], Matrix.data[11] =
 	Translation[1], Translation[2], Translation[3]
 end
-function GiveBack.ScaleMatrix(gsl, Scale, Matrix)
+
+--Fills Matrix with a scale matrix
+function GiveBack.ScaleMatrix(Scale, Matrix, gsl)
 	gsl.gsl_matrix_set_zero(Matrix)
 	Matrix.data[0], Matrix.data[5], Matrix.data[10], Matrix.data[15] =
 	Scale[1], Scale[2], Scale[3], 1
 end
+
+--Checks whether an object needs updating its matrices and if so, it does it
 function GiveBack.ModelMatrix(Object, gsl, ffi)
 	if Object.ScaleCalc then
-		GiveBack.ScaleMatrix(gsl, Object.Scale, Object.ScaleMatrix)
+		GiveBack.ScaleMatrix(Object.Scale, Object.ScaleMatrix, gsl)
 	end
 	if Object.RotationCalc then
-		GiveBack.RotationMatrix(Object.Rotation, nil, Object.RotationMatrix, gsl, ffi)
+		GiveBack.RotationMatrix(Object.Rotation, nil, Object.RotationMatrix, ffi)
 	end
 	if Object.TranslationCalc then
-		GiveBack.TranslationMatrix(gsl, Object.Translation, Object.TranslationMatrix)
+		GiveBack.TranslationMatrix(Object.Translation, Object.TranslationMatrix, gsl)
 	end
 	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasNoTrans, 1,
 	Object.ScaleMatrix, Object.RotationMatrix, 0, Object.BufferMatrix)
 	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasNoTrans, 1,
 	Object.TranslationMatrix, Object.BufferMatrix, 0, Object.ModelMatrix)
 end
+
+--Returns the normal of a vector
 function GiveBack.Normalise(a)
 	local Length = GiveBack.VectorLength(a)
 	return {a[1]/Length, a[2]/Length, a[3]/Length}
 end
+
+--Finds the farthest vertex from translation, and declares it's distance as
+--The radius of the bounding sphere
 function GiveBack.CreateCollisionSphere(Object)
 	local Radius = 0
+	local VectorLength, VectorSubtraction = GiveBack.VectorLength,
+	GiveBack.VectorSubtraction
 	for ak=0,3 do
 		local NewRadius =
-		GiveBack.VectorLength(GiveBack.PointAToB(Object.Translation,
-																					{Object.Transformated.data[ak * 4],
-																					Object.Transformated.data[ak * 4 + 1],
-																					Object.Transformated.data[ak * 4 + 2]}))
+		VectorLength(VectorSubtraction({Object.Transformated.data[ak * 4],
+																		Object.Transformated.data[ak * 4 + 1],
+																		Object.Transformated.data[ak * 4 + 2]},
+																		Object.Translation))
 		if Radius < NewRadius then
 			Radius = NewRadius
 		end
 	end
 	Object.Radius = Radius
 end
+
+--Adds two vector together
 function GiveBack.VectorAddition(a, b)
   return {a[1] + b[1], a[2] + b[2], a[3] + b[3]}
 end
-function GiveBack.VectorElements(a)
-	return a[1], a[2], a[3]
-end
+
+--Subtracts vector b from vector a
 function GiveBack.VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 end
+
+--Returns the vector with flipped signs
+function GiveBack.MinusVector(a)
+  return {-a[1], -a[2], -a[3]}
+end
+
+--Normalises a quaternion
+function GiveBack.QuaternionNormalise(q)
+	local magnitude =
+	math.sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3] + q[4] * q[4])
+	return {q[1] / magnitude, q[2] / magnitude, q[3] / magnitude, q[4] / magnitude}
+end
+
+--Calculates the quaternion between left and right, if value equals 0.5 then
+--The quaternion will be in the middle
+function GiveBack.Slerp(left, right, value)
+	local SLERP_TO_LERP_SWITCH_THRESHOLD  = 0.01
+	local leftWeight, rightWeight, difference
+	local difference = left[1] * right[1] + left[2] * right[2] + left[3] * right[3] + left[4] * right[4]
+	if 1 - math.abs(difference) > SLERP_TO_LERP_SWITCH_THRESHOLD then
+		local theta, oneOverSinTheta = math.acos(math.abs(difference))
+		oneOverSinTheta = 1 / math.sin(theta)
+		leftWeight = math.sin(theta * (1 - value)) * oneOverSinTheta
+		rightWeight = math.sin(theta * value) * oneOverSinTheta
+		if difference < 0 then
+			leftWeight = -leftWeight
+		end
+	else
+		leftWeight = 1 - value
+		rightWeight = value
+	end
+	local result = {
+	left[1] * leftWeight + right[1] * rightWeight,
+	left[2] * leftWeight + right[2] * rightWeight,
+	left[2] * leftWeight + right[3] * rightWeight,
+	left[2] * leftWeight + right[4] * rightWeight}
+	return GiveBack.QuaternionNormalise(result)
+end
+
+--Updates and object's Matrices, then calculates radius of the
+--Bounding sphere and from that it creates bunding box, if needed
 function GiveBack.UpdateObject(Object, Arguments)
 	local lgsl, ffi = Arguments[1], Arguments[3]
 	local gsl = lgsl.Library.gsl
@@ -260,18 +342,56 @@ function GiveBack.UpdateObject(Object, Arguments)
 	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = false, false,
 	false
 end
+
+--Creates a new c array, and copies all c arrays from first argument into it
 function GiveBack.ConcatenateCArrays(CArrays, ArrayLength, Type, ffi)
+	local copy = ffi.Library.copy
   local ArraySize = ffi.Library.sizeof(ffi.Library.typeof(Type))
   local SizeOfAll = ArrayLength * #CArrays
   local NewCArray = ffi.Library.new(Type .. "[?]", SizeOfAll)
   for i=1,#CArrays do
-    ffi.Library.copy(NewCArray + (i - 1) * ArrayLength, CArrays[i],
-		ArraySize * ArrayLength)
+  	copy(NewCArray + (i - 1) * ArrayLength, CArrays[i], ArraySize * ArrayLength)
   end
   return NewCArray
 end
+
+--Checks whether two vectors are equal
 function GiveBack.VectorEqual(a, b)
   return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
+end
+
+--Scales a quaternions versor by a number
+function GiveBack.VersorScale(q, n)
+return {q[1], q[2] * n, q[3] * n, q[4] * n}
+end
+
+--Updates every object's rotation and translation from every device and calls
+--UpdateObject if needed
+function GiveBack.UpdateDevices(Devices, Time, Arguments)
+	local VectorEqual, VectorAddition, VectorNumberMult, QuaternionMultiplication,
+	VersorScale, UpdateObject = GiveBack.VectorEqual, GiveBack.VectorAddition,
+	GiveBack.VectorNumberMult, GiveBack.QuaternionMultiplication,
+	GiveBack.VersorScale, GiveBack.UpdateObject
+	for ak=1,#Devices do
+		local av = Devices[ak]
+		for bk=1,#av.Objects do
+			local bv = av.Objects[bk]
+			if not bv.Fixed then
+				if not VectorEqual(bv.Speed, {0, 0, 0}) then
+					bv.Translation =
+					VectorAddition(bv.Translation, VectorNumberMult(bv.Speed, Time))
+					bv.TranslationCalc = true
+				end
+				if (not VectorEqual(bv.RotationSpeed, {1, 0, 0})) or bv.RotationSpeed[4] ~= 0 then
+					bv.Rotation = QuaternionMultiplication(bv.Rotation, VersorScale(bv.RotationSpeed, Time))
+					bv.RotationCalc = true
+				end
+				if bv.TranslationCalc or bv.RotationCalc or bv.ScaleCalc then
+					UpdateObject(bv, Arguments)
+				end
+			end
+		end
+	end
 end
 GiveBack.Requirements = {"lgsl", "ffi"}
 return GiveBack

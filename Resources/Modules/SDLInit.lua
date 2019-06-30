@@ -1,13 +1,21 @@
 local GiveBack = {}
+
+--Inits the SDL system, and it's subsystems if needed
 function GiveBack.Start(Arguments)
 	local Space, JSON, SDL, ffi, General = Arguments[1], Arguments[2],
 	Arguments[4], Arguments[6], Arguments[8]
+
+	--Load data for subsystems
 	Space.SDLData = JSON.Library:DecodeFromFile("SDLData.json")
 	local ffi = ffi.Library
 	local SDL = SDL.Library
+
+	--Inits SDL
 	if SDL.init(0) ~= 0 then
 		error(ffi.sring(SDL.getError()))
 	else
+
+		--Inits SDL subsystems, if none of them is specifies then it inits video
 		if General.Library.GoodTypesOfTable(Space.SDLData, "string") then
 			for ak=1,#Space.SDLData do
 				local av = Space.SDLData[ak]
@@ -19,6 +27,8 @@ function GiveBack.Start(Arguments)
 	end
 	print("SDLInit Started")
 end
+
+--Quits SDL
 function GiveBack.Stop(Arguments)
 	local Space, SDL = Arguments[1], Arguments[4]
 	local SDL = SDL.Library
