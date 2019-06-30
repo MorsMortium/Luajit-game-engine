@@ -3,11 +3,11 @@
 ## Prerequisites
 LuaJIT, OpenGL, GSL, SDL
 ## Features
-Rendering via SDL or OpenGL
-Multiple cameras
-Broad phase collision detection with sweep and prune
-Narrow phase collision detection with GJK and EPA
-More to come...
+-Rendering via SDL or OpenGL
+-Multiple cameras
+-Broad phase collision detection with sweep and prune
+-Narrow phase collision detection with GJK and EPA
+-More to come...
 ## Contribution
 For ideas on what You can do to help the project, see the [TODO](TODO) file
 ## Sponsoring
