@@ -2,8 +2,8 @@ local GiveBack = {}
 
 --Thist script is responsible for drawing every Device to a Camera
 --GLuint Is for the Elements of the Devices
-function GiveBack.Start(Arguments)
-  local Space, ffi = Arguments[1], Arguments[6]
+function GiveBack.Start(Configurations, Arguments)
+  local Space, ffi = Arguments[1], Arguments[4]
   Space.GLuint = ffi.Library.typeof("GLuint[?]")
   print("AllDeviceRenders Started")
 end
@@ -21,8 +21,8 @@ end
 --Each renderer from ObjectRenders.lua and renders them
 function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP, Arguments)
 	local Space, General, ffi, ObjectRender, ObjectRenderGive, AllDevices =
-  Arguments[1], Arguments[4], Arguments[6], Arguments[8], Arguments[9],
-  Arguments[10]
+  Arguments[1], Arguments[2], Arguments[4], Arguments[6], Arguments[7],
+  Arguments[8]
   local SameLayer, ConcatenateCArrays = General.Library.SameLayer,
   General.Library.ConcatenateCArrays
   local ObjectRenders = ObjectRender.Library.ObjectRenders
@@ -79,5 +79,5 @@ function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP, Arguments)
     ObjectRenderGive)
 	end
 end
-GiveBack.Requirements = {"JSON", "General", "ffi", "ObjectRender", "AllDevices"}
+GiveBack.Requirements = {"General", "ffi", "ObjectRender", "AllDevices"}
 return GiveBack

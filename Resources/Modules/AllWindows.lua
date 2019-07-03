@@ -3,11 +3,11 @@ local GiveBack = {}
 --This script manages Windows
 
 --Loads data for every Window and creates them
-function GiveBack.Start(Arguments)
-	local Space, JSON, OpenGLInit, OpenGLInitGive, SDL, Window, WindowGive =
-	Arguments[1], Arguments[2], Arguments[4], Arguments[5], Arguments[6],
-	Arguments[10], Arguments[11]
-	local AllWindows = JSON.Library:DecodeFromFile("AllWindows.json")
+function GiveBack.Start(Configurations, Arguments)
+	local Space, OpenGLInit, OpenGLInitGive, SDL, Window, WindowGive =
+	Arguments[1], Arguments[2], Arguments[3], Arguments[4], Arguments[8],
+	Arguments[9]
+	local AllWindows = Configurations
 	Space.Windows = {}
 	if type(AllWindows) == "table" then
 		for ak=1,#AllWindows do
@@ -32,8 +32,8 @@ end
 
 --Deletes every Window
 function GiveBack.Stop(Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
-	Arguments[10], Arguments[11]
+	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[4],
+	Arguments[8], Arguments[9]
 	for ak=1,#Space.Windows do
 		local av = Space.Windows[ak]
 		SDL.Library.destroyRenderer(SDL.Library.getRenderer(av.WindowID))
@@ -47,8 +47,8 @@ end
 
 --Adds one Window
 function GiveBack.Add(Window, Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
-	Arguments[10], Arguments[11]
+	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[4],
+	Arguments[8], Arguments[9]
 	if type(Window) == "table" then
 		Space.Windows[#Space.Windows + 1] = Window.Library.Create(Window, WindowGive)
 		if Window.Type == "OpenGL" then
@@ -63,8 +63,8 @@ end
 
 --Removes one Window
 function GiveBack.Remove(Number, Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[6],
-	Arguments[10], Arguments[11]
+	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[4],
+	Arguments[8], Arguments[9]
 	local av = Space.Windows[#Space.Windows]
 	local Index = #Space.Windows
 	if type(Number) == "number" and Number < Index then
@@ -75,5 +75,5 @@ function GiveBack.Remove(Number, Arguments)
 	Window.Library.Destroy(av.WindowID, WindowGive)
 	table.remove(Space.Windows, Index)
 end
-GiveBack.Requirements = {"JSON", "OpenGLInit", "SDL", "SDLInit", "Window"}
+GiveBack.Requirements = {"OpenGLInit", "SDL", "SDLInit", "Window"}
 return GiveBack

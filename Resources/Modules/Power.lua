@@ -197,7 +197,7 @@ function Destroypara.DataCheck(Devices, Device, Object, Power, Time)
 	return Data
 end
 function Destroypara.Use(Devices, Device, Object, Power, Time, Arguments)
-  local General, AllDevices, AllDevicesGive = Arguments[1], Arguments[9], Arguments[10]
+  local General, AllDevices, AllDevicesGive = Arguments[1], Arguments[7], Arguments[8]
   local Ran, IfDestroy =
   pcall(Power.Command, Devices, Device, Object, Power, General)
   if Ran and IfDestroy then
@@ -282,8 +282,8 @@ end
 GiveBack.Powers.Summon = {}
 local Summon = GiveBack.Powers.Summon
 function Summon.DataCheck(Devices, Device, Object, Power, Time, Arguments)
-  local General, Devicel, DeviceGive, AllDevices = Arguments[1], Arguments[5],
-  Arguments[6], Arguments[9]
+  local General, Devicel, DeviceGive, AllDevices = Arguments[1], Arguments[3],
+  Arguments[4], Arguments[7]
 	local Data = {}
 	Data.Type = "Summon"
   Data.Name = "Default"
@@ -312,7 +312,7 @@ function Summon.DataCheck(Devices, Device, Object, Power, Time, Arguments)
   return Data
 end
 function Summon.Use(Devices, Device, Object, Power, Time, Arguments)
-  local AllDevices, AllDevicesGive = Arguments[9], Arguments[10]
+  local AllDevices, AllDevicesGive = Arguments[7], Arguments[8]
   if Power.IfObject then
     local DeviceID = 1
     for ak=1,#Devices do
@@ -331,5 +331,5 @@ function Summon.Use(Devices, Device, Object, Power, Time, Arguments)
 	Power.Active = false
 end
 GiveBack.Requirements =
-{"General", "JSON", "Device", "lgsl", "AllDevices", "ffi"}
+{"General", "Device", "lgsl", "AllDevices", "ffi"}
 return GiveBack

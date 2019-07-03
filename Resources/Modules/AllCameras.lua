@@ -3,8 +3,7 @@ local GiveBack = {}
 --Adds one Camera to the Game
 function GiveBack.Add(CameraData, Arguments)
   local Space, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1],
-  Arguments[4], Arguments[5], Arguments[6], Arguments[8],
-  Arguments[10]
+  Arguments[2], Arguments[3], Arguments[4], Arguments[6], Arguments[8]
   local NewCamera = Camera.Library.Create(CameraData, CameraGive)
   if NewCamera.Type == "OpenGL" then
     NewCamera.Texture = ffi.Library.new("GLuint[1]")
@@ -31,11 +30,10 @@ function GiveBack.Add(CameraData, Arguments)
 end
 
 --Adds every starting Camera to the Game
-function GiveBack.Start(Arguments)
-  local Space, JSON, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1],
-  Arguments[2], Arguments[4], Arguments[5], Arguments[6], Arguments[8],
-  Arguments[16]
-	local Cameras = JSON.Library:DecodeFromFile("AllCameras.json")
+function GiveBack.Start(Configurations, Arguments)
+  local Space, Camera, CameraGive, ffi, OpenGL, SDL = Arguments[1],
+  Arguments[2], Arguments[3], Arguments[4], Arguments[6], Arguments[8]
+	local Cameras = Configurations
 	Space.VAO = ffi.Library.new("GLuint[1]")
 	Space.VBO = ffi.Library.new("GLuint[1]")
   Space.RDBO = ffi.Library.new("GLuint[1]") --Render Data Buffer Object
@@ -64,7 +62,7 @@ end
 
 --Deletes every Camera
 function GiveBack.Stop(Arguments)
-  local Space, OpenGL, SDL = Arguments[1], Arguments[8], Arguments[16]
+  local Space, OpenGL, SDL = Arguments[1], Arguments[6], Arguments[8]
   for ak=1,#Space.OpenGLCameras do
     OpenGL.Library.glDeleteRenderbuffers(1, Space.OpenGLCameras[ak].DBO)
     OpenGL.Library.glDeleteTextures(1, Space.OpenGLCameras[ak].Texture)
@@ -80,7 +78,7 @@ end
 
 --Deletes one Camera
 function GiveBack.Remove(Number, Type, Arguments)
-  local Space, OpenGL, SDL = Arguments[1], Arguments[8], Arguments[10]
+  local Space, OpenGL, SDL = Arguments[1], Arguments[6], Arguments[8]
   if Type == "OpenGL" then
     local Index = #Space.OpenGLCameras
     if type(Number) == "number" and Number < Index then
@@ -99,5 +97,5 @@ function GiveBack.Remove(Number, Type, Arguments)
   end
 end
 GiveBack.Requirements =
-{"JSON", "Camera", "ffi", "OpenGL", "SDL"}
+{"Camera", "ffi", "OpenGL", "SDL"}
 return GiveBack

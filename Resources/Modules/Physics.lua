@@ -3,7 +3,7 @@ local GiveBack = {}
 --This script is responsible for general physics mechanics:
 --Updating vertices with translation, rotation and scale, checking new powers
 --for initialisation, collision detection and response, and usage of powers
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
   local Space = Arguments[1]
   Space.BroadPhaseAxes = {{}, {}, {}}
 end

@@ -9,17 +9,19 @@ local function NotInList(List, Object)
 	end
 	return true
 end
-local JSON = require("json")
+local JSON = require("./Resources/Modules/json")
 local Inputs = JSON:DecodeFromFile("AllInputs.json")
 GiveBack.Requirements =
-{"JSON", "SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender", "AllDevices"}
-for ak=1,#Inputs do
-	local av = Inputs[ak]
-	if type(av.Pass) == "table" then
-		for bk=1,#av.Pass do
-			local bv = av.Pass[bk]
-			if bv ~= "AllInputs" and NotInList(GiveBack.Requirements, bv) then
-				GiveBack.Requirements[#GiveBack.Requirements + 1] = bv
+{"SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender", "AllDevices"}
+if type(Inputs) == "table" then
+	for ak=1,#Inputs do
+		local av = Inputs[ak]
+		if type(av.Pass) == "table" then
+			for bk=1,#av.Pass do
+				local bv = av.Pass[bk]
+				if bv ~= "AllInputs" and NotInList(GiveBack.Requirements, bv) then
+					GiveBack.Requirements[#GiveBack.Requirements + 1] = bv
+				end
 			end
 		end
 	end
@@ -27,12 +29,11 @@ end
 Inputs = nil
 
 --Sets up inputs based on button presses and releases
-function GiveBack.Start(Arguments)
-	local Space, JSON, SDL, SDLInit, SDLInitGive, ffi, Window, WindowGive,
+function GiveBack.Start(Configurations, Arguments)
+	local Space, SDL, SDLInit, SDLInitGive, ffi, Window, WindowGive,
 	AllWindows, AllWindowsGive, WindowRender, WindowRenderGive = Arguments[1],
-	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[8],
-	Arguments[10], Arguments[11], Arguments[12], Arguments[13], Arguments[14],
-	Arguments[15]
+	Arguments[2], Arguments[4], Arguments[5], Arguments[6], Arguments[8],
+	Arguments[9], Arguments[10], Arguments[11], Arguments[12], Arguments[13]
 	Space.PlusRequ = {}
 	Space.Pass = {}
 	for ak=1, #GiveBack.Requirements do
@@ -44,7 +45,7 @@ function GiveBack.Start(Arguments)
 	Space.PlusRequ["AllInputs"].Library = GiveBack
 	Space.PlusRequ["AllInputs"].Space = Space
 	Space.PlusRequ["AllInputsGive"] = Arguments
-	Space.Inputs = JSON.Library:DecodeFromFile("AllInputs.json")
+	Space.Inputs = Configurations
 	Space.ButtonsDown = {}
 	Space.ButtonsUp = {}
 	if type(Space.Inputs) == "table" then
@@ -75,8 +76,8 @@ end
 --TODO: Answer to every type of input
 function GiveBack.Input(Arguments)
 	local Space, SDL, ffi, Window, WindowGive, AllWindows, AllWindowsGive,
-	AllDevices = Arguments[1], Arguments[4], Arguments[8], Arguments[10],
-	Arguments[11],	Arguments[12], Arguments[13], Arguments[16]
+	AllDevices = Arguments[1], Arguments[2], Arguments[6], Arguments[8],
+	Arguments[9],	Arguments[10], Arguments[11], Arguments[14]
 	local ReturnValue
 	while SDL.Library.pollEvent(Space.Event) ~=0 do
 		if Space.Event.type == SDL.Library.QUIT then

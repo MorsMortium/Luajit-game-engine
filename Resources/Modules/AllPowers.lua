@@ -1,7 +1,7 @@
 local GiveBack = {}
 
 --Checks whether every Power has all it's functions, if not, it deletes it
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
 	local Space, Power, PowerGive, AllDevices = Arguments[1], Arguments[2],
 	Arguments[3], Arguments[4]
 	for ak,av in pairs(Power.Library.Powers) do

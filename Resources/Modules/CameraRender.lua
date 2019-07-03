@@ -42,7 +42,7 @@ end
 --Check whether every renderer has both software and OpenGL counterpart.
 --If it has, then it creates a space for it, that is persistent
 --If not, it deletes it
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
 	for ak, av in pairs(GiveBack.CameraRenders) do
 		if type(av.Software.Render) == "function" and
 			type(av.OpenGL.Render) == "function" then

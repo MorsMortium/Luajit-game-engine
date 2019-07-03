@@ -1,5 +1,5 @@
 local GiveBack = {}
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
   local Space, PortAudio, ffi = Arguments[1], Arguments[2], Arguments[4]
   --[[
   Space.Stream = ffi.Library.new("PaStream*[1]")
