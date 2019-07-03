@@ -3,11 +3,11 @@ local GiveBack = {}
 --Inits the OpenGL system, and glew, if needed.
 --Creates a dummy window, sets OpenGL version, and
 --Creates an OpenGL context
-function GiveBack.Start(Arguments)
-	local Space, JSON, SDL, SDLInit, OpenGL = Arguments[1], Arguments[2],
-	Arguments[4], Arguments[6], Arguments[8]
+function GiveBack.Start(Configurations, Arguments)
+	local Space, SDL, SDLInit, OpenGL = Arguments[1], Arguments[2],
+	Arguments[4], Arguments[6]
 	local SDL = SDL.Library
-	Space.OpenGLData = JSON.Library:DecodeFromFile("OpenGLData.json")
+	Space.OpenGLData = Configurations
 	Space.DummyWindow = SDL.createWindow("", SDL.WINDOWPOS_UNDEFINED,
 	SDL.WINDOWPOS_UNDEFINED, 64, 64, bit.bor(SDL.WINDOW_OPENGL, SDL.WINDOW_HIDDEN))
 	if type(Space.OpenGLData) == "table" then
@@ -44,7 +44,7 @@ end
 
 --Destroys the dummy window
 function GiveBack.DeleteDummyWindow(Arguments)
-	local Space, SDL = Arguments[1], Arguments[4]
+	local Space, SDL = Arguments[1], Arguments[2]
 	local SDL = SDL.Library
 	if Space.DummyWindow then
 		SDL.destroyWindow(Space.DummyWindow)
@@ -54,7 +54,7 @@ end
 
 --Destroys the dummy window if needed and the context
 function GiveBack.Stop(Arguments)
-	local Space, SDL = Arguments[1], Arguments[4]
+	local Space, SDL = Arguments[1], Arguments[2]
 	local SDL = SDL.Library
 	GiveBack.DeleteDummyWindow(Arguments)
 	SDL.GL_DeleteContext(Space.Context)
@@ -63,5 +63,5 @@ function GiveBack.Stop(Arguments)
 	end
 	print("openglinit Stopped")
 end
-GiveBack.Requirements = {"JSON", "SDL", "SDLInit", "OpenGL"}
+GiveBack.Requirements = {"SDL", "SDLInit", "OpenGL"}
 return GiveBack

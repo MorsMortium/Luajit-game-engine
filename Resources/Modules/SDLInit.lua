@@ -1,12 +1,12 @@
 local GiveBack = {}
 
 --Inits the SDL system, and it's subsystems if needed
-function GiveBack.Start(Arguments)
-	local Space, JSON, SDL, ffi, General = Arguments[1], Arguments[2],
-	Arguments[4], Arguments[6], Arguments[8]
+function GiveBack.Start(Configurations, Arguments)
+	local Space, SDL, ffi, General = Arguments[1], Arguments[2], Arguments[4],
+	Arguments[6]
 
 	--Load data for subsystems
-	Space.SDLData = JSON.Library:DecodeFromFile("SDLData.json")
+	Space.SDLData = Configurations
 	local ffi = ffi.Library
 	local SDL = SDL.Library
 
@@ -30,7 +30,7 @@ end
 
 --Quits SDL
 function GiveBack.Stop(Arguments)
-	local Space, SDL = Arguments[1], Arguments[4]
+	local Space, SDL = Arguments[1], Arguments[2]
 	local SDL = SDL.Library
 	SDL.quit()
 	for ak,av in pairs(Space) do
@@ -38,5 +38,5 @@ function GiveBack.Stop(Arguments)
 	end
 	print("SDLInit Stopped")
 end
-GiveBack.Requirements = {"JSON", "SDL", "ffi", "General"}
+GiveBack.Requirements = {"SDL", "ffi", "General"}
 return GiveBack

@@ -61,13 +61,13 @@ function GiveBack.AddDevice(DeviceName, ModifierForDevice, Arguments)
 end
 
 --Creates every Device with Device.lua
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
 	local Space, JSON, General, Device, DeviceGive, OBJ = Arguments[1],
 	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10]
 	Space.Devices = {}
 	Space.DeviceTypes = {}
 	Space.CreatedObjects = {}
-	local AllDevices = JSON.Library:DecodeFromFile("AllDevices.json")
+	local AllDevices = Configurations
 	if type(AllDevices) == "table" and
 	General.Library.GoodTypesOfTable(AllDevices.DeviceTypes, "string") then
 		for ak=1,#AllDevices.DeviceTypes do

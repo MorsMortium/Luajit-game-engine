@@ -51,7 +51,7 @@ end
 --Check whether every renderer has both software and OpenGL counterpart.
 --If it has, then it creates a space for it, that is persistent
 --If not, it deletes it
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
 	local Space = Arguments[1]
 	Space.lasttime = 0
 	for ak, av in pairs(GiveBack.Renders) do

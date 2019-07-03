@@ -1,10 +1,9 @@
 local GiveBack = {}
 
 --Loads every Shader with Shader.lua
-function GiveBack.Start(Arguments)
-	local Space, Shader, ShaderGive, JSON = Arguments[1], Arguments[2],
-	Arguments[3], Arguments[4]
-	local Shaders = JSON.Library:DecodeFromFile("AllShaders.json")
+function GiveBack.Start(Configurations, Arguments)
+	local Space, Shader, ShaderGive = Arguments[1], Arguments[2], Arguments[3]
+	local Shaders = Configurations
 	Space.Shaders = {}
 	if Shaders then
 		for ak=1,#Shaders do
@@ -67,5 +66,5 @@ function GiveBack.Stop(Arguments)
 	end
 	print("AllShaders Stopped")
 end
-GiveBack.Requirements = {"Shader", "JSON"}
+GiveBack.Requirements = {"Shader"}
 return GiveBack

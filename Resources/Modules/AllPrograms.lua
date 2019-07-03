@@ -1,10 +1,9 @@
 local GiveBack = {}
 
 --Creates every Program with Program.lua from shaders loaded by AllShaders.lua
-function GiveBack.Start(Arguments)
-	local Space, Program, ProgramGive, JSON = Arguments[1], Arguments[2],
-	Arguments[3], Arguments[4]
-	local Programs  = JSON.Library:DecodeFromFile("AllPrograms.json")
+function GiveBack.Start(Configurations, Arguments)
+	local Space, Program, ProgramGive = Arguments[1], Arguments[2], Arguments[3]
+	local Programs  = Configurations
 	Space.Programs = {}
 	if Programs then
 		for ak=1,#Programs do
@@ -41,5 +40,5 @@ function GiveBack.Stop(Arguments)
 	end
 	print("AllPrograms Stopped")
 end
-GiveBack.Requirements = {"Program", "JSON"}
+GiveBack.Requirements = {"Program"}
 return GiveBack

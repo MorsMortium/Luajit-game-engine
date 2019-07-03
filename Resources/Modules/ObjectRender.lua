@@ -234,7 +234,7 @@ function ColorPerSide.Render(VBO, RDBO, FullTransformatedMatrix, MVP,
 end
 
 --Checks whether every Object render has all needed functions, if not, it's deleted
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
 	for ak, av in pairs(GiveBack.ObjectRenders) do
 		if type(av.Render) == "function" and
 			type(av.DataCheck) == "function" and

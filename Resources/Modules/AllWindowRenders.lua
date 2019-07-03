@@ -1,5 +1,5 @@
 local GiveBack = {}
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
 	local Space = Arguments[1]
 	Space.LastTime = 0
 	print("AllWindowRenders Started")

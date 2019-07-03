@@ -123,7 +123,7 @@ function GiveBack.RenderAllCameras(Arguments)
     SDL.Library.upperBlitScaled(Space.RendererSurface, nil, av.Surface, nil)
   end
 end
-function GiveBack.Start(Arguments)
+function GiveBack.Start(Configurations, Arguments)
   local Space, SDL, ffi = Arguments[1], Arguments[10], Arguments[16]
   Space.LastCamera = 0
   Space.RendererSurface = SDL.Library.createRGBSurface(0, 640, 480, 32, 0, 0, 0, 0)
