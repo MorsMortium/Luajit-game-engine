@@ -1,15 +1,15 @@
---Depends on: json
+--Depends on: LON
 io.output():setvbuf("no")
 local Data, Order = {}, {}
-Data.JSON =
-{Library = require("./Resources/Modules/json")}
+Data.LON =
+{Library = require("./Resources/Modules/LON")}
 Data.LauncherUtilities =
 {Library = require("./Resources/Modules/LauncherUtilities")}
 local LauncherData =
-Data.JSON.Library:DecodeFromFile("./Resources/Configurations/Launcher.json")
+Data.LON.Library.DecodeFromFile("Resources/Configurations/Launcher.lon")
 local Requirements = LauncherData.Requirements
 package.path = LauncherData.ModulePath .. package.path
-Data.JSON.Library:SetPath(LauncherData.ConfigurationPath)
+Data.LON.Library.Path = LauncherData.ConfigurationPath
 local function Start(Requirements, Data, Order)
 	local LauncherUtilities = Data.LauncherUtilities.Library
 	local Configurations = LauncherUtilities.RequireAll(Requirements, Data)

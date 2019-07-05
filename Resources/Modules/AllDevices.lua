@@ -62,7 +62,7 @@ end
 
 --Creates every Device with Device.lua
 function GiveBack.Start(Configurations, Arguments)
-	local Space, JSON, General, Device, DeviceGive, OBJ = Arguments[1],
+	local Space, LON, General, Device, DeviceGive, OBJ = Arguments[1],
 	Arguments[2], Arguments[4], Arguments[6], Arguments[7], Arguments[10]
 	Space.Devices = {}
 	Space.DeviceTypes = {}
@@ -72,14 +72,14 @@ function GiveBack.Start(Configurations, Arguments)
 	General.Library.GoodTypesOfTable(AllDevices.DeviceTypes, "string") then
 		for ak=1,#AllDevices.DeviceTypes do
 			local av = AllDevices.DeviceTypes[ak]
-			local NewDevice = JSON.Library:DecodeFromFile("AllDevices/" .. av .. ".json")
+			local NewDevice = LON.Library.DecodeFromFile("AllDevices/" .. av .. ".lon")
 			if type(NewDevice) == "table" and NewDevice.Name then
 				Space.DeviceTypes[NewDevice.Name] =
 				Device.Library.Create(NewDevice, DeviceGive)
 			end
 		end
 		if Space.DeviceTypes.Default == nil then
-			local NewDevice = JSON.Library:DecodeFromFile("AllDevices/Default.json")
+			local NewDevice = LON.Library.DecodeFromFile("AllDevices/Default.lon")
 			Space.DeviceTypes.Default =
 			Device.Library.Create(NewDevice, DeviceGive)
 		end
@@ -90,7 +90,7 @@ function GiveBack.Start(Configurations, Arguments)
 			end
 		end
 	else
-		local NewDevice = JSON.Library:DecodeFromFile("AllDevices/Default.json")
+		local NewDevice = LON.Library.DecodeFromFile("AllDevices/Default.lon")
 		Space.DeviceTypes.Default =
 		Device.Library.Create(NewDevice, DeviceGive)
 		GiveBack.AddDevice("Default", nil, Arguments)
@@ -150,5 +150,5 @@ function GiveBack.ClearDeviceChanges(Arguments)
 	local Space = Arguments[1]
 	Space.CreatedObjects = {}
 end
-GiveBack.Requirements = {"JSON", "General", "Device", "Object", "OBJ"}
+GiveBack.Requirements = {"LON", "General", "Device", "Object", "OBJ"}
 return GiveBack

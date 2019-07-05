@@ -1,0 +1,25 @@
+return{{
+		["Button"] = "Escape",
+		["String"] = "return true",
+		["Type"] = "Down"
+	}, {
+		["Button"] = "Return",
+		["Pass"] = {"AllInputs"},
+		["String"] = "local AllInputs, AllInputsGive = ... if pcall(loadstring('local AllInputs, AllInputsGive = ... ' .. AllInputs.Space.Text), AllInputs, AllInputsGive) then AllInputs.Space.Text = '' end",
+		["Type"] = "Down"
+	}, {
+		["Button"] = "Delete",
+		["Pass"] = {"AllInputs"},
+		["String"] = "local AllInputs = ... AllInputs.Space.Text = '' print(' ')",
+		["Type"] = "Down"
+	}, {
+		["Button"] = "P",
+		["Pass"] = {"AllWindowRenders"},
+		["String"] = "local AllWindowRenders = ... print(AllWindowRenders.Space.FramesPerSecond,  'FramesPerSecond')",
+		["Type"] = "Down"
+	}, {
+		["Button"] = "Backspace",
+		["Pass"] = {"AllInputs"},
+		["String"] = "local AllInputs = ... AllInputs.Space.Text = AllInputs.Space.Text:sub(1, -2) print(AllInputs.Space.Text)",
+		["Type"] = "Down"
+	}}

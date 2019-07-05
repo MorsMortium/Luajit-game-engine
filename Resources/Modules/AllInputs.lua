@@ -9,8 +9,8 @@ local function NotInList(List, Object)
 	end
 	return true
 end
-local JSON = require("./Resources/Modules/json")
-local Inputs = JSON:DecodeFromFile("AllInputs.json")
+local LON = require("./Resources/Modules/LON")
+local Inputs = LON.DecodeFromFile("AllInputs.lon")
 GiveBack.Requirements =
 {"SDL", "SDLInit", "ffi", "Window", "AllWindows", "WindowRender", "AllDevices"}
 if type(Inputs) == "table" then

@@ -1,0 +1,149 @@
+return{
+	["ConfigurationPath"] = "./Resources/Configurations/",
+	["ModulePath"] = "./Resources/Modules/?.lua;./Resources/Modules/?;",
+	["Requirements"] = {{
+			["Name"] = "ffi",
+			["Path"] = "ffi",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "PortAudio",
+			["Path"] = "PortAudio",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "Audio",
+			["Path"] = "Audio",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "lgsl",
+			["Path"] = "lgsl",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "Camera",
+			["Path"] = "Camera",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "Main",
+			["Path"] = "Main",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "General",
+			["Path"] = "General",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "SDL",
+			["Path"] = "SDL2",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "OpenGL",
+			["Path"] = "luaglew",
+			["StartStopSpace"] = false
+		}, {
+			["Configuration"] = "SDLData.lon",
+			["Name"] = "SDLInit",
+			["Path"] = "SDLInit",
+			["StartStopSpace"] = true
+		}, {
+			["Configuration"] = "OpenGLData.lon",
+			["Name"] = "OpenGLInit",
+			["Path"] = "OpenGLInit",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Shader",
+			["Path"] = "Shader",
+			["StartStopSpace"] = false
+		}, {
+			["Configuration"] = "AllShaders.lon",
+			["Name"] = "AllShaders",
+			["Path"] = "AllShaders",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Program",
+			["Path"] = "Program",
+			["StartStopSpace"] = false
+		}, {
+			["Configuration"] = "AllPrograms.lon",
+			["Name"] = "AllPrograms",
+			["Path"] = "AllPrograms",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "ObjectRender",
+			["Path"] = "ObjectRender",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "AllDeviceRenders",
+			["Path"] = "AllDeviceRenders",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Object",
+			["Path"] = "Object",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "WindowRender",
+			["Path"] = "WindowRender",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Window",
+			["Path"] = "Window",
+			["StartStopSpace"] = false
+		}, {
+			["Configuration"] = "AllWindows.lon",
+			["Name"] = "AllWindows",
+			["Path"] = "AllWindows",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "AllWindowRenders",
+			["Path"] = "AllWindowRenders",
+			["StartStopSpace"] = true
+		}, {
+			["Configuration"] = "AllInputs.lon",
+			["Name"] = "AllInputs",
+			["Path"] = "AllInputs",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Physics",
+			["Path"] = "Physics",
+			["StartStopSpace"] = true
+		}, {
+			["Configuration"] = "AllCameras.lon",
+			["Name"] = "AllCameras",
+			["Path"] = "AllCameras",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Device",
+			["Path"] = "Device",
+			["StartStopSpace"] = false
+		}, {
+			["Configuration"] = "AllDevices.lon",
+			["Name"] = "AllDevices",
+			["Path"] = "AllDevices",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "Power",
+			["Path"] = "Power",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "AllPowers",
+			["Path"] = "AllPowers",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "CollisionDetection",
+			["Path"] = "CollisionDetection",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "CollisionResponse",
+			["Path"] = "CollisionResponse",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "OBJ",
+			["Path"] = "obj_loader",
+			["StartStopSpace"] = false
+		}, {
+			["Name"] = "CameraRender",
+			["Path"] = "CameraRender",
+			["StartStopSpace"] = true
+		}, {
+			["Name"] = "AllCameraRenders",
+			["Path"] = "AllCameraRenders",
+			["StartStopSpace"] = true
+		}}
+}

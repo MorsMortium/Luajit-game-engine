@@ -1,0 +1,18 @@
+return{{
+		["CameraRenderer"] = "Test",
+		["Direction"] = {0, 0, 0},
+		["FieldOfView"] = 60,
+		["FollowDevice"] = 1,
+		["FollowDistance"] = -5,
+		["FollowObject"] = 1,
+		["FollowPoint"] = 1,
+		["FollowPointUp"] = 2,
+		["HorizontalResolution"] = 500,
+		["MaximumDistance"] = 100,
+		["MinimumDistance"] = 1,
+		["Translation"] = {0, 0, 2},
+		["Type"] = "OpenGL",
+		["UpVector"] = {0, 1, 0},
+		["VerticalResolution"] = 500,
+		["VisualLayers"] = {"All"}
+	}}

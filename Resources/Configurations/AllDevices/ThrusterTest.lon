@@ -1,0 +1,25 @@
+return{
+	["Name"] = "ThrusterTest",
+	["Objects"] = {{
+			["Fixed"] = false,
+			["Mass"] = 1,
+			["ObjectRenderer"] = "ColorPerSide",
+			["PhysicsLayers"] = {"All"},
+			["Points"] = {{0, 1, 0, 1}, {0, 0, 0, 1}, {-1, 0, 0, 1}, {0, 0, -1, 1}},
+			["Powers"] = {{
+					["Active"] = false,
+					["Force"] = 5e-05,
+					["Point"] = 4,
+					["Type"] = "Thruster"
+				}, {
+					["Active"] = true,
+					["Rate"] = 1.01,
+					["Type"] = "SelfSlow"
+				}},
+			["RenderData"] = {{255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255}, {255, 255, 0, 255}},
+			["Rotation"] = {0, 0, 0},
+			["Scale"] = {1, 1, 1},
+			["Translation"] = {2, 0, 0},
+			["VisualLayers"] = {"All"}
+		}}
+}

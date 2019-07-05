@@ -1,0 +1,45 @@
+return{
+	["Name"] = "Asteroid",
+	["Objects"] = {{
+			["Fixed"] = false,
+			["Mass"] = 1,
+			["ObjectRenderer"] = "WireFrame",
+			["OnCollisionPowers"] = {false, false, true},
+			["PhysicsLayers"] = {"All"},
+			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
+			["Powers"] = {{
+					["Active"] = true,
+					["IfObject"] = false,
+					["String"] = [[ local Devices, Device, Object, Power, General = ...
+					if Devices then local Own, Other = Object.Translation,
+					Devices[1].Objects[1].Translation
+					if General.Library.VectorLength(General.Library.VectorSubtraction(Other, Own)) > 100 then
+							return true
+					else
+						return false
+						end
+					end ]],
+					["Type"] = "Destroypara"
+				}, {
+					["Active"] = false,
+					["IfObject"] = false,
+					["String"] = "return true",
+					["Type"] = "Destroypara"
+				}, {
+					["Active"] = false,
+					["String"] = [[ local Devices, Device, Object, Power = ...
+					if Power.Device and Power.Device.Name == 'Asteroid' then
+						Object.Powers[2].Active = true
+						Power.Active = false
+					end ]],
+					["Type"] = "Command"
+				}},
+			["RenderData"] = {{255, 0, 0, 255}, {255, 0, 0, 255}, {255, 0, 0, 255}, {255, 0, 0, 255}},
+			["Rotation"] = {0, 0, 0},
+			["RotationSpeed"] = {0.005, 0.005, 0.005},
+			["Scale"] = {1, 1, 1},
+			["Speed"] = {0.005, 0.005, 0.005},
+			["Translation"] = {0, 0, 0},
+			["VisualLayers"] = {"All"}
+		}}
+}

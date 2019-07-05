@@ -8,13 +8,13 @@ local function LoadModules(Modules)
 		end
 	end
 end
-local function LoadConfigurations(List, JSON)
+local function LoadConfigurations(List, LON)
   local Configurations = {}
   if type(List) == "table" then
     for ak=1,#List do
       local av = List[ak]
       if av.Configuration then
-        Configurations[av.Name] = JSON.Library:DecodeFromFile(av.Configuration)
+        Configurations[av.Name] = LON.Library.DecodeFromFile(av.Configuration)
       end
     end
   end
@@ -32,7 +32,7 @@ function GiveBack.RequireAll(Requirements, Data)
 			print(LibraryOrError)
 		end
 	end
-	return LoadConfigurations(Requirements, Data.JSON)
+	return LoadConfigurations(Requirements, Data.LON)
 end
 local function RequCalc(MainTable, Table)
 	local Give = {}
