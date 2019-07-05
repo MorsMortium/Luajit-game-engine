@@ -14,6 +14,23 @@ local function LoadFile(Name)
   end
 end
 
+--Remove space from end of string
+local function rtrim(s)
+  local n = #s
+  while n > 0 and s:find("^%s", n) do n = n - 1 end
+  return s:sub(1, n)
+end
+
+local function RemoveAllSpaces(Table)
+  for ak,av in pairs(Table) do
+    if type(av) == "table" then
+      RemoveAllSpaces(av)
+    elseif type(av) == "string" then
+      Table[ak] = rtrim(av)
+    end
+  end
+end
+
 --Loads file, checks, if it begins with return, runs it, and gives back the table
 --Doesn't raise an error, instead prints it and returns nil
 function GiveBack.DecodeFromFile(Name)
@@ -23,7 +40,14 @@ function GiveBack.DecodeFromFile(Name)
       local DataFunction = loadstring(String)
       local Ran, DataOrError = pcall(DataFunction)
       if Ran and DataOrError then
-        return DataOrError
+        if type(DataOrError) == "table" then
+          RemoveAllSpaces(DataOrError)
+          return DataOrError
+        elseif type(DataOrError) == "string" then
+          return rtrim(DataOrError)
+        else
+          return DataOrError
+        end
       else
         print("LON error in file:", tostring(GiveBack.Path) .. tostring(Name))
         print(DataOrError)
@@ -84,7 +108,11 @@ local function ToString(Table, Tab)
         Result = Result .. tostring(av)
       elseif type(av) == "string" then
         if string.match(av, "\n") then
-          Result = Result .. "[[ " .. av .. " ]]"
+          if string.sub(av, -1) == "]" then
+            Result = Result .. "[[" .. av .. " ]]"
+          else
+            Result = Result .. "[[" .. av .. "]]"
+          end
         else
           Result = Result .. "\"" .. av .. "\""
         end
