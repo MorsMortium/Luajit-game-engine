@@ -1,0 +1,21 @@
+return{
+	["Name"] = "GravityTest2",
+	["Objects"] = {{
+			["Fixed"] = true,
+			["Mass"] = 1,
+			["ObjectRenderer"] = "ColorPerSide",
+			["PhysicsLayers"] = {"All"},
+			["Points"] = {{0, 1, 0, 1}, {0, 0, 0, 1}, {-1, 0, 0, 1}, {0, 0, -1, 1}},
+			["Powers"] = {{
+					["Active"] = true,
+					["Distance"] = 100,
+					["Force"] = 0.0005,
+					["Type"] = "Gravity"
+				}},
+			["RenderData"] = {{255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255}, {255, 255, 0, 255}},
+			["Rotation"] = {0, 0, 0},
+			["Scale"] = {10, 10, 10},
+			["Translation"] = {0, 0, 0},
+			["VisualLayers"] = {"All"}
+		}}
+}

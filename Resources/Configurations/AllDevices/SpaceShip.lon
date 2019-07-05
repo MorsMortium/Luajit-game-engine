@@ -1,0 +1,183 @@
+return{
+	["Inputs"] = {{
+			["Button"] = "Left",
+			["String"] = "local Device = ... Device.Objects[1].Powers[3].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Left",
+			["String"] = "local Device = ... Device.Objects[1].Powers[3].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Right",
+			["String"] = "local Device = ... Device.Objects[1].Powers[4].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Right",
+			["String"] = "local Device = ... Device.Objects[1].Powers[4].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Up",
+			["String"] = "local Device = ... Device.Objects[1].Powers[5].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Up",
+			["String"] = "local Device = ... Device.Objects[1].Powers[5].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Down",
+			["String"] = "local Device = ... Device.Objects[1].Powers[6].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Down",
+			["String"] = "local Device = ... Device.Objects[1].Powers[6].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Left Ctrl",
+			["String"] = "local Device = ... Device.Objects[1].Powers[7].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Left Ctrl",
+			["String"] = "local Device = ... Device.Objects[1].Powers[7].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Left Alt",
+			["String"] = "local Device = ... Device.Objects[1].Powers[8].Active = true",
+			["Type"] = "Down"
+		}},
+	["Name"] = "SpaceShip",
+	["Objects"] = {{
+			["Fixed"] = false,
+			["Mass"] = 1,
+			["ObjectRenderer"] = "WireFrame",
+			["OnCollisionPowers"] = {false, false, false, false, false, false, false, false, false, false, false, false, false, true},
+			["PhysicsLayers"] = {"SpaceShip"},
+			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
+			["Powers"] = {{
+					["Active"] = true,
+					["String"] = "local Devices, Device, Object = ... if Object.Powers[2].Active then print('Game Over') end",
+					["Type"] = "Command"
+				}, {
+					["Active"] = false,
+					["IfObject"] = false,
+					["String"] = "return true",
+					["Type"] = "Destroypara"
+				}, {
+					["Active"] = false,
+					["Angle"] = -1e-05,
+					["Point"] = 2,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Angle"] = 1e-05,
+					["Point"] = 2,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Angle"] = -1e-05,
+					["Point"] = 3,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Angle"] = 1e-05,
+					["Point"] = 3,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Force"] = 0.0001,
+					["Point"] = 1,
+					["Type"] = "Thruster"
+				}, {
+					["Active"] = false,
+					["IfObject"] = true,
+					["Name"] = "Bullet",
+					["String"] = [[ local Created, Creator, General = ...
+					local Center, Point, v = Creator.Translation, {Creator.Transformated.data[0],
+					Creator.Transformated.data[1], Creator.Transformated.data[2]}, Created.Objects[1]
+					v.Speed = General.Library.VectorSubtraction(Point, Center)
+					for i=1,3 do
+						v.Speed[i] = v.Speed[i] / 30
+						v.Rotation[i] = Creator.Rotation[i]
+						v.Translation[i] = Center[i]
+					end
+					v.Rotation[4] = Creator.Rotation[4] ]],
+					["Type"] = "Summon"
+				}, {
+					["Active"] = true,
+					["Rate"] = 1.004,
+					["Type"] = "SelfSlow"
+				}, {
+					["Active"] = false,
+					["Name"] = "Asteroid",
+					["String"] = [[ local Created, Creator, General = ...
+					local Center, v = Creator.Translation, Created.Objects[1]
+					for i=1,3 do
+						if math.random(1, 2) == 1 then
+							v.Translation[i] = Center[i] + math.random(30, 50)
+						else
+							v.Translation[i] = Creator.Translation[i] - math.random(30, 50)
+						end
+					end
+					local c1, c2 = Creator.Translation, v.Translation
+					local Move = General.Library.VectorSubtraction(c1, c2)
+					for i=1,3 do
+						v.Speed[i] = Move[i]/10000
+						v.RotationSpeed[i + 1] = math.random()/300
+					end ]],
+					["Type"] = "Summon"
+				}, {
+					["Active"] = true,
+					["String"] = [[ local Devices, Device, Object, Power, Time = ...
+					if Power.SumTime then
+						Power.SumTime = Power.SumTime + Time
+						if Power.SumTime > 2000 then
+							Power.Niceness = Power.Niceness - 1
+							print('Niceness:', Power.Niceness)
+							Power.SumTime = Power.SumTime - 2000
+						end
+					else
+						Power.SumTime = Time
+						Power.Niceness = 1000
+					end ]],
+					["Type"] = "Command"
+				}, {
+					["Active"] = true,
+					["String"] = [[ local Devices, Device, Object, Power, Time = ...
+					if Power.SumTime then
+						Power.SumTime = Power.SumTime + Time
+						if Power.SumTime > Object.Powers[11].Niceness then
+							Object.Powers[10].Active = true
+							Power.SumTime = Power.SumTime - Object.Powers[11].Niceness
+						end
+					else
+						Power.SumTime = Time
+					end ]],
+					["Type"] = "Command"
+				}, {
+					["Active"] = true,
+					["String"] = [[ local Devices, Device, Object, Power = ...
+					if Power.LastScore then
+						if Power.LastScore < Power.Score then
+							Power.LastScore = Power.Score
+							print('Score:', Power.LastScore)
+						end
+					else
+						Power.LastScore = 0
+						Power.Score = 0
+					end ]],
+					["Type"] = "Command"
+				}, {
+					["Active"] = false,
+					["String"] = [[ local Devices, Device, Object, Power = ...
+					if Power.Device and Power.Device.Name == 'Asteroid' then
+						Object.Powers[2].Active = true
+						Power.Active = false
+					end ]],
+					["Type"] = "Command"
+				}},
+			["RenderData"] = {{0, 0, 255, 255}, {0, 0, 255, 255}, {0, 0, 255, 255}, {0, 0, 255, 255}},
+			["Rotation"] = {0, 0, 0},
+			["Scale"] = {1, 1, 1},
+			["Translation"] = {0, 0, -2},
+			["VisualLayers"] = {"All"}
+		}}
+}

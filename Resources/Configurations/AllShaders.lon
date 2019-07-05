@@ -1,0 +1,27 @@
+return{{
+		["IfPath"] = true,
+		["Inputs"] = {"Position", "ColorV"},
+		["Name"] = "TestVertexShader",
+		["ShaderType"] = "GL_VERTEX_SHADER",
+		["String"] = "./Resources/Shaders/SimpleTransformVertexShader.txt",
+		["Uniforms"] = {"Matrices"}
+	}, {
+		["IfPath"] = true,
+		["Name"] = "TestFragmentShader",
+		["ShaderType"] = "GL_FRAGMENT_SHADER",
+		["String"] = "./Resources/Shaders/SingleColorFragmentShader.txt",
+		["Uniforms"] = {}
+	}, {
+		["IfPath"] = true,
+		["Name"] = "TestFragment",
+		["ShaderType"] = "GL_FRAGMENT_SHADER",
+		["String"] = "./Resources/Shaders/TestFragment.txt",
+		["Uniforms"] = {}
+	}, {
+		["IfPath"] = true,
+		["Inputs"] = {"vertexPosition_modelspace", "vertexColor"},
+		["Name"] = "TestVertex",
+		["ShaderType"] = "GL_VERTEX_SHADER",
+		["String"] = "./Resources/Shaders/TestVertex.txt",
+		["Uniforms"] = {"MVP"}
+	}}

@@ -1,0 +1,10 @@
+return{{
+		["Flags"] = {"WINDOW_OPENGL", "WINDOW_RESIZABLE"},
+		["Height"] = 500,
+		["Title"] = "Asteroids",
+		["Type"] = "OpenGL",
+		["Width"] = 500,
+		["WindowRenderer"] = "Test",
+		["X"] = "WINDOWPOS_UNDEFINED",
+		["Y"] = "WINDOWPOS_UNDEFINED"
+	}}

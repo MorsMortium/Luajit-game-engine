@@ -1,6 +1,6 @@
 local GiveBack = {}
 --This script is responsible for mechanics that aren't derived from physics
---DataCheck functions convert data stored in json into data the power uses
+--DataCheck functions convert data stored in lon into data the power uses
 --Use functions evaluate the power
 
 --Converts an axis-angle rotatiton into a quaternion rotatiton
