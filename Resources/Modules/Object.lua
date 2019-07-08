@@ -53,12 +53,17 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	--Flag if true, the Object is fixed
 	Object.Fixed = false
 
-	--The speed of the Object on each axes
-	Object.Speed = {0, 0, 0}
+	--The LinearVelocity of the Object on each axes
+	Object.LinearVelocity = {0, 0, 0}
 
-	--The rotational speed of the Object on each axes
-	--TODO: Convert to quaternion
-	Object.RotationSpeed = {1, 0, 0, 0}
+	--The AngularVelocity of the Object, in a quaternion form
+	Object.AngularVelocity = {1, 0, 0, 0}
+
+	--The LinearAcceleration of the Object on each axes
+	Object.LinearAcceleration = {0, 0, 0}
+
+	--The AngularAcceleration of the Object, in a quaternion form
+	Object.AngularAcceleration = {1, 0, 0, 0}
 
 	-- Defines, which of the Cameras can see it, Default: All
 	Object.VisualLayers = {"All"}
@@ -106,12 +111,20 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 			Object.Fixed = GotObject.Fixed
 		end
 
-		if IsVector3(GotObject.Speed) then
-			Object.Speed = GotObject.Speed
+		if IsVector3(GotObject.LinearVelocity) then
+			Object.LinearVelocity = GotObject.LinearVelocity
 		end
 
-		if IsVector3(GotObject.RotationSpeed) then
-			Object.RotationSpeed = EulerToQuaternion(GotObject.RotationSpeed)
+		if IsVector3(GotObject.AngularVelocity) then
+			Object.AngularVelocity = EulerToQuaternion(GotObject.AngularVelocity)
+		end
+
+		if IsVector3(GotObject.LinearAcceleration) then
+			Object.LinearAcceleration = GotObject.LinearAcceleration
+		end
+
+		if IsVector3(GotObject.AngularAcceleration) then
+			Object.AngularAcceleration = EulerToQuaternion(GotObject.AngularAcceleration)
 		end
 
 		--If the points it got is a 4x4 matrix, then it iterates through it
@@ -212,13 +225,20 @@ function GiveBack.Copy(GotObject, Parent, Arguments)
 									GotObject.Scale[2],
 									GotObject.Scale[3]}
 	Object.Fixed = GotObject.Fixed
-	Object.Speed = {GotObject.Speed[1],
-									GotObject.Speed[2],
-									GotObject.Speed[3]}
-	Object.RotationSpeed = {GotObject.RotationSpeed[1],
-													GotObject.RotationSpeed[2],
-													GotObject.RotationSpeed[3],
-													GotObject.RotationSpeed[4]}
+	Object.LinearVelocity = {GotObject.LinearVelocity[1],
+									GotObject.LinearVelocity[2],
+									GotObject.LinearVelocity[3]}
+	Object.AngularVelocity = {GotObject.AngularVelocity[1],
+													GotObject.AngularVelocity[2],
+													GotObject.AngularVelocity[3],
+													GotObject.AngularVelocity[4]}
+	Object.LinearAcceleration = {GotObject.LinearAcceleration[1],
+															GotObject.LinearAcceleration[2],
+															GotObject.LinearAcceleration[3]}
+	Object.AngularAcceleration = {GotObject.AngularAcceleration[1],
+																GotObject.AngularAcceleration[2],
+																GotObject.AngularAcceleration[3],
+																GotObject.AngularAcceleration[4]}
 	Object.VisualLayers = {}
 	for ak=1,#GotObject.VisualLayers do
 		Object.VisualLayers[ak] = GotObject.VisualLayers[ak]
