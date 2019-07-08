@@ -163,7 +163,7 @@ return{
 					v.Rotation[4] = Creator.Rotation[4] ]],
 					["Type"] = "Summon"
 				}, {
-					["Active"] = false,
+					["Active"] = true,
 					["String"] = [[ local Devices, Device, Object, Power, Time = ...
 					if Power.SumTime then
 						Power.SumTime = Power.SumTime + Time

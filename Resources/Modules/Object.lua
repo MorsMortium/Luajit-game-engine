@@ -26,10 +26,14 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
 
 	--The matrices that will contains the transformations
+	--Init for less calculations
 	Object.ScaleMatrix = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_set_zero(Object.ScaleMatrix)
+	Object.ScaleMatrix.data[15] = 1
 	Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
 	Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
-
+	gsl.gsl_matrix_set_identity(Object.TranslationMatrix)
+	
 	--The BufferMatrix contains the multiplication of the first two transformations
 	Object.BufferMatrix = gsl.gsl_matrix_alloc(4, 4)
 
@@ -39,6 +43,9 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	--Flags for upgrading the matrices
 	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = true, true,
 	true
+
+	Object.Min = {0, 0, 0}
+	Object.Max = {0, 0, 0}
 
 	--The translation in the world, it will be the Object's center of mass too
 	--Default: origin
@@ -204,16 +211,19 @@ function GiveBack.Copy(GotObject, Parent, Arguments)
 	local gsl = lgsl.Library.gsl
 	local Object = {}
 	Object.Parent = Parent
-	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
 	Object.Points = gsl.gsl_matrix_alloc(4, 4)
-	gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
 	Object.ScaleMatrix = gsl.gsl_matrix_alloc(4, 4)
 	Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
 	Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
 	Object.BufferMatrix = gsl.gsl_matrix_alloc(4, 4)
 	Object.ModelMatrix = gsl.gsl_matrix_alloc(4, 4)
-	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = true, true,
-	true
+	Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
+	gsl.gsl_matrix_memcpy(Object.ScaleMatrix, GotObject.ScaleMatrix)
+	gsl.gsl_matrix_memcpy(Object.TranslationMatrix, GotObject.TranslationMatrix)
+
+	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = false, true,
+	false
 	Object.Translation = {GotObject.Translation[1],
 												GotObject.Translation[2],
 												GotObject.Translation[3]}
@@ -239,6 +249,12 @@ function GiveBack.Copy(GotObject, Parent, Arguments)
 																GotObject.AngularAcceleration[2],
 																GotObject.AngularAcceleration[3],
 																GotObject.AngularAcceleration[4]}
+	Object.Min = {GotObject.Min[1],
+								GotObject.Min[2],
+								GotObject.Min[3]}
+	Object.Max = {GotObject.Min[1],
+								GotObject.Min[2],
+								GotObject.Min[3]}
 	Object.VisualLayers = {}
 	for ak=1,#GotObject.VisualLayers do
 		Object.VisualLayers[ak] = GotObject.VisualLayers[ak]
