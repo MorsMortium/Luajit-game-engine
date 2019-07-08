@@ -194,9 +194,9 @@ end
 
 --Fills Matrix with a rotation matrix calculated from a quaternion and a center,
 --If it exist
-function GiveBack.RotationMatrix(q, Center, Matrix, ffi)
+function GiveBack.RotationMatrix(q, Center, Matrix)
   local sqw, sqx, sqy, sqz = q[1]*q[1], q[2]*q[2], q[3]*q[3], q[4]*q[4]
-	local m = ffi.Library.new("double[16]")
+	local m = Matrix.data
   m[0] = sqx - sqy - sqz + sqw --// since sqw + sqx + sqy + sqz =1
   m[5], m[10] = -sqx + sqy - sqz + sqw, -sqx - sqy + sqz + sqw
   local tmp1, tmp2 = q[2]*q[3], q[4]*q[1]
@@ -213,33 +213,30 @@ function GiveBack.RotationMatrix(q, Center, Matrix, ffi)
 	m[7] = a[2] - a[1] * m[4] - a[2] * m[5] - a[3] * m[6]
 	m[11] = a[3] - a[1] * m[8] - a[2] * m[9] - a[3] * m[10]
 	m[12], m[13], m[14], m[15] = 0, 0, 0, 1
-	ffi.Library.copy(Matrix.data, m, ffi.Library.sizeof(m))
 end
 
 --Fills Matrix with a translation matrix
-function GiveBack.TranslationMatrix(Translation, Matrix, gsl)
-	gsl.gsl_matrix_set_identity(Matrix)
+function GiveBack.TranslationMatrix(Translation, Matrix)
 	Matrix.data[3], Matrix.data[7], Matrix.data[11] =
 	Translation[1], Translation[2], Translation[3]
 end
 
 --Fills Matrix with a scale matrix
-function GiveBack.ScaleMatrix(Scale, Matrix, gsl)
-	gsl.gsl_matrix_set_zero(Matrix)
-	Matrix.data[0], Matrix.data[5], Matrix.data[10], Matrix.data[15] =
-	Scale[1], Scale[2], Scale[3], 1
+function GiveBack.ScaleMatrix(Scale, Matrix)
+	Matrix.data[0], Matrix.data[5], Matrix.data[10] =
+	Scale[1], Scale[2], Scale[3]
 end
 
 --Checks whether an object needs updating its matrices and if so, it does it
-function GiveBack.ModelMatrix(Object, gsl, ffi)
+function GiveBack.ModelMatrix(Object, gsl)
 	if Object.ScaleCalc then
-		GiveBack.ScaleMatrix(Object.Scale, Object.ScaleMatrix, gsl)
+		GiveBack.ScaleMatrix(Object.Scale, Object.ScaleMatrix)
 	end
 	if Object.RotationCalc then
-		GiveBack.RotationMatrix(Object.Rotation, nil, Object.RotationMatrix, ffi)
+		GiveBack.RotationMatrix(Object.Rotation, nil, Object.RotationMatrix)
 	end
 	if Object.TranslationCalc then
-		GiveBack.TranslationMatrix(Object.Translation, Object.TranslationMatrix, gsl)
+		GiveBack.TranslationMatrix(Object.Translation, Object.TranslationMatrix)
 	end
 	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasNoTrans, 1,
 	Object.ScaleMatrix, Object.RotationMatrix, 0, Object.BufferMatrix)
@@ -323,9 +320,8 @@ end
 --Updates and object's Matrices, then calculates radius of the
 --Bounding sphere and from that it creates bunding box, if needed
 function GiveBack.UpdateObject(Object, Arguments)
-	local lgsl, ffi = Arguments[1], Arguments[3]
-	local gsl = lgsl.Library.gsl
-	GiveBack.ModelMatrix(Object, gsl, ffi)
+	local gsl = Arguments[1].Library.gsl
+	GiveBack.ModelMatrix(Object, gsl)
 	gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasTrans, 1, Object.Points,
 	Object.ModelMatrix, 0, Object.Transformated)
 	if Object.ScaleCalc then
