@@ -133,7 +133,7 @@ end
 
 --Returns the length of a vector
 function GiveBack.VectorLength(a)
-   return math.sqrt(a[1]*a[1] + a[2]*a[2] + a[3]*a[3])
+   return math.sqrt(a[1] ^ 2 + a[2] ^ 2 + a[3] ^ 2)
 end
 
 --Calculates the dot product of two vectors with the length of 3
@@ -365,27 +365,48 @@ function GiveBack.VersorScale(q, n)
 return {q[1], q[2] * n, q[3] * n, q[4] * n}
 end
 
+function GiveBack.UpdateVelocities(Object, Time)
+	local VectorEqual, VectorAddition, VectorNumberMult, QuaternionMultiplication,
+	VersorScale = GiveBack.VectorEqual, GiveBack.VectorAddition,
+	GiveBack.VectorNumberMult, GiveBack.QuaternionMultiplication,
+	GiveBack.VersorScale
+	if not VectorEqual(Object.LinearVelocity, {0, 0, 0}) then
+		Object.Translation =
+		VectorAddition(Object.Translation, VectorNumberMult(Object.LinearVelocity, Time))
+		Object.TranslationCalc = true
+	end
+	if (not VectorEqual(Object.AngularVelocity, {1, 0, 0})) or Object.AngularVelocity[4] ~= 0 then
+		Object.Rotation = QuaternionMultiplication(Object.Rotation, VersorScale(Object.AngularVelocity, Time))
+		Object.RotationCalc = true
+	end
+end
+
+function GiveBack.UpdateAccelerations(Object, Time)
+	local VectorEqual, VectorAddition, VectorNumberMult, QuaternionMultiplication,
+	VersorScale = GiveBack.VectorEqual, GiveBack.VectorAddition,
+	GiveBack.VectorNumberMult, GiveBack.QuaternionMultiplication,
+	GiveBack.VersorScale
+	if not VectorEqual(Object.LinearAcceleration, {0, 0, 0}) then
+		Object.LinearVelocity =
+		VectorAddition(Object.LinearVelocity, VectorNumberMult(Object.LinearAcceleration, Time))
+	end
+	if (not VectorEqual(Object.AngularAcceleration, {1, 0, 0})) or Object.AngularAcceleration[4] ~= 0 then
+		Object.AngularVelocity = QuaternionMultiplication(Object.AngularVelocity, VersorScale(Object.AngularAcceleration, Time))
+	end
+end
+
 --Updates every object's rotation and translation from every device and calls
 --UpdateObject if needed
 function GiveBack.UpdateDevices(Devices, Time, Arguments)
-	local VectorEqual, VectorAddition, VectorNumberMult, QuaternionMultiplication,
-	VersorScale, UpdateObject = GiveBack.VectorEqual, GiveBack.VectorAddition,
-	GiveBack.VectorNumberMult, GiveBack.QuaternionMultiplication,
-	GiveBack.VersorScale, GiveBack.UpdateObject
+	local UpdateObject, UpdateVelocities, UpdateAccelerations = GiveBack.UpdateObject,
+	GiveBack.UpdateVelocities, GiveBack.UpdateAccelerations
 	for ak=1,#Devices do
 		local av = Devices[ak]
 		for bk=1,#av.Objects do
 			local bv = av.Objects[bk]
 			if not bv.Fixed then
-				if not VectorEqual(bv.Speed, {0, 0, 0}) then
-					bv.Translation =
-					VectorAddition(bv.Translation, VectorNumberMult(bv.Speed, Time))
-					bv.TranslationCalc = true
-				end
-				if (not VectorEqual(bv.RotationSpeed, {1, 0, 0})) or bv.RotationSpeed[4] ~= 0 then
-					bv.Rotation = QuaternionMultiplication(bv.Rotation, VersorScale(bv.RotationSpeed, Time))
-					bv.RotationCalc = true
-				end
+				UpdateAccelerations(bv, Time)
+				UpdateVelocities(bv, Time)
 				if bv.TranslationCalc or bv.RotationCalc or bv.ScaleCalc then
 					UpdateObject(bv, Arguments)
 				end

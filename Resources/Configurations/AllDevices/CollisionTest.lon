@@ -9,7 +9,7 @@ return{
 			["RenderData"] = {{255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255}, {255, 255, 0, 255}},
 			["Rotation"] = {1, 0, 0},
 			["Scale"] = {1, 1, 1},
-			["Speed"] = {0, 0.005, 0},
+			["LinearVelocity"] = {0, 0.005, 0},
 			["Translation"] = {0, 0, 0},
 			["VisualLayers"] = {"All"}
 		}, {

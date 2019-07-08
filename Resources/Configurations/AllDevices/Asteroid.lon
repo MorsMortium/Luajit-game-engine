@@ -36,9 +36,9 @@ return{
 				}},
 			["RenderData"] = {{255, 0, 0, 255}, {255, 0, 0, 255}, {255, 0, 0, 255}, {255, 0, 0, 255}},
 			["Rotation"] = {0, 0, 0},
-			["RotationSpeed"] = {0.005, 0.005, 0.005},
+			["AngularVelocity"] = {0.005, 0.005, 0.005},
 			["Scale"] = {1, 1, 1},
-			["Speed"] = {0.005, 0.005, 0.005},
+			["LinearVelocity"] = {0.005, 0.005, 0.005},
 			["Translation"] = {0, 0, 0},
 			["VisualLayers"] = {"All"}
 		}}

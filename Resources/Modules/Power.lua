@@ -55,13 +55,13 @@ function Gravity.Use(Devices, Device, Object, Power, Time, Arguments)
           Direction = VectorSign(Direction)
         end
         if not bv.Fixed then
-          bv.Speed =
-          VectorAddition(bv.Speed, VectorNumberMult(Direction, Time * Power.Force))
+          bv.LinearVelocity =
+          VectorAddition(bv.LinearAcceleration, VectorNumberMult(Direction, Time * Power.Force))
         end
         Direction = MinusVector(Direction)
         if not Object.Fixed then
-          Object.Speed =
-          VectorAddition(Object.Speed, VectorNumberMult(Direction, Time * Power.Force))
+          Object.LinearVelocity =
+          VectorAddition(Object.LinearAcceleration, VectorNumberMult(Direction, Time * Power.Force))
   			end
   		end
     end
@@ -100,8 +100,8 @@ function Thruster.Use(Devices, Device, Object, Power, Time, Arguments)
                 Object.Transformated.data[(Power.Point-1) * 4 + 2]}
     local c = Object.Translation
     local vfctp = General.Library.VectorSubtraction(p, c)
-    Object.Speed =
-    VectorAddition(Object.Speed, VectorNumberMult(vfctp, Time*Power.Force))
+    Object.LinearAcceleration =
+    VectorAddition(Object.LinearAcceleration, VectorNumberMult(vfctp, Power.Force * Time))
   end
 end
 
@@ -139,8 +139,8 @@ function SelfRotate.Use(Devices, Device, Object, Power, Time, Arguments)
 		local c = Object.Translation
 		local vfctp = General.Library.VectorSubtraction(p, c)
 		local Quaternion = AxisAngleToQuaternion(vfctp, Power.Angle * Time)
-    Object.RotationSpeed =
-		QuaternionMultiplication(Object.RotationSpeed, Quaternion)
+    Object.AngularAcceleration =
+		QuaternionMultiplication(Object.AngularAcceleration, Quaternion)
   end
 end
 
@@ -164,9 +164,14 @@ function SelfSlow.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local VectorNumberMult = General.Library.VectorNumberMult
 	local Slerp = General.Library.Slerp
-  Object.Speed = VectorNumberMult(Object.Speed, 1 / Power.Rate ^ Time)
-	Object.RotationSpeed =
-	Slerp({1, 0, 0, 0}, Object.RotationSpeed, 1 / Power.Rate ^ Time)
+  Object.LinearAcceleration =
+  VectorNumberMult(Object.LinearAcceleration, (1 / Power.Rate) ^ Time)
+  Object.LinearVelocity =
+  VectorNumberMult(Object.LinearVelocity, (1 / Power.Rate) ^ Time)
+	Object.AngularVelocity =
+	Slerp({1, 0, 0, 0}, Object.AngularVelocity, (1 / Power.Rate) ^ Time)
+  Object.AngularAcceleration =
+  Slerp({1, 0, 0, 0}, Object.AngularAcceleration, (1 / Power.Rate) ^ Time)
 end
 local function DefaultDestroypara(...)
   return false
