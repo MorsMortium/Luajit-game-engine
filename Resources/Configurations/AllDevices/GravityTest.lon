@@ -4,7 +4,7 @@ return{
 			["Fixed"] = false,
 			["Mass"] = 1,
 			["ObjectRenderer"] = "ColorPerSide",
-			["PhysicsLayers"] = {"All"},
+			["PhysicsLayers"] = {["All"] = true},
 			["Points"] = {{0, 1, 0, 1}, {0, 0, 0, 1}, {-1, 0, 0, 1}, {0, 0, -1, 1}},
 			["Powers"] = {{
 					["Active"] = true,
@@ -16,17 +16,17 @@ return{
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {0, 0, 0},
-			["VisualLayers"] = {"All"}
+			["VisualLayers"] = {["All"] = true}
 		}, {
 			["Fixed"] = false,
 			["Mass"] = 1,
 			["ObjectRenderer"] = "Default",
-			["PhysicsLayers"] = {"All"},
+			["PhysicsLayers"] = {["All"] = true},
 			["Points"] = {{0, 1, 0, 1}, {0, 0, 0, 1}, {-1, 0, 0, 1}, {0, 0, -1, 1}},
 			["RenderData"] = {{255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255}, {255, 255, 0, 255}},
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {1, 1, 0},
-			["VisualLayers"] = {"All"}
+			["VisualLayers"] = {["All"] = true}
 		}}
 }

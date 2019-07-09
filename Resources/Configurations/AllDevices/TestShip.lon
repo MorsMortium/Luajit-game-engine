@@ -50,7 +50,7 @@ return{
 			["Mass"] = 1,
 			["ObjectRenderer"] = "WireFrame",
 			["OnCollisionPowers"] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true},
-			["PhysicsLayers"] = {"None"},
+			["PhysicsLayers"] = {["None"] = true},
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = false,
@@ -210,6 +210,6 @@ return{
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {0, 0, -2},
-			["VisualLayers"] = {"All"}
+			["VisualLayers"] = {["All"] = true}
 		}}
 }

@@ -38,26 +38,26 @@ local function Barycentric(p, a, b, c, General)
 end
 local function ExtrapolateContactInformation(aClosestFace, General)
   local DotProduct = General.Library.DotProduct
-  local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorScale = General.Library.VectorScale
   local VectorAddition = General.Library.VectorAddition
 	local distanceFromOrigin = DotProduct(aClosestFace[4], aClosestFace[1]);
   local aContactData = {}
   aContactData[1] = General.Library.Normalise(aClosestFace[4])
 	-- calculate the barycentric coordinates of the closest triangle with respect to
 	-- the projection of the origin onto the triangle
-	local bary_u, bary_v, bary_w = Barycentric(VectorNumberMult(aClosestFace[4], distanceFromOrigin), aClosestFace[1], aClosestFace[2], aClosestFace[3], General);
+	local bary_u, bary_v, bary_w = Barycentric(VectorScale(aClosestFace[4], distanceFromOrigin), aClosestFace[1], aClosestFace[2], aClosestFace[3], General);
   -- A Contact points
 	local supportLocal1 = aClosestFace[1].supporta
 	local supportLocal2 = aClosestFace[2].supporta
 	local supportLocal3 = aClosestFace[3].supporta
 	-- Contact point on object A in local space
-	aContactData[2] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
+	aContactData[2] = VectorAddition(VectorAddition(VectorScale(supportLocal1, bary_u), VectorScale(supportLocal2, bary_v)), VectorScale(supportLocal3, bary_w))
 	-- B contact points
   supportLocal1 = aClosestFace[1].supportb
 	supportLocal2 = aClosestFace[2].supportb
 	supportLocal3 = aClosestFace[3].supportb
 	-- Contact point on object B in local space
-  aContactData[3] = VectorAddition(VectorAddition(VectorNumberMult(supportLocal1, bary_u), VectorNumberMult(supportLocal2, bary_v)), VectorNumberMult(supportLocal3, bary_w))
+  aContactData[3] = VectorAddition(VectorAddition(VectorScale(supportLocal1, bary_u), VectorScale(supportLocal2, bary_v)), VectorScale(supportLocal3, bary_w))
   return aContactData;
 end
 local GiveBack = {}
@@ -75,10 +75,10 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   local CrossProduct = General.Library.CrossProduct
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
-  local MinusVector = General.Library.MinusVector
+  local VectorScale = General.Library.VectorScale
   --triangle's normal
   local n = CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a))
-  local AO = MinusVector(a) --direction to origin
+  local AO = VectorScale(a, -1) --direction to origin
   --Determine which feature is closest to origin, make that the new simplex
   simp_dim[1] = 2
    --Closest to edge AB
@@ -122,7 +122,7 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   b.supporta = a.supporta
   b.supportb = a.supportb
   --simp_dim[1] = 3
-  VectorCopy(search_dir, MinusVector(n))
+  VectorCopy(search_dir, VectorScale(n, -1))
   return
 end
 --Tetrahedral case
@@ -133,11 +133,11 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   local CrossProduct = General.Library.CrossProduct
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
-  local MinusVector = General.Library.MinusVector
+  local VectorScale = General.Library.VectorScale
   local ABC = CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a))
   local ACD = CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a))
   local ADB = CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a))
-  local AO = MinusVector(a) --dir to origin
+  local AO = VectorScale(a, -1) --dir to origin
   simp_dim[1] = 3 --hoisting this just cause
   --Plane-test origin with 3 faces
   -- Note: Kind of primitive approach used here; If origin is in front of a face, just use it as the new simplex.
@@ -212,9 +212,8 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
   local CrossProduct = General.Library.CrossProduct
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
-  local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorScale = General.Library.VectorScale
   local VectorEqual = General.Library.VectorEqual
-  local MinusVector = General.Library.MinusVector
   faces[1] = {a, b, c, Normalise(CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)))}--ABC
   faces[2] = {a, c, d, Normalise(CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a)))}--ACD
   faces[3] = {a, d, b, Normalise(CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a)))}--ADB
@@ -237,13 +236,13 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
     end
     --search normal to face that's closest to origin
     local search_dir = faces[closest_face][4]
-    local p = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
-    p.supporta = Support(coll1, MinusVector(search_dir), General)
+    local p = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
+    p.supporta = Support(coll1, VectorScale(search_dir, -1), General)
     p.supportb = Support(coll2, search_dir, General)
     if DotProduct(p, search_dir)-min_dist < EPA_TOLERANCE then
       --Convergence (new point is not significantly further from origin)
       local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
-      return VectorNumberMult(faces[closest_face][3], DotProduct(p, search_dir)), contactdata[1], contactdata[2], contactdata[3] --dot vertex with normal to resolve collision along normal!
+      return VectorScale(faces[closest_face][3], DotProduct(p, search_dir)), contactdata[1], contactdata[2], contactdata[3] --dot vertex with normal to resolve collision along normal!
     end
     local loose_edges = {}--[EPA_MAX_NUM_LOOSE_EDGES][2] --keep track of edges we need to fix after removing faces
     for i=1,EPA_MAX_NUM_LOOSE_EDGES do
@@ -309,14 +308,14 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
         local temp = faces[num_faces][1]
         faces[num_faces][1] = faces[num_faces][2]
         faces[num_faces][2] = temp
-        faces[num_faces][4] = MinusVector(faces[num_faces][4])
+        faces[num_faces][4] = VectorScale(faces[num_faces][4], -1)
       end
     end
   end --End for iterations
     print("EPA did not converge")
     --Return most recent closest point
     local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
-    return VectorNumberMult(faces[closest_face][3], DotProduct(faces[closest_face][1], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3], true
+    return VectorScale(faces[closest_face][3], DotProduct(faces[closest_face][1], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3], true
 end
 local GJK_MAX_NUM_ITERATIONS = 64
 --Returns true if two colliders are intersecting. Has optional Minimum Translation Vector output param;
@@ -327,20 +326,20 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   local DotProduct = General.Library.DotProduct
   local CrossProduct = General.Library.CrossProduct
   local VectorEqual = General.Library.VectorEqual
-  local MinusVector = General.Library.MinusVector
+  local VectorScale = General.Library.VectorScale
   local a, b, c, d = {}, {}, {}, {} --Simplex: just a set of points (a is always most recently added)
   local search_dir = VectorSubtraction(coll1.Translation, coll2.Translation) --initial search direction between colliders
   --Get initial point for simplex
-  c = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
-  c.supporta = Support(coll1, MinusVector(search_dir), General)
+  c = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
+  c.supporta = Support(coll1, VectorScale(search_dir, -1), General)
   c.supportb = Support(coll2, search_dir, General)
-  search_dir = MinusVector(c) --search in direction of origin
+  search_dir = VectorScale(c, -1) --search in direction of origin
   --Get second point for a line segment simplex
-  b = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
-  b.supporta = Support(coll1, MinusVector(search_dir), General)
+  b = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
+  b.supporta = Support(coll1, VectorScale(search_dir, -1), General)
   b.supportb = Support(coll2, search_dir, General)
   if DotProduct(b, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
-  search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),MinusVector(b)),VectorSubtraction(c, b)) --search perpendicular to line segment towards origin
+  search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),VectorScale(b, -1)),VectorSubtraction(c, b)) --search perpendicular to line segment towards origin
   if VectorEqual(search_dir, {0, 0, 0}) then --origin is on this line segment
     --Apparently any normal search vector will do?
     search_dir = CrossProduct(VectorSubtraction(c, b), {1,0,0}) --normal with x-axis
@@ -350,8 +349,8 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   end
   local simp_dim = {2} --simplex dimension
   for iterations=1, GJK_MAX_NUM_ITERATIONS do
-    a = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, MinusVector(search_dir), General))
-    a.supporta = Support(coll1, MinusVector(search_dir), General)
+    a = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
+    a.supporta = Support(coll1, VectorScale(search_dir, -1), General)
     a.supportb = Support(coll2, search_dir, General)
     if DotProduct(a, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
     simp_dim[1] = simp_dim[1] + 1

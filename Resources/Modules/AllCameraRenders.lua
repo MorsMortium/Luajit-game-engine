@@ -36,7 +36,7 @@ local function UpdateCamera(av, ffi, lgsl, General, AllDevices)
   local VectorSubtraction = General.Library.VectorSubtraction
   local VectorLength = General.Library.VectorLength
   local VectorAddition = General.Library.VectorAddition
-  local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorScale = General.Library.VectorScale
   local VectorEqual = General.Library.VectorEqual
   local gsl = lgsl.Library.gsl
   if av.FollowDevice and AllDevices.Space.Devices[av.FollowDevice] and
@@ -67,7 +67,7 @@ local function UpdateCamera(av, ffi, lgsl, General, AllDevices)
     end
     local CenterToPoint = VectorSubtraction(av.Direction, Center)
     local NewTranslation =
-    VectorAddition(NewDirection, VectorNumberMult(CenterToPoint, Length))
+    VectorAddition(NewDirection, VectorScale(CenterToPoint, Length))
     if not VectorEqual(av.Translation, NewTranslation) then
       av.Translation = NewTranslation
       av.ViewMatrixCalc = true
