@@ -37,11 +37,10 @@ end
 function Gravity.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
-  VectorAddition, VectorNumberMult, MinusVector = General.Library.SameLayer,
+  VectorAddition, VectorScale = General.Library.SameLayer,
   General.Library.VectorLength, General.Library.VectorSubtraction,
   General.Library.Normalise, General.Library.VectorSign,
-  General.Library.VectorAddition, General.Library.VectorNumberMult,
-  General.Library.MinusVector
+  General.Library.VectorAddition, General.Library.VectorScale
   for ak=1,#Devices do
     local av = Devices[ak]
     for bk=1,#av.Objects do
@@ -56,12 +55,12 @@ function Gravity.Use(Devices, Device, Object, Power, Time, Arguments)
         end
         if not bv.Fixed then
           bv.LinearVelocity =
-          VectorAddition(bv.LinearAcceleration, VectorNumberMult(Direction, Time * Power.Force))
+          VectorAddition(bv.LinearAcceleration, VectorScale(Direction, Time * Power.Force))
         end
-        Direction = MinusVector(Direction)
+        Direction = VectorScale(Direction, -1)
         if not Object.Fixed then
           Object.LinearVelocity =
-          VectorAddition(Object.LinearAcceleration, VectorNumberMult(Direction, Time * Power.Force))
+          VectorAddition(Object.LinearAcceleration, VectorScale(Direction, Time * Power.Force))
   			end
   		end
     end
@@ -93,7 +92,7 @@ end
 function Thruster.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local VectorAddition = General.Library.VectorAddition
-  local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorScale = General.Library.VectorScale
   if not Object.Fixed then
     local p = {Object.Transformated.data[(Power.Point-1) * 4],
                 Object.Transformated.data[(Power.Point-1) * 4 + 1],
@@ -101,7 +100,7 @@ function Thruster.Use(Devices, Device, Object, Power, Time, Arguments)
     local c = Object.Translation
     local vfctp = General.Library.VectorSubtraction(p, c)
     Object.LinearAcceleration =
-    VectorAddition(Object.LinearAcceleration, VectorNumberMult(vfctp, Power.Force * Time))
+    VectorAddition(Object.LinearAcceleration, VectorScale(vfctp, Power.Force * Time))
   end
 end
 
@@ -130,7 +129,7 @@ end
 function SelfRotate.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local VectorAddition = General.Library.VectorAddition
-  local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorScale = General.Library.VectorScale
 	local QuaternionMultiplication = General.Library.QuaternionMultiplication
   if not Object.Fixed then
 		local p = {Object.Transformated.data[(Power.Point-1) * 4],
@@ -162,12 +161,12 @@ function SelfSlow.DataCheck(Devices, Device, Object, Power, Time)
 end
 function SelfSlow.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
-  local VectorNumberMult = General.Library.VectorNumberMult
+  local VectorScale = General.Library.VectorScale
 	local Slerp = General.Library.Slerp
   Object.LinearAcceleration =
-  VectorNumberMult(Object.LinearAcceleration, (1 / Power.Rate) ^ Time)
+  VectorScale(Object.LinearAcceleration, (1 / Power.Rate) ^ Time)
   Object.LinearVelocity =
-  VectorNumberMult(Object.LinearVelocity, (1 / Power.Rate) ^ Time)
+  VectorScale(Object.LinearVelocity, (1 / Power.Rate) ^ Time)
 	Object.AngularVelocity =
 	Slerp({1, 0, 0, 0}, Object.AngularVelocity, (1 / Power.Rate) ^ Time)
   Object.AngularAcceleration =

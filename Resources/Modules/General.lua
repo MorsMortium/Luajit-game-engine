@@ -1,7 +1,8 @@
 local GiveBack = {}
 --General functions used in various places
 --Mostly vector functions
---TODO: Move vector stuff into different file, and use gsl where possible
+--TODO: Move vector stuff into different file, and use gsl where possible or
+--Where it's faster
 
 --Checks if a variable is a table, and all of it's values are of one type
 function GiveBack.GoodTypesOfTable(Table, GoodType)
@@ -12,6 +13,19 @@ function GiveBack.GoodTypesOfTable(Table, GoodType)
         return false
       end
     end
+		return true
+	end
+	return false
+end
+
+--Checks if a variable is a table, and all of it's values are of one type (Hash)
+function GiveBack.GoodTypesOfHashTable(Table, GoodType)
+	if type(Table) == "table" then
+		for ak,av in pairs(Table) do
+			if type(av) ~= GoodType then
+				return false
+			end
+		end
 		return true
 	end
 	return false
@@ -83,51 +97,14 @@ end
 
 --Checks wether two physics or visual layers are overlapping
 function GiveBack.SameLayer(Layers1, Layers2)
-  for ak=1,#Layers1 do
-		local av = Layers1[ak]
-    if av == "AdminAll" then
-      return true
-    end
-  end
-  for ak=1,#Layers2 do
-		local av = Layers2[ak]
-    if av == "AdminAll" then
-      return true
-    end
-  end
-  for ak=1,#Layers1 do
-		local av = Layers1[ak]
-    if av == "None" then
-      return false
-    end
-  end
-  for ak=1,#Layers2 do
-		local av = Layers2[ak]
-    if av == "None" then
-      return false
-    end
-  end
-  for ak=1,#Layers1 do
-		local av = Layers1[ak]
-    if av == "All" then
-      return true
-    end
-  end
-  for ak=1,#Layers2 do
-		local av = Layers2[ak]
-    if av == "All" then
-      return true
-    end
-  end
-  for ak=1,#Layers1 do
-		local av = Layers1[ak]
-    for bk=1,#Layers2 do
-			local bv = Layers2[bk]
-      if av == bv then
-        return true
-      end
-    end
-  end
+	if Layers1.AdminAll or Layers2.AdminAll then return true end
+	if Layers1.None or Layers2.None then return false end
+	if Layers1.All or Layers2.All then return true end
+	for ak,av in pairs(Layers1) do
+		if av and Layers2[ak] then
+			return true
+		end
+	end
   return false
 end
 
@@ -142,7 +119,7 @@ function GiveBack.DotProduct(a, b)
 end
 
 --Multiplies the values of a vector with a number
-function GiveBack.VectorNumberMult(v, n)
+function GiveBack.VectorScale(v, n)
   return {v[1] * n, v[2] * n, v[3] * n}
 end
 
@@ -279,11 +256,6 @@ function GiveBack.VectorSubtraction(a, b)
   return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
 end
 
---Returns the vector with flipped signs
-function GiveBack.MinusVector(a)
-  return {-a[1], -a[2], -a[3]}
-end
-
 --Normalises a quaternion
 function GiveBack.QuaternionNormalise(q)
 	local magnitude =
@@ -362,13 +334,13 @@ return {q[1], q[2] * n, q[3] * n, q[4] * n}
 end
 
 function GiveBack.UpdateVelocities(Object, Time)
-	local VectorEqual, VectorAddition, VectorNumberMult, QuaternionMultiplication,
+	local VectorEqual, VectorAddition, VectorScale, QuaternionMultiplication,
 	VersorScale = GiveBack.VectorEqual, GiveBack.VectorAddition,
-	GiveBack.VectorNumberMult, GiveBack.QuaternionMultiplication,
+	GiveBack.VectorScale, GiveBack.QuaternionMultiplication,
 	GiveBack.VersorScale
 	if not VectorEqual(Object.LinearVelocity, {0, 0, 0}) then
 		Object.Translation =
-		VectorAddition(Object.Translation, VectorNumberMult(Object.LinearVelocity, Time))
+		VectorAddition(Object.Translation, VectorScale(Object.LinearVelocity, Time))
 		Object.TranslationCalc = true
 	end
 	if (not VectorEqual(Object.AngularVelocity, {1, 0, 0})) or Object.AngularVelocity[4] ~= 0 then
@@ -378,13 +350,13 @@ function GiveBack.UpdateVelocities(Object, Time)
 end
 
 function GiveBack.UpdateAccelerations(Object, Time)
-	local VectorEqual, VectorAddition, VectorNumberMult, QuaternionMultiplication,
+	local VectorEqual, VectorAddition, VectorScale, QuaternionMultiplication,
 	VersorScale = GiveBack.VectorEqual, GiveBack.VectorAddition,
-	GiveBack.VectorNumberMult, GiveBack.QuaternionMultiplication,
+	GiveBack.VectorScale, GiveBack.QuaternionMultiplication,
 	GiveBack.VersorScale
 	if not VectorEqual(Object.LinearAcceleration, {0, 0, 0}) then
 		Object.LinearVelocity =
-		VectorAddition(Object.LinearVelocity, VectorNumberMult(Object.LinearAcceleration, Time))
+		VectorAddition(Object.LinearVelocity, VectorScale(Object.LinearAcceleration, Time))
 	end
 	if (not VectorEqual(Object.AngularAcceleration, {1, 0, 0})) or Object.AngularAcceleration[4] ~= 0 then
 		Object.AngularVelocity = QuaternionMultiplication(Object.AngularVelocity, VersorScale(Object.AngularAcceleration, Time))

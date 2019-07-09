@@ -23,7 +23,7 @@ function GiveBack.Create(GotCamera, Arguments)
 	Camera.UpVector = {0,1,0}
 
 	--Defines, which of the Objects it can see, Default: All
-	Camera.VisualLayers = {"All"}
+	Camera.VisualLayers = {["All"] = true}
 
 	--Closest vertices it renders
 	Camera.MinimumDistance = 1
@@ -59,7 +59,7 @@ function GiveBack.Create(GotCamera, Arguments)
 		if IsVector3(GotCamera.UpVector) then
 			Camera.UpVector = GotCamera.UpVector
 		end
-		if type(GotCamera.VisualLayers) == "table" then
+		if General.Library.GoodTypesOfHashTable(GotCamera.VisualLayers, "boolean") then
 			Camera.VisualLayers = GotCamera.VisualLayers
 		end
 		if type(GotCamera.MinimumDistance) == "number" then
