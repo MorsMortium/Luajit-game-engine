@@ -59,27 +59,27 @@ return{
 					["Type"] = "Destroypara"
 				}, {
 					["Active"] = false,
-					["Angle"] = -2e-06,
+					["Angle"] = -9e-06,
 					["Point"] = 2,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = 2e-06,
+					["Angle"] = 9e-06,
 					["Point"] = 2,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = -2e-06,
+					["Angle"] = -9e-06,
 					["Point"] = 3,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = 2e-06,
+					["Angle"] = 9e-06,
 					["Point"] = 3,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Force"] = 0.00003,
+					["Force"] = 0.00007,
 					["Point"] = 1,
 					["Type"] = "Thruster"
 				}, {
@@ -98,7 +98,7 @@ return{
 					["Type"] = "Summon"
 				}, {
 					["Active"] = true,
-					["Rate"] = 1.05,
+					["Rate"] = 0.005,
 					["Type"] = "SelfSlow"
 				}, {
 					["Active"] = false,

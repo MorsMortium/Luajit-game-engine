@@ -123,6 +123,29 @@ function GiveBack.VectorScale(v, n)
   return {v[1] * n, v[2] * n, v[3] * n}
 end
 
+--Calculates the cross product of two vectors
+function GiveBack.CrossProduct(u, v)
+  return {u[2] * v[3] - u[3] * v[2],
+          u[3] * v[1] - u[1] * v[3],
+          u[1] * v[2] - u[2] * v[1]}
+end
+
+--Returns the normal of a vector
+function GiveBack.Normalise(a)
+	local Length = GiveBack.VectorLength(a)
+	return {a[1]/Length, a[2]/Length, a[3]/Length}
+end
+
+--Adds two vector together
+function GiveBack.VectorAddition(a, b)
+  return {a[1] + b[1], a[2] + b[2], a[3] + b[3]}
+end
+
+--Subtracts vector b from vector a
+function GiveBack.VectorSubtraction(a, b)
+  return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
+end
+
 --Returns 1 for numbers more than 0, -1 for less than 0, and 0 for 0
 function GiveBack.Sign(n)
   if 0 < n then
@@ -160,13 +183,6 @@ function GiveBack.QuaternionMultiplication(a, b)
         a[1] * b[3] - a[2] * b[4] + a[3] * b[1] + a[4] * b[2],
         a[1] * b[4] + a[2] * b[3] - a[3] * b[2] + a[4] * b[1]
     }
-end
-
---Calculates the cross product of two vectors
-function GiveBack.CrossProduct(u, v)
-  return {u[2] * v[3] - u[3] * v[2],
-          u[3] * v[1] - u[1] * v[3],
-          u[1] * v[2] - u[2] * v[1]}
 end
 
 --Fills Matrix with a rotation matrix calculated from a quaternion and a center,
@@ -221,12 +237,6 @@ function GiveBack.ModelMatrix(Object, gsl)
 	Object.TranslationMatrix, Object.BufferMatrix, 0, Object.ModelMatrix)
 end
 
---Returns the normal of a vector
-function GiveBack.Normalise(a)
-	local Length = GiveBack.VectorLength(a)
-	return {a[1]/Length, a[2]/Length, a[3]/Length}
-end
-
 --Finds the farthest vertex from translation, and declares it's distance as
 --The radius of the bounding sphere
 function GiveBack.CreateCollisionSphere(Object)
@@ -246,20 +256,32 @@ function GiveBack.CreateCollisionSphere(Object)
 	Object.Radius = Radius
 end
 
---Adds two vector together
-function GiveBack.VectorAddition(a, b)
-  return {a[1] + b[1], a[2] + b[2], a[3] + b[3]}
+--Multiplies the values of a quaternion with a number
+function GiveBack.QuaternionScale(q, n)
+  return {q[1] * n, q[2] * n, q[3] * n, q[4] * n}
 end
 
---Subtracts vector b from vector a
-function GiveBack.VectorSubtraction(a, b)
-  return {a[1] - b[1], a[2] - b[2], a[3] - b[3]}
+--Calculates the normal of a quaternion
+function GiveBack.QuaternionNormal(q)
+	return q[1] ^ 2 + q[2] ^ 2 + q[3] ^ 2 + q[4] ^ 2
+end
+
+--Scales a quaternions versor by a number
+function GiveBack.VersorScale(q, n)
+	return {q[1], q[2] * n, q[3] * n, q[4] * n}
+end
+
+--Calculates the inverse of a quaternion
+function GiveBack.QuaternionInverse(q)
+	local VersorScale, QuaternionScale, QuaternionNormal = GiveBack.VersorScale,
+	GiveBack.QuaternionScale, GiveBack.QuaternionNormal
+	return QuaternionScale(VersorScale(q, -1), 1 / QuaternionNormal(q))
 end
 
 --Normalises a quaternion
 function GiveBack.QuaternionNormalise(q)
 	local magnitude =
-	math.sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3] + q[4] * q[4])
+	math.sqrt(GiveBack.QuaternionNormal(q))
 	return {q[1] / magnitude, q[2] / magnitude, q[3] / magnitude, q[4] / magnitude}
 end
 
@@ -328,11 +350,6 @@ function GiveBack.VectorEqual(a, b)
   return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
 end
 
---Scales a quaternions versor by a number
-function GiveBack.VersorScale(q, n)
-return {q[1], q[2] * n, q[3] * n, q[4] * n}
-end
-
 function GiveBack.UpdateVelocities(Object, Time)
 	local VectorEqual, VectorAddition, VectorScale, QuaternionMultiplication,
 	VersorScale = GiveBack.VectorEqual, GiveBack.VectorAddition,
@@ -356,10 +373,12 @@ function GiveBack.UpdateAccelerations(Object, Time)
 	GiveBack.VersorScale
 	if not VectorEqual(Object.LinearAcceleration, {0, 0, 0}) then
 		Object.LinearVelocity =
-		VectorAddition(Object.LinearVelocity, VectorScale(Object.LinearAcceleration, Time))
+		VectorAddition(Object.LinearVelocity, Object.LinearAcceleration)
+		Object.LinearAcceleration = {0, 0, 0}
 	end
 	if (not VectorEqual(Object.AngularAcceleration, {1, 0, 0})) or Object.AngularAcceleration[4] ~= 0 then
-		Object.AngularVelocity = QuaternionMultiplication(Object.AngularVelocity, VersorScale(Object.AngularAcceleration, Time))
+		Object.AngularVelocity = QuaternionMultiplication(Object.AngularVelocity, Object.AngularAcceleration)
+		Object.AngularAcceleration = {1, 0, 0, 0}
 	end
 end
 

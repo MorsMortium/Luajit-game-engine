@@ -54,12 +54,12 @@ function Gravity.Use(Devices, Device, Object, Power, Time, Arguments)
           Direction = VectorSign(Direction)
         end
         if not bv.Fixed then
-          bv.LinearVelocity =
+          bv.LinearAcceleration =
           VectorAddition(bv.LinearAcceleration, VectorScale(Direction, Time * Power.Force))
         end
         Direction = VectorScale(Direction, -1)
         if not Object.Fixed then
-          Object.LinearVelocity =
+          Object.LinearAcceleration =
           VectorAddition(Object.LinearAcceleration, VectorScale(Direction, Time * Power.Force))
   			end
   		end
@@ -131,12 +131,14 @@ function SelfRotate.Use(Devices, Device, Object, Power, Time, Arguments)
   local VectorAddition = General.Library.VectorAddition
   local VectorScale = General.Library.VectorScale
 	local QuaternionMultiplication = General.Library.QuaternionMultiplication
+  local Normalise = General.Library.Normalise
+  local VectorSubtraction = General.Library.VectorSubtraction
   if not Object.Fixed then
 		local p = {Object.Transformated.data[(Power.Point-1) * 4],
                 Object.Transformated.data[(Power.Point-1) * 4 + 1],
                 Object.Transformated.data[(Power.Point-1) * 4 + 2]}
 		local c = Object.Translation
-		local vfctp = General.Library.VectorSubtraction(p, c)
+		local vfctp = Normalise(VectorSubtraction(p, c))
 		local Quaternion = AxisAngleToQuaternion(vfctp, Power.Angle * Time)
     Object.AngularAcceleration =
 		QuaternionMultiplication(Object.AngularAcceleration, Quaternion)
@@ -163,14 +165,13 @@ function SelfSlow.Use(Devices, Device, Object, Power, Time, Arguments)
   local General = Arguments[1]
   local VectorScale = General.Library.VectorScale
 	local Slerp = General.Library.Slerp
+  local VectorSubtraction = General.Library.VectorSubtraction
+  local QuaternionMultiplication = General.Library.QuaternionMultiplication
+  local QuaternionInverse = General.Library.QuaternionInverse
   Object.LinearAcceleration =
-  VectorScale(Object.LinearAcceleration, (1 / Power.Rate) ^ Time)
-  Object.LinearVelocity =
-  VectorScale(Object.LinearVelocity, (1 / Power.Rate) ^ Time)
-	Object.AngularVelocity =
-	Slerp({1, 0, 0, 0}, Object.AngularVelocity, (1 / Power.Rate) ^ Time)
+  VectorSubtraction(Object.LinearAcceleration, VectorScale(Object.LinearVelocity, Power.Rate ^ Time))
   Object.AngularAcceleration =
-  Slerp({1, 0, 0, 0}, Object.AngularAcceleration, (1 / Power.Rate) ^ Time)
+  QuaternionMultiplication(Object.AngularAcceleration, Slerp({1, 0, 0, 0}, QuaternionInverse(Object.AngularVelocity), Power.Rate ^ Time))
 end
 local function DefaultDestroypara(...)
   return false
