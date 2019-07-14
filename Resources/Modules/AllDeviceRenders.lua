@@ -3,8 +3,14 @@ local GiveBack = {}
 --Thist script is responsible for drawing every Device to a Camera
 --GLuint Is for the Elements of the Devices
 function GiveBack.Start(Configurations, Arguments)
-  local Space, ffi = Arguments[1], Arguments[4]
+  local Space, ffi, ObjectRender = Arguments[1], Arguments[4], Arguments[6]
   Space.GLuint = ffi.Library.typeof("GLuint[?]")
+  Space.NumberPerType = {}
+  for ak,av in pairs(ObjectRender.Library.ObjectRenders) do
+    Space.NumberPerType[ak] = {}
+    Space.NumberPerType[ak].TransformatedMatrices = {}
+    Space.NumberPerType[ak].RenderData = {}
+  end
   print("AllDeviceRenders Started")
 end
 function GiveBack.Stop(Arguments)
@@ -16,8 +22,8 @@ function GiveBack.Stop(Arguments)
 end
 
 --Checks whether an Object is in the same visual layers as the Camera, if true
---Then puts its vertex data and rendering data in layers
---After that it merges the arrays into two C arrays, creates the Elements for
+--Then puts its vertex data and rendering data in arrays
+--After that it merges the arrays into two C arrays, creates the elements for
 --Each renderer from ObjectRenders.lua and renders them
 function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP, Arguments)
 	local Space, General, ffi, ObjectRender, ObjectRenderGive, AllDevices =
@@ -26,8 +32,6 @@ function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP, Arguments)
   local SameLayer, ConcatenateCArrays = General.Library.SameLayer,
   General.Library.ConcatenateCArrays
   local ObjectRenders = ObjectRender.Library.ObjectRenders
-	local NumberPerType = {}
-	local notfound = true
 	for ak=1,#AllDevices.Space.Devices do
 		local av = AllDevices.Space.Devices[ak]
 		for bk=1,#av.Objects do
@@ -37,46 +41,33 @@ function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP, Arguments)
         ObjectRenders[bv.ObjectRenderer].GetTransformatedMatrix
         local GetRenderData =
         ObjectRenders[bv.ObjectRenderer].GetRenderData
-				for ck,cv in pairs(NumberPerType) do
-					if ck == bv.ObjectRenderer then
-						cv.TransformatedMatrices[#cv.TransformatedMatrices + 1],
-            cv.VertexLength, cv.VertexType =
-            GetTransformatedMatrix(bv.Transformated.data, ffi)
-						cv.RenderData[#cv.RenderData + 1],
-            cv.RenderDataLength, cv.RenderDataType =
-            GetRenderData(bv.RenderData,ffi)
-            notfound = false
-						break
-					end
-				end
-				if notfound then
-					NumberPerType[bv.ObjectRenderer] = {}
-          local ORA = NumberPerType[bv.ObjectRenderer]
-					ORA.TransformatedMatrices = {}
-					ORA.TransformatedMatrices[#ORA.TransformatedMatrices + 1],
-          ORA.VertexLength, ORA.VertexType =
-          GetTransformatedMatrix(bv.Transformated.data, ffi)
-					ORA.RenderData = {}
-					ORA.RenderData[#ORA.RenderData + 1],
-          ORA.RenderDataLength, ORA.RenderDataType =
-          GetRenderData(bv.RenderData, ffi)
-        end
+        local ORA = Space.NumberPerType[bv.ObjectRenderer]
+        ORA.TransformatedMatrices[#ORA.TransformatedMatrices + 1],
+        ORA.VertexLength, ORA.VertexType =
+        GetTransformatedMatrix(bv.Transformated.data, ffi)
+        ORA.RenderData[#ORA.RenderData + 1],
+        ORA.RenderDataLength, ORA.RenderDataType =
+        GetRenderData(bv.RenderData, ffi)
 			end
 		end
 	end
 	local Elements
-	for ak,av in pairs(NumberPerType) do
-    local MakeElements = ObjectRenders[ak].MakeElements
-    local Render = ObjectRenders[ak].Render
-		av.FullTransformatedMatrix =
-    ConcatenateCArrays(av.TransformatedMatrices, av.VertexLength, av.VertexType, ffi)
-		av.FullRenderData =
-    ConcatenateCArrays(av.RenderData, av.RenderDataLength, av.RenderDataType, ffi)
-    Elements =
-    MakeElements(#av.TransformatedMatrices, av.PureRenderData, Space.GLuint)
-		Render(VBO, RDBO, av.FullTransformatedMatrix, MVP, #av.TransformatedMatrices,
-    Elements, av.FullRenderData, ObjectRender.Library.ObjectRenders[ak].Space,
-    ObjectRenderGive)
+	for ak,av in pairs(Space.NumberPerType) do
+    if #av.TransformatedMatrices ~= 0 then
+      local MakeElements = ObjectRenders[ak].MakeElements
+      local Render = ObjectRenders[ak].Render
+  		av.FullTransformatedMatrix =
+      ConcatenateCArrays(av.TransformatedMatrices, av.VertexLength, av.VertexType, ffi)
+  		av.FullRenderData =
+      ConcatenateCArrays(av.RenderData, av.RenderDataLength, av.RenderDataType, ffi)
+      Elements =
+      MakeElements(#av.TransformatedMatrices, av.PureRenderData, Space.GLuint)
+  		Render(VBO, RDBO, av.FullTransformatedMatrix, MVP, #av.TransformatedMatrices,
+      Elements, av.FullRenderData, ObjectRender.Library.ObjectRenders[ak].Space,
+      ObjectRenderGive)
+      Space.NumberPerType[ak].TransformatedMatrices = {}
+      Space.NumberPerType[ak].RenderData = {}
+    end
 	end
 end
 GiveBack.Requirements = {"General", "ffi", "ObjectRender", "AllDevices"}

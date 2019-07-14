@@ -31,7 +31,7 @@ local function ViewMatrix(Translation, Direction, UpVector, ViewMatrix, ffi, Gen
 	return ResultMatrix
 end
 
---Checks whether a Camera their matrices updating, and if so it does it
+--Checks whether a Camera needs their matrices to be updated, and if so it does it
 local function UpdateCamera(av, ffi, lgsl, General, AllDevices)
   local VectorSubtraction = General.Library.VectorSubtraction
   local VectorLength = General.Library.VectorLength
