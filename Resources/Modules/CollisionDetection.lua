@@ -14,10 +14,18 @@
 -- Good breakdown of EPA with demo for visualisation
 -- https://www.youtube.com/watch?v=6rgiPrzqt9w
 -------------------------------------------------------------------------------
+local function VectorEqual(a, b)
+  return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
+end
 local function VectorCopy(c, o)
   c[1] = o[1]
   c[2] = o[2]
   c[3] = o[3]
+end
+local function GJKCopy(a, b)
+  VectorCopy(a, b)
+  a.supporta = b.supporta
+  a.supportb = b.supportb
 end
 local function Barycentric(p, a, b, c, General)
   local VectorSubtraction = General.Library.VectorSubtraction
@@ -83,44 +91,30 @@ local function update_simplex3(a, b, c, d, simp_dim, search_dir, General)
   simp_dim[1] = 2
    --Closest to edge AB
   if DotProduct(CrossProduct(VectorSubtraction(b, a), n), AO) > 0 then
-    VectorCopy(c, a)
-    c.supporta = a.supporta
-    c.supportb = a.supportb
+    GJKCopy(c, a)
     --simp_dim[1] = 2
     VectorCopy(search_dir, CrossProduct(CrossProduct(VectorSubtraction(b, a), AO), VectorSubtraction(b, a)))
     return
   end
   --Closest to edge AC
   if DotProduct(CrossProduct(n, VectorSubtraction(c, a)), AO) > 0 then
-    VectorCopy(b, a)
-    b.supporta = a.supporta
-    b.supportb = a.supportb
+    GJKCopy(b, a)
     --simp_dim[1] = 2
     VectorCopy(search_dir, CrossProduct(CrossProduct(VectorSubtraction(c, a), AO), VectorSubtraction(c, a)))
     return
   end
   simp_dim[1] = 3
   if DotProduct(n, AO) > 0 then --Above triangle
-    VectorCopy(d, c)
-    d.supporta = c.supporta
-    d.supportb = c.supportb
-    VectorCopy(c, b)
-    c.supporta = b.supporta
-    c.supportb = b.supportb
-    VectorCopy(b, a)
-    b.supporta = a.supporta
-    b.supportb = a.supportb
+    GJKCopy(d, c)
+    GJKCopy(c, b)
+    GJKCopy(b, a)
     --simp_dim[1] = 3
     VectorCopy(search_dir, n)
     return
   end
   --else --Below triangle
-  VectorCopy(d, b)
-  d.supporta = b.supporta
-  d.supportb = b.supportb
-  VectorCopy(b, a)
-  b.supporta = a.supporta
-  b.supportb = a.supportb
+  GJKCopy(d, b)
+  GJKCopy(b, a)
   --simp_dim[1] = 3
   VectorCopy(search_dir, VectorScale(n, -1))
   return
@@ -145,35 +139,21 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   -- is optimal or if edges should be considered as possible simplices? Thinking this through in my head I feel like
   -- this method is good enough. Makes no difference for AABBS, should test with more complex colliders.
   if DotProduct(ABC, AO) > 0 then --In front of ABC
-  	VectorCopy(d, c)
-    d.supporta = c.supporta
-    d.supportb = c.supportb
-  	VectorCopy(c, b)
-    c.supporta = b.supporta
-    c.supportb = b.supportb
-  	VectorCopy(b, a)
-    b.supporta = a.supporta
-    b.supportb = a.supportb
+  	GJKCopy(d, c)
+  	GJKCopy(c, b)
+  	GJKCopy(b, a)
     VectorCopy(search_dir, ABC)
   	return false
   end
   if DotProduct(ACD, AO) > 0 then --In front of ACD
-  	VectorCopy(b, a)
-    b.supporta = a.supporta
-    b.supportb = a.supportb
+  	GJKCopy(b, a)
     VectorCopy(search_dir, ACD)
   	return false
   end
   if DotProduct(ADB, AO) > 0 then --In front of ADB
-  	VectorCopy(c, d)
-    c.supporta = d.supporta
-    c.supportb = d.supportb
-  	VectorCopy(d, b)
-    d.supporta = b.supporta
-    d.supportb = b.supportb
-  	VectorCopy(b, a)
-    b.supporta = a.supporta
-    b.supportb = a.supportb
+  	GJKCopy(c, d)
+  	GJKCopy(d, b)
+  	GJKCopy(b, a)
     VectorCopy(search_dir, ADB)
   	return false
   end
@@ -184,18 +164,20 @@ local function update_simplex4(a, b, c, d, simp_dim, search_dir, General)
   --Right now I don't think it'll make a difference to limit our new simplices
   --to just one of the faces, maybe test it later.
 end
-local function Support(object, dir, General)
+local function Support(Object, dir, General)
   local DotProduct = General.Library.DotProduct
-  local maxdot = DotProduct({object.Transformated.data[0], object.Transformated.data[1], object.Transformated.data[2]}, dir)
-  local index = 0
-  for i=1,3 do
-    local dot = DotProduct({object.Transformated.data[i * 4], object.Transformated.data[i * 4 + 1], object.Transformated.data[i * 4 + 2]}, dir)
+  local TData = Object.Transformated.data
+  local max = {TData[0], TData[1], TData[2]}
+  local maxdot = DotProduct(max, dir)
+  for ak=1,3 do
+    local newmax = {TData[ak * 4], TData[ak * 4 + 1], TData[ak * 4 + 2]}
+    local dot = DotProduct(newmax, dir)
     if maxdot < dot then
       maxdot = dot
-      index = i
+      max = newmax
     end
   end
-  return {object.Transformated.data[index * 4], object.Transformated.data[index * 4 + 1], object.Transformated.data[index * 4 + 2]}
+  return max
 end
 --Expanding Polytope Algorithm. Used to find the mtv of two intersecting
 --colliders using the final simplex obtained with the GJK algorithm
@@ -213,7 +195,6 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
   local VectorScale = General.Library.VectorScale
-  local VectorEqual = General.Library.VectorEqual
   faces[1] = {a, b, c, Normalise(CrossProduct(VectorSubtraction(b, a), VectorSubtraction(c, a)))}--ABC
   faces[2] = {a, c, d, Normalise(CrossProduct(VectorSubtraction(c, a), VectorSubtraction(d, a)))}--ACD
   faces[3] = {a, d, b, Normalise(CrossProduct(VectorSubtraction(d, a), VectorSubtraction(b, a)))}--ADB
@@ -236,9 +217,12 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
     end
     --search normal to face that's closest to origin
     local search_dir = faces[closest_face][4]
-    local p = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
-    p.supporta = Support(coll1, VectorScale(search_dir, -1), General)
-    p.supportb = Support(coll2, search_dir, General)
+    local supporta, supportb =
+    Support(coll1, VectorScale(search_dir, -1), General),
+    Support(coll2, search_dir, General)
+    local p = VectorSubtraction(supportb, supporta)
+    p.supporta = supporta
+    p.supportb = supportb
     if DotProduct(p, search_dir)-min_dist < EPA_TOLERANCE then
       --Convergence (new point is not significantly further from origin)
       local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
@@ -312,7 +296,7 @@ function GiveBack.EPA(a, b, c, d, coll1, coll2, General)
       end
     end
   end --End for iterations
-    print("EPA did not converge")
+    io.write("EPA did not converge\n")
     --Return most recent closest point
     local contactdata = ExtrapolateContactInformation(faces[closest_face], General)
     return VectorScale(faces[closest_face][3], DotProduct(faces[closest_face][1], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3], true
@@ -325,38 +309,47 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   local VectorSubtraction = General.Library.VectorSubtraction
   local DotProduct = General.Library.DotProduct
   local CrossProduct = General.Library.CrossProduct
-  local VectorEqual = General.Library.VectorEqual
   local VectorScale = General.Library.VectorScale
+  local VectorZero = General.Library.VectorZero
   local a, b, c, d = {}, {}, {}, {} --Simplex: just a set of points (a is always most recently added)
   local search_dir = VectorSubtraction(coll1.Translation, coll2.Translation) --initial search direction between colliders
   --Get initial point for simplex
-  c = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
-  c.supporta = Support(coll1, VectorScale(search_dir, -1), General)
-  c.supportb = Support(coll2, search_dir, General)
+  local supporta, supportb =
+  Support(coll1, VectorScale(search_dir, -1), General),
+  Support(coll2, search_dir, General)
+  c = VectorSubtraction(supportb, supporta)
+  c.supporta = supporta
+  c.supportb = supportb
   search_dir = VectorScale(c, -1) --search in direction of origin
   --Get second point for a line segment simplex
-  b = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
-  b.supporta = Support(coll1, VectorScale(search_dir, -1), General)
-  b.supportb = Support(coll2, search_dir, General)
+  local supporta, supportb =
+  Support(coll1, VectorScale(search_dir, -1), General),
+  Support(coll2, search_dir, General)
+  b = VectorSubtraction(supportb, supporta)
+  b.supporta = supporta
+  b.supportb = supportb
   if DotProduct(b, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
   search_dir = CrossProduct(CrossProduct(VectorSubtraction(c, b),VectorScale(b, -1)),VectorSubtraction(c, b)) --search perpendicular to line segment towards origin
-  if VectorEqual(search_dir, {0, 0, 0}) then --origin is on this line segment
+  if VectorZero(search_dir) then --origin is on this line segment
     --Apparently any normal search vector will do?
     search_dir = CrossProduct(VectorSubtraction(c, b), {1,0,0}) --normal with x-axis
-    if VectorEqual(search_dir, {0, 0, 0}) then
+    if VectorZero(search_dir) then
       search_dir = CrossProduct(VectorSubtraction(c, b), {0,0,-1})
     end --normal with z-axis
   end
   local simp_dim = {2} --simplex dimension
   for iterations=1, GJK_MAX_NUM_ITERATIONS do
-    a = VectorSubtraction(Support(coll2, search_dir, General), Support(coll1, VectorScale(search_dir, -1), General))
-    a.supporta = Support(coll1, VectorScale(search_dir, -1), General)
-    a.supportb = Support(coll2, search_dir, General)
+    local supporta, supportb =
+    Support(coll1, VectorScale(search_dir, -1), General),
+    Support(coll2, search_dir, General)
+    a = VectorSubtraction(supportb, supporta)
+    a.supporta = supporta
+    a.supportb = supportb
     if DotProduct(a, search_dir) < 0 then return false end--we didn't reach the origin, won't enclose it
     simp_dim[1] = simp_dim[1] + 1
     if simp_dim[1] == 3 then
       update_simplex3(a,b,c,d,simp_dim,search_dir, General)
-    elseif(update_simplex4(a,b,c,d,simp_dim,search_dir, General)) then
+    elseif update_simplex4(a,b,c,d,simp_dim,search_dir, General) then
       if mtv then
         local EPAFailed = false
         mtv[1], mtv[2], mtv[3], mtv[4], EPAFailed = GiveBack.EPA(a,b,c,d,coll1,coll2, General)
@@ -370,115 +363,184 @@ function GiveBack.GJK(coll1, coll2, mtv, Arguments)--(Collider* coll1, Collider*
   return false
 end
 
---Sorting functions for sweep and prune Broad Phase collision detection
+--Sorting functions for sweep and prune broad phase collision detection
 local function SortX(Object1, Object2)
-  if Object1.Min[1] < Object2.Min[1] then return true end
+  return Object1.Min[1] < Object2.Min[1]
 end
 local function SortY(Object1, Object2)
-  if Object1.Min[2] < Object2.Min[2] then return true end
+  return Object1.Min[2] < Object2.Min[2]
 end
 local function SortZ(Object1, Object2)
-  if Object1.Min[3] < Object2.Min[3] then return true end
+  return Object1.Min[3] < Object2.Min[3]
 end
 local Sorts = {SortX, SortY, SortZ}
+SortX, SortY, SortZ = nil, nil, nil
 local function SortList(List1, List2)
-  if List1.Counter < List2.Counter then return true end
+  return List1.Counter < List2.Counter
+end
+local function RemoveSort(Number1, Number2)
+  return Number2 < Number1
 end
 
 --Faster than lua's quicksort
 --TODO:Timsort
 local function InsertionSort(Array, Command)
-    local Length = #Array
-    local ak
-    for ak = 2, Length do
-        local av = Array[ak]
-        local bk = ak - 1
-        while bk > 0 and Command(av, Array[bk]) do
-            Array[bk + 1] = Array[bk]
-            bk = bk - 1
-        end
-        Array[bk + 1] = av
+  for ak = 2, #Array do
+    local av = Array[ak]
+    local bk = ak - 1
+    while bk > 0 and Command(av, Array[bk]) do
+      Array[bk + 1] = Array[bk]
+      bk = bk - 1
     end
+    Array[bk + 1] = av
+  end
 end
 
-function GiveBack.DetectCollisions(AllDevices, BroadPhaseAxes, Arguments)
-  local General = Arguments[1]
-  local SameLayer = General.Library.SameLayer
-  local remove = table.remove
-  local pairs = pairs
-  local sort = table.sort
-  local PossibleCollisions = {{}, {}, {}}
+local function remove(Table, Index)
+  for ak=Index,#Table - 1 do
+    Table[ak] = Table[ak + 1]
+  end
+  Table[#Table] = nil
+end
 
+--Updates lists of objects
+--TODO:Move this to AllDevices?
+function GiveBack.UpdateAxes(AllDevices)
+  local DestroyIndices = {{}, {}, {}}
   for ak=1,3 do
-    local av = BroadPhaseAxes[ak]
-
-    --Updates lists of objects
-    local bk = 1
-    while bk <= #av do
-      local bv = av[bk]
-      if bv.Parent == nil then remove(av, bk) else bk = bk + 1 end
+    for bk=1,#AllDevices.Space.DestroyedObjects do
+      DestroyIndices[ak][#DestroyIndices[ak] + 1] = AllDevices.Space.InvBroadPhaseAxes[ak][AllDevices.Space.DestroyedObjects[bk]]
     end
-    bk = nil
+    InsertionSort(DestroyIndices[ak], RemoveSort)
+    for bk=1,#DestroyIndices[ak] do remove(AllDevices.Space.BroadPhaseAxes[ak], DestroyIndices[ak][bk]) end
     for bk=1,#AllDevices.Space.CreatedObjects do
-      local bv = AllDevices.Space.CreatedObjects[bk]
-      av[#av + 1] = bv
+      AllDevices.Space.BroadPhaseAxes[ak][#AllDevices.Space.BroadPhaseAxes[ak] + 1] = AllDevices.Space.CreatedObjects[bk]
     end
+  end
+end
 
-    --Sorts lists
-    InsertionSort(av, Sorts[ak])
+function GiveBack.DetectCollisions(AllDevices, Arguments)
+  local SameLayer, pairs = Arguments[1].Library.SameLayer, pairs
+  local BroadPhaseAxes, InvBroadPhaseAxes = AllDevices.Space.BroadPhaseAxes,
+  AllDevices.Space.InvBroadPhaseAxes
+  local PossibleCollisions, BroadCollisions = {}, {}
 
-    --Finds collision on each axes
-    local av2 = PossibleCollisions[ak]
-    av2.Counter = 1
-    local ActiveList = {av[1]}
-    for bk=2,#av do
-      local bv = av[bk]
-      local ck = 1
-      while ck <= #ActiveList do
-        local cv = ActiveList[ck]
-        if cv.Max[ak] < bv.Min[ak] then
-          remove(ActiveList, ck)
+  --Sorts lists
+  InsertionSort(BroadPhaseAxes[1], Sorts[1])
+  InsertionSort(BroadPhaseAxes[2], Sorts[2])
+  InsertionSort(BroadPhaseAxes[3], Sorts[3])
+
+  --ActiveList is a linked list (list[a] = b) with objects to check with the
+  --Recent Object
+  --Head is the first element in ActiveList
+  local ActiveList, Head = {}, BroadPhaseAxes[1][1]
+
+  --Loop that goes through every Object in first axis
+  for ak=1,#BroadPhaseAxes[1] do
+
+    --Helper for keeping axes up to date with main list of Objects/Devices
+    InvBroadPhaseAxes[1][BroadPhaseAxes[1][ak] ] = ak
+
+    --Current is the Object to test with the Recent Object given by the loop
+    --It goes from Head to the last Object in ActiveList
+    local Current = Head
+
+    --Loop that goes through every Object in ActiveList
+    while ActiveList[Current] do
+
+      --If they are not overlapping on the axis, then Head is set to the next
+      --Object (Removing from ActiveList)
+      if Current.Max[1] < BroadPhaseAxes[1][ak].Min[1] then
+        Head = ActiveList[Head]
+      else
+
+        --Adds overlapping pair in PossibleCollisions[ObjectA][ObjectB] = 1 style
+        if PossibleCollisions[Current] then
+          PossibleCollisions[Current][BroadPhaseAxes[1][ak]] = 1
         else
-          if av2[bv] == nil then av2[bv] = {} end
-          av2[bv][cv] = true
-          av2.Counter = av2.Counter + 1
-          ck = ck + 1
+          PossibleCollisions[Current] = {[BroadPhaseAxes[1][ak]] = 1}
         end
       end
-      ActiveList[#ActiveList + 1] = bv
+      Current = ActiveList[Current]
     end
+    ActiveList[Current] = BroadPhaseAxes[1][ak + 1]
   end
 
-  --Sorts the lists of collisions on each axes by their number for less checks
-  sort(PossibleCollisions, SortList)
+  ActiveList, Head = {}, BroadPhaseAxes[2][1]
 
-  --Deletes Counters to not cause error with pairs
-  for ak=1,3 do
-    PossibleCollisions[ak].Counter = nil
+  --Loop that goes through every Object in second axis
+  for ak=1,#BroadPhaseAxes[2] do
+
+    --Helper for keeping axes up to date with main list of Objects/Devices
+    InvBroadPhaseAxes[2][BroadPhaseAxes[2][ak] ] = ak
+
+    --Current is the Object to test with the Recent Object given by the loop
+    --It goes from Head to the last Object in ActiveList
+    local Current = Head
+
+    --Loop that goes through every Object in ActiveList
+    while ActiveList[Current] do
+
+      --If they are not overlapping on the axis, then Head is set to the next
+      --Object (Removing from ActiveList)
+      if Current.Max[2] < BroadPhaseAxes[2][ak].Min[2] then
+        Head = ActiveList[Head]
+      else
+
+        --if theres already a pair, it sets it to two
+        if PossibleCollisions[Current] and PossibleCollisions[Current][BroadPhaseAxes[2][ak]] then
+          PossibleCollisions[Current][BroadPhaseAxes[2][ak]] = 2
+        elseif PossibleCollisions[BroadPhaseAxes[2][ak]] and PossibleCollisions[BroadPhaseAxes[2][ak]][Current] then
+          PossibleCollisions[BroadPhaseAxes[2][ak]][Current] = 2
+        end
+      end
+      Current = ActiveList[Current]
+    end
+    ActiveList[Current] = BroadPhaseAxes[2][ak + 1]
   end
+
+  ActiveList, Head = {}, BroadPhaseAxes[3][1]
 
   --Finds collisions present on all axes
-  local BroadCollisions = {}
-  for ak,av in pairs(PossibleCollisions[1]) do
-    for bk,bv in pairs(av) do
-      if ((PossibleCollisions[2][ak] and PossibleCollisions[2][ak][bk]) or
-      (PossibleCollisions[2][bk] and PossibleCollisions[2][bk][ak]))
-      and ((PossibleCollisions[3][ak] and PossibleCollisions[3][ak][bk]) or
-      (PossibleCollisions[3][bk] and PossibleCollisions[3][bk][ak])) then
-        BroadCollisions[#BroadCollisions + 1] = {ak, bk}
-      end
-    end
-  end
+  --Loop that goes through every Object in third axis
+  for ak=1,#BroadPhaseAxes[3] do
 
+    --Helper for keeping axes up to date with main list of Objects
+    InvBroadPhaseAxes[3][BroadPhaseAxes[3][ak]] = ak
+
+    --Current is the Object to test with the Recent Object given by the loop
+    --It goes from Head to the last Object in ActiveList
+    local Current = Head
+
+    --Loop that goes through every Object in ActiveList
+    while ActiveList[Current] do
+
+      --If they are not overlapping on the axis, then Head is set to the next
+      --value
+      if Current.Max[3] < BroadPhaseAxes[3][ak].Min[3] then
+        Head = ActiveList[Head]
+      else
+
+        --if there's a pair with a value of 2 it gives it to BroadCollisions in
+        --BroadCollisions[#BroadCollisions + 1] = {ObjectA, ObjectB} style
+        --TODO: Smaller if statement
+        if PossibleCollisions[Current] and PossibleCollisions[Current][BroadPhaseAxes[3][ak]] == 2 or
+        PossibleCollisions[BroadPhaseAxes[3][ak]] and PossibleCollisions[BroadPhaseAxes[3][ak]][Current] == 2 then
+          BroadCollisions[#BroadCollisions + 1] = {Current, BroadPhaseAxes[3][ak]}
+        end
+      end
+      Current = ActiveList[Current]
+    end
+    ActiveList[Current] = BroadPhaseAxes[3][ak + 1]
+  end
+  ActiveList, Head, PossibleCollisions = nil, nil, nil
   --Finds collisions that are in the same layers and are approved by GJK
   local RealCollisions = {}
   for ak=1,#BroadCollisions do
-    local av = BroadCollisions[ak]
-    local mtv = {}
-    if SameLayer(av[1].PhysicsLayers, av[2].PhysicsLayers) and
+    local av, mtv = BroadCollisions[ak], {}
+    if SameLayer(av[1].PhysicsLayers, av[1].PLayerKeys, av[2].PhysicsLayers, av[2].PLayerKeys) and
     GiveBack.GJK(av[1], av[2], mtv, Arguments) then
-      RealCollisions[#RealCollisions + 1] = av
-      RealCollisions[#RealCollisions][3] = mtv
+      RealCollisions[#RealCollisions + 1] = {av[1], av[2], mtv}
     end
   end
   return RealCollisions

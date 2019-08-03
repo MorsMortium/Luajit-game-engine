@@ -112,7 +112,7 @@ function loader.parse(object)
 	return obj
 end
 
-function file_exists(file)
+local function file_exists(file)
 	if love then return love.filesystem.getInfo(file) ~= nil end
 
 	local f = io.open(file, "r")
@@ -121,7 +121,7 @@ function file_exists(file)
 end
 
 -- http://wiki.interfaceware.com/534.html
-function string_split(s, d)
+local function string_split(s, d)
 	local t = {}
 	local i = 0
 	local f

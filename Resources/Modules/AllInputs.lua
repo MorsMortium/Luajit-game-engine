@@ -62,14 +62,11 @@ function GiveBack.Start(Configurations, Arguments)
 	Space.Inputs = nil
 	Space.Event = ffi.Library.new("SDL_Event")
 	Space.Text = ""
-	print("AllInputs Started")
+	io.write("AllInputs Started\n")
 end
 function GiveBack.Stop(Arguments)
 	local Space = Arguments[1]
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("AllInputs Stopped")
+	io.write("AllInputs Stopped\n")
 end
 
 --Takes inputs and runs commands if there is button for it
@@ -84,7 +81,7 @@ function GiveBack.Input(Arguments)
 			return true
 		elseif Space.Event.type == SDL.Library.TEXTINPUT then
 		Space.Text = Space.Text .. ffi.Library.string(Space.Event.text.text)
-		print(Space.Text)
+		io.write(Space.Text, "\n")
 		elseif Space.Event.type == SDL.Library.WINDOWEVENT then
 			if Space.Event.window.event == SDL.Library.WINDOWEVENT_CLOSE then
 				local EventWindowID = Space.Event.window.windowID

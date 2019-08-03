@@ -27,7 +27,7 @@ function GiveBack.Start(Configurations, Arguments)
 	end
 	OpenGLInit.Library.DeleteDummyWindow(OpenGLInitGive)
 	SDL.Library.GL_SetSwapInterval(0)
-	print("AllWindows Started")
+	io.write("AllWindows Started\n")
 end
 
 --Deletes every Window
@@ -39,10 +39,7 @@ function GiveBack.Stop(Arguments)
 		SDL.Library.destroyRenderer(SDL.Library.getRenderer(av.WindowID))
 		Window.Library.Destroy(av, WindowGive)
 	end
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("AllWindows Stopped")
+	io.write("AllWindows Stopped\n")
 end
 
 --Adds one Window

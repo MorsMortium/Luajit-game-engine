@@ -36,15 +36,18 @@ function GiveBack.Create(GotDevice, Arguments)
     --Different commands for keypress and release
     Device.ButtonsUp = {}
     Device.ButtonsDown = {}
-
+    Device.BUpKeys = {}
+    Device.BDownKeys = {}
     if type(GotDevice.Inputs) == "table" then
       for ak=1,#GotDevice.Inputs do
         local av = GotDevice.Inputs[ak]
         av.Command = loadstring(av.String)
         if av.Type == "Up" then
           Device.ButtonsUp[av.Button] = av
+          Device.BUpKeys[#Device.BUpKeys + 1] = av.Button
         else
           Device.ButtonsDown[av.Button] = av
+          Device.BDownKeys[#Device.BDownKeys + 1] = av.Button
         end
       end
     end
@@ -64,12 +67,23 @@ function GiveBack.Copy(Device, Arguments)
   NewDevice.Objects = {}
   NewDevice.Name = Device.Name
   for ak=1,#Device.Objects do
-    local av = Device.Objects[ak]
     NewDevice.Objects[ak] =
-    Object.Library.Copy(av, NewDevice, ObjectGive)
+    Object.Library.Copy(Device.Objects[ak], NewDevice, ObjectGive)
   end
-  NewDevice.ButtonsUp = General.Library.DeepCopy(Device.ButtonsUp)
-  NewDevice.ButtonsDown = General.Library.DeepCopy(Device.ButtonsDown)
+  NewDevice.ButtonsUp = {}
+  NewDevice.ButtonsDown = {}
+  NewDevice.BUpKeys = {}
+  NewDevice.BDownKeys = {}
+  for ak=1,#Device.BUpKeys do
+    local av = Device.BUpKeys[ak]
+    NewDevice.BUpKeys[ak] = av
+    NewDevice.ButtonsUp[av] = Device.ButtonsUp[av]
+  end
+  for ak=1,#Device.BDownKeys do
+    local av = Device.BDownKeys[ak]
+    NewDevice.BDownKeys[ak] = av
+    NewDevice.ButtonsDown[av] = Device.ButtonsDown[av]
+  end
   return NewDevice
 end
 
@@ -85,20 +99,32 @@ function GiveBack.Merge(Device1, Device2, Arguments)
   end
   local NewButtonsUp = {}
   local NewButtonsDown = {}
-  for ak,av in pairs(Device2.ButtonsUp) do
-    NewButtonsUp[ak] = av
+  local NewBUpKeys = {}
+  local NewBDownKeys = {}
+  for ak=1,#Device2.BUpKeys do
+    local av = Device2.BUpKeys[ak]
+    NewBUpKeys[ak] = av
+    NewButtonsUp[av] = Device2.ButtonsUp[av]
   end
-  for ak,av in pairs(Device2.ButtonsDown) do
-    NewButtonsDown[ak] = av
+  for ak=1,#Device2.BDownKeys do
+    local av = Device2.BDownKeys[ak]
+    NewBDownKeys[ak] = av
+    NewButtonsDown[av] = Device2.ButtonsDown[av]
   end
-  for ak,av in pairs(Device1.ButtonsUp) do
-    NewButtonsUp[ak] = av
+  for ak=1,#Device1.BUpKeys do
+    local av = Device1.BUpKeys[ak]
+    if not NewButtonsUp[av] then NewBUpKeys[#NewBUpKeys + 1] = av end
+    NewButtonsUp[av] = Device1.ButtonsUp[av]
   end
-  for ak,av in pairs(Device1.ButtonsDown) do
-    NewButtonsDown[ak] = av
+  for ak=1,#Device1.BDownKeys do
+    local av = Device1.BDownKeys[ak]
+    if not NewButtonsDown[av] then NewBDownKeys[#NewBDownKeys + 1] = av end
+    NewButtonsDown[av] = Device1.ButtonsDown[av]
   end
   Device1.ButtonsUp = NewButtonsUp
   Device1.ButtonsDown = NewButtonsDown
+  Device1.BUpKeys = NewBUpKeys
+  Device1.BDownKeys = NewBDownKeys
 end
 
 --Destroys a Device

@@ -50,7 +50,7 @@ return{
 			["Mass"] = 1,
 			["ObjectRenderer"] = "WireFrame",
 			["OnCollisionPowers"] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true},
-			["PhysicsLayers"] = {["None"] = true},
+			["PhysicsLayers"] = {"None"},
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = false,
@@ -182,7 +182,7 @@ return{
 					if Power.DeviceNumber then
 						if Power.DeviceNumber < #Devices - 9 then
 							Power.DeviceNumber = #Devices
-							print(Power.DeviceNumber)
+							io.write(Power.DeviceNumber, '\n')
 						end
 					else
 						Power.DeviceNumber = #Devices
@@ -210,6 +210,6 @@ return{
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {0, 0, -2},
-			["VisualLayers"] = {["All"] = true}
+			["VisualLayers"] = {"All"}
 		}}
 }

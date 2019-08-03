@@ -11,7 +11,10 @@ function GiveBack.Create(GotCamera, Arguments)
 	local Camera = {}
 
 	Camera.ViewMatrix = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_set_identity(Camera.ViewMatrix)
 	Camera.ProjectionMatrix = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_set_zero(Camera.ProjectionMatrix)
+	Camera.ProjectionMatrix.data[11] = -1
 	Camera.ViewProjectionMatrix = gsl.gsl_matrix_alloc(4, 4)
 	--The translation in the world, Default: origin
 	Camera.Translation = {0,1,0}
@@ -23,8 +26,8 @@ function GiveBack.Create(GotCamera, Arguments)
 	Camera.UpVector = {0,1,0}
 
 	--Defines, which of the Objects it can see, Default: All
-	Camera.VisualLayers = {["All"] = true}
-
+	Camera.VisualLayers = {}
+	Camera.VLayerKeys = {}
 	--Closest vertices it renders
 	Camera.MinimumDistance = 1
 
@@ -59,9 +62,18 @@ function GiveBack.Create(GotCamera, Arguments)
 		if IsVector3(GotCamera.UpVector) then
 			Camera.UpVector = GotCamera.UpVector
 		end
-		if General.Library.GoodTypesOfHashTable(GotCamera.VisualLayers, "boolean") then
-			Camera.VisualLayers = GotCamera.VisualLayers
+
+		for ak=1,#GotCamera.VisualLayers do
+			local av = GotCamera.VisualLayers[ak]
+			Camera.VisualLayers[av] = true
+			Camera.VLayerKeys[ak] = av
 		end
+
+		if Camera.VLayerKeys[1] == nil then
+			Camera.VisualLayers["All"] = true
+			Camera.VLayerKeys[1] = "All"
+		end
+
 		if type(GotCamera.MinimumDistance) == "number" then
 			Camera.MinimumDistance = GotCamera.MinimumDistance
 		end
@@ -113,9 +125,6 @@ function GiveBack.Destroy(GotCamera, Arguments)
 	gsl.gsl_matrix_free(GotCamera.ViewMatrix)
 	gsl.gsl_matrix_free(GotCamera.ProjectionMatrix)
 	gsl.gsl_matrix_free(GotCamera.ViewProjectionMatrix)
-	for ak,av in pairs(GotCamera) do
-		GotCamera[ak] = nil
-	end
 end
 GiveBack.Requirements = {"General", "CameraRender", "lgsl"}
 return GiveBack

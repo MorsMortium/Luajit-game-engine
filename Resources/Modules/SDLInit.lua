@@ -25,7 +25,7 @@ function GiveBack.Start(Configurations, Arguments)
 			SDL.initSubSystem(SDL.INIT_VIDEO)
 		end
 	end
-	print("SDLInit Started")
+	io.write("SDLInit Started\n")
 end
 
 --Quits SDL
@@ -33,10 +33,7 @@ function GiveBack.Stop(Arguments)
 	local Space, SDL = Arguments[1], Arguments[2]
 	local SDL = SDL.Library
 	SDL.quit()
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("SDLInit Stopped")
+	io.write("SDLInit Stopped\n")
 end
 GiveBack.Requirements = {"SDL", "ffi", "General"}
 return GiveBack

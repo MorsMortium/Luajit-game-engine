@@ -20,24 +20,27 @@ function Default.DataCheck(RenderData, GotData, Arguments)
 		end
 	end
 end
+function Default.CopyRenderData(GotData, Arguments)
+	local ffi = Arguments[6]
+	local RenderData = {}
+	RenderData.Color = ffi.Library.new(ffi.Library.typeof(GotData.Color), GotData.Color)
+	return RenderData
+end
 function Default.GetRenderData(RenderData)
 	return RenderData.Color, 16, "double"
 end
 function Default.GetTransformatedMatrix(TransformatedData, ffi)
 	return TransformatedData, 16, "double"
 end
-function Default.MakeElements(NumberOfObjects, PureRenderData, GLuint)
+function Default.MakeElements(NumberOfObjects, GLuint)
 	local Sequence = {0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3}
 	local Elements = GLuint(NumberOfObjects * 12)
-	local Counter = 1
 	local Add = 0
-	for bk=0,NumberOfObjects * 12 - 1 do
-		Elements[bk] = Sequence[Counter] + Add
-		Counter = Counter + 1
-		if Counter > 12 then
-			Counter = 1
-			Add = Add + 4
+	for ak=0,NumberOfObjects - 1 do
+		for bk=0,11 do
+			Elements[ak * 12 + bk] = Sequence[bk + 1] + Add
 		end
+		Add = Add + 4
 	end
 	return Elements
 end
@@ -86,24 +89,27 @@ function WireFrame.DataCheck(RenderData, GotData, Arguments)
 		end
 	end
 end
+function WireFrame.CopyRenderData(GotData, Arguments)
+	local ffi = Arguments[6]
+	local RenderData = {}
+	RenderData.Color = ffi.Library.new(ffi.Library.typeof(GotData.Color), GotData.Color)
+	return RenderData
+end
 function WireFrame.GetRenderData(RenderData)
 	return RenderData.Color, 16, "double"
 end
 function WireFrame.GetTransformatedMatrix(TransformatedData, ffi)
 	return TransformatedData, 16, "double"
 end
-function WireFrame.MakeElements(NumberOfObjects, PureRenderData, GLuint)
+function WireFrame.MakeElements(NumberOfObjects, GLuint)
 	local Sequence = {0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3}
 	local Elements = GLuint(NumberOfObjects * 12)
-	local Counter = 1
 	local Add = 0
-	for bk=0,NumberOfObjects * 12 - 1 do
-		Elements[bk] = Sequence[Counter] + Add
-		Counter = Counter + 1
-		if Counter > 12 then
-			Counter = 1
-			Add = Add + 4
+	for ak=0,NumberOfObjects - 1 do
+		for bk=0,11 do
+			Elements[ak * 12 + bk] = Sequence[bk + 1] + Add
 		end
+		Add = Add + 4
 	end
 	return Elements
 end
@@ -152,6 +158,12 @@ function ColorPerSide.DataCheck(RenderData, GotData, Arguments)
 		end
 	end
 end
+function ColorPerSide.CopyRenderData(GotData, Arguments)
+	local ffi = Arguments[6]
+	local RenderData = {}
+	RenderData.Color = ffi.Library.new(ffi.Library.typeof(GotData.Color), GotData.Color)
+	return RenderData
+end
 function ColorPerSide.GetRenderData(RenderData, ffi)
 	local Color = RenderData.Color
 	local Data = ffi.Library.new("double[48]",
@@ -186,18 +198,10 @@ function ColorPerSide.GetTransformatedMatrix(TransformatedData, ffi)
 																		TData[12], TData[13], TData[14], TData[15])
 	return Data, 48, "double"
 end
-function ColorPerSide.MakeElements(NumberOfObjects, PureRenderData, GLuint)
-	local Sequence = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+function ColorPerSide.MakeElements(NumberOfObjects, GLuint)
 	local Elements = GLuint(NumberOfObjects * 12)
-	local Counter = 1
-	local Add = 0
-	for bk=0,NumberOfObjects * 12 - 1 do
-		Elements[bk] = Sequence[Counter] + Add
-		Counter = Counter + 1
-		if Counter > 12 then
-			Counter = 1
-			Add = Add + 12
-		end
+	for ak=0,NumberOfObjects * 12 - 1 do
+		Elements[ak] = ak
 	end
 	return Elements
 end
@@ -239,19 +243,20 @@ function GiveBack.Start(Configurations, Arguments)
 		if type(av.Render) == "function" and
 			type(av.DataCheck) == "function" and
 			type(av.GetRenderData) == "function" and
+			type(av.CopyRenderData) == "function" and
 			type(av.GetTransformatedMatrix) == "function" then
 			av.Space = {}
 		else
 			GiveBack.ObjectRenders[k] = nil
 		end
 	end
-	print("ObjectRender Started")
+	io.write("ObjectRender Started\n")
 end
 function GiveBack.Stop(Arguments)
 	for ak, av in pairs(GiveBack.ObjectRenders) do
 		av.Space = nil
 	end
-	print("ObjectRender Stopped")
+	io.write("ObjectRender Stopped\n")
 end
 GiveBack.Requirements =
 {"OpenGL", "OpenGLInit", "ffi", "AllPrograms", "General", "SDL"}

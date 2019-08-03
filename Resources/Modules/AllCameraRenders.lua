@@ -1,21 +1,22 @@
 local GiveBack = {}
-
+local function VectorEqual(a, b)
+  return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
+end
 --Creates a Camera's projection matrix
 --TODO:Better place for the matrix and update stuff
-local function ProjectionMatrix(FieldOfView, Aspect, MinimumDistance, MaximumDistance, ProjectionMatrix, ffi)
+local function ProjectionMatrix(FieldOfView, Aspect, MinimumDistance, MaximumDistance, ProjectionMatrix)
   local D2R = math.pi / 180
   local YScale = 1 / math.tan(D2R * FieldOfView / 2)
   local XScale = YScale / Aspect
   local MDMMD = MinimumDistance - MaximumDistance
-  local m = ffi.Library.new("double[16]", XScale, 0, 0, 0,
-                                          0, YScale, 0, 0,
-                                          0, 0, (MaximumDistance + MinimumDistance) / MDMMD, -1,
-                                          0, 0, 2*MaximumDistance*MinimumDistance / MDMMD, 0)
-  ffi.Library.copy(ProjectionMatrix.data, m, ffi.Library.sizeof(m))
+  local m = ProjectionMatrix.data
+  m[0], m[5], m[10], m[14] =
+  XScale, YScale, (MaximumDistance + MinimumDistance) / MDMMD,
+  2 * MaximumDistance * MinimumDistance / MDMMD
 end
 
 --Creates a Camera's view matrix
-local function ViewMatrix(Translation, Direction, UpVector, ViewMatrix, ffi, General)
+local function ViewMatrix(Translation, Direction, UpVector, ViewMatrix, General)
   local DotProduct = General.Library.DotProduct
   local CrossProduct = General.Library.CrossProduct
   local Normalise = General.Library.Normalise
@@ -23,21 +24,21 @@ local function ViewMatrix(Translation, Direction, UpVector, ViewMatrix, ffi, Gen
   local Z = Normalise(VectorSubtraction(Translation, Direction))
   local X = Normalise(CrossProduct(UpVector, Z))
   local Y = CrossProduct(Z, X)
-  local m = ffi.Library.new("double[16]", X[1], X[2], X[3], -DotProduct(X, Translation),
-                                          Y[1], Y[2], Y[3], -DotProduct(Y, Translation),
-                                          Z[1], Z[2], Z[3], -DotProduct(Z, Translation),
-                                          0, 0, 0, 1)
-  ffi.Library.copy(ViewMatrix.data, m, ffi.Library.sizeof(m))
-	return ResultMatrix
+  local m = ViewMatrix.data
+  m[0], m[1], m[2], m[3],
+  m[4], m[5], m[6], m[7],
+  m[8], m[9], m[10], m[11] =
+  X[1], X[2], X[3], -DotProduct(X, Translation),
+  Y[1], Y[2], Y[3], -DotProduct(Y, Translation),
+  Z[1], Z[2], Z[3], -DotProduct(Z, Translation)
 end
 
 --Checks whether a Camera needs their matrices to be updated, and if so it does it
-local function UpdateCamera(av, ffi, lgsl, General, AllDevices)
+local function UpdateCamera(av, lgsl, General, AllDevices)
   local VectorSubtraction = General.Library.VectorSubtraction
   local VectorLength = General.Library.VectorLength
   local VectorAddition = General.Library.VectorAddition
   local VectorScale = General.Library.VectorScale
-  local VectorEqual = General.Library.VectorEqual
   local gsl = lgsl.Library.gsl
   if av.FollowDevice and AllDevices.Space.Devices[av.FollowDevice] and
   AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject] then
@@ -74,12 +75,12 @@ local function UpdateCamera(av, ffi, lgsl, General, AllDevices)
     end
   end
   if av.ViewMatrixCalc then
-    ViewMatrix(av.Translation, av.Direction, av.UpVector, av.ViewMatrix, ffi, General)
+    ViewMatrix(av.Translation, av.Direction, av.UpVector, av.ViewMatrix, General)
   end
   if av.ProjectionMatrixCalc then
     ProjectionMatrix(av.FieldOfView,
     av.HorizontalResolution/av.VerticalResolution, av.MinimumDistance,
-    av.MaximumDistance, av.ProjectionMatrix, ffi)
+    av.MaximumDistance, av.ProjectionMatrix)
   end
   if av.ViewMatrixCalc or av.ProjectionMatrixCalc then
     av.ViewProjectionMatrix = av.ProjectionMatrix * av.ViewMatrix
@@ -92,13 +93,13 @@ end
 --Renders every Camera
 function GiveBack.RenderAllCameras(Arguments)
   local Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender,
-  CameraRenderGive, AllCameras, ffi = Arguments[1], Arguments[2], Arguments[4],
+  CameraRenderGive, AllCameras = Arguments[1], Arguments[2], Arguments[4],
   Arguments[6], Arguments[8], Arguments[10], Arguments[12], Arguments[13],
-  Arguments[14], Arguments[16]
+  Arguments[14]
   local OpenGL = OpenGL.Library
   for ak=1,#AllCameras.Space.OpenGLCameras do
     local av = AllCameras.Space.OpenGLCameras[ak]
-    UpdateCamera(av, ffi, lgsl, General, AllDevices)
+    UpdateCamera(av, lgsl, General, AllDevices)
     OpenGL.glFramebufferRenderbuffer(OpenGL.GL_FRAMEBUFFER,
     OpenGL.GL_DEPTH_ATTACHMENT, OpenGL.GL_RENDERBUFFER, av.DBO[0])
     OpenGL.glBindFramebuffer(OpenGL.GL_FRAMEBUFFER, AllCameras.Space.FBO[0])
@@ -117,7 +118,7 @@ function GiveBack.RenderAllCameras(Arguments)
   end
   for ak=1,#AllCameras.Space.SoftwareCameras do
     local av = AllCameras.Space.SoftwareCameras[ak]
-    UpdateCamera(av, ffi, lgsl, General, AllDevices)
+    UpdateCamera(av, lgsl, General, AllDevices)
     local CRender = CameraRender.Library.CameraRenders[av.CameraRenderer]
     CRender[av.Type].Render(av, Space.Renderer, CRender.Space, CameraRenderGive)
     SDL.Library.upperBlitScaled(Space.RendererSurface, nil, av.Surface, nil)
@@ -129,16 +130,13 @@ function GiveBack.Start(Configurations, Arguments)
   Space.RendererSurface = SDL.Library.createRGBSurface(0, 640, 480, 32, 0, 0, 0, 0)
   Space.Renderer = SDL.Library.createSoftwareRenderer(Space.RendererSurface)
   Space.ViewProjectionMatrix = ffi.Library.new("float[16]")
-	print("AllCameras Started")
+	io.write("AllCameras Started\n")
 end
 function GiveBack.Stop(Arguments)
   local Space, SDL = Arguments[1], Arguments[10]
   SDL.Library.destroyRenderer(Space.Renderer)
   SDL.Library.freeSurface(Space.RendererSurface)
-  for ak,av in pairs(Space) do
-    Space[ak] = nil
-  end
-	print("AllCameras Stopped")
+	io.write("AllCameras Stopped\n")
 end
 GiveBack.Requirements =
 {"OpenGL", "AllDevices", "lgsl", "General", "SDL", "CameraRender", "AllCameras", "ffi"}

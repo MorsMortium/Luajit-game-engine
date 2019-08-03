@@ -2,14 +2,11 @@ local GiveBack = {}
 function GiveBack.Start(Configurations, Arguments)
 	local Space = Arguments[1]
 	Space.LastTime = 0
-	print("AllWindowRenders Started")
+	io.write("AllWindowRenders Started\n")
 end
 function GiveBack.Stop(Arguments)
 	local Space = Arguments[1]
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("AllWindowRenders Stopped")
+	io.write("AllWindowRenders Stopped\n")
 end
 
 --Renders every Window
@@ -29,7 +26,7 @@ function GiveBack.RenderAllWindows(Number, Arguments)
 			SDL.Library.GL_MakeCurrent(av.WindowID, OpenGLInit.Space.Context)
 			Space.LastWindow = ak
 		end
-		local WRender = WindowRender.Library.Renders[av.WindowRenderer]
+		local WRender = WindowRender.Library.WindowRenders[av.WindowRenderer]
 		WRender[av.Type].Render(av, WRender.Space, WindowRenderGive)
 		if av.Type == "OpenGL" then
 			SDL.Library.GL_SwapWindow(av.WindowID)

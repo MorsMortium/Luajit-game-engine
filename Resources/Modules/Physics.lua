@@ -4,31 +4,26 @@ local GiveBack = {}
 --Updating vertices with translation, rotation and scale, checking new powers
 --for initialisation, collision detection and response, and usage of powers
 function GiveBack.Start(Configurations, Arguments)
-  local Space = Arguments[1]
-  Space.BroadPhaseAxes = {{}, {}, {}}
 end
 function GiveBack.Stop(Arguments)
-  local Space = Arguments[1]
-  for ak,av in pairs(Space) do
-    Space[ak] = nil
-  end
 end
 function GiveBack.Physics(Time, Arguments)
   local Space, AllDevices, AllDevicesGive, General, GeneralGive, AllPowers,
   AllPowersGive, CollisionDetection, CollisionDetectionGive, CollisionResponse,
-  CollisionResponseGive = Arguments[1], Arguments[2], Arguments[3], Arguments[6],
-  Arguments[7], Arguments[8], Arguments[9], Arguments[10], Arguments[11],
-  Arguments[12], Arguments[13]
-  General.Library.UpdateDevices(AllDevices.Space.Devices, Time, GeneralGive)
-  AllPowers.Library.DataCheckNewDevicesPowers(Time, AllPowersGive)
+  CollisionResponseGive = Arguments[1], Arguments[2], Arguments[3], Arguments[4],
+  Arguments[5], Arguments[6], Arguments[7], Arguments[8], Arguments[9],
+  Arguments[10], Arguments[11]
   local RealCollision = CollisionDetection.Library.DetectCollisions(AllDevices,
-  Space.BroadPhaseAxes, CollisionDetectionGive)
+  CollisionDetectionGive)
   CollisionResponse.Library.ResponseCollisions(RealCollision, CollisionResponseGive)
-  AllDevices.Library.ClearDeviceChanges(AllDevicesGive)
   AllPowers.Library.UseAllPowers(Time, AllPowersGive)
+  CollisionDetection.Library.UpdateAxes(AllDevices)
+  AllDevices.Space.InvBroadPhaseAxes = {{}, {}, {}}
+  General.Library.UpdateObjects(AllDevices.Space.BroadPhaseAxes[1], Time, GeneralGive)
+  AllPowers.Library.DataCheckNewDevicesPowers(Time, AllPowersGive)
+  AllDevices.Library.ClearObjectChanges(AllDevicesGive)
 end
 
 GiveBack.Requirements =
-{"AllDevices", "SDLInit", "General", "AllPowers", "CollisionDetection",
-"CollisionResponse"}
+{"AllDevices", "General", "AllPowers", "CollisionDetection", "CollisionResponse"}
 return GiveBack

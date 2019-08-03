@@ -51,7 +51,7 @@ function GiveBack.Start(Configurations, Arguments)
 	Space.Shaders[DefaultShader.Name] =
 	Shader.Library.Create(DefaultShader, ShaderGive)
 	--]]
-	print("AllShaders Started")
+	io.write("AllShaders Started\n")
 end
 
 --Deletes every Shader
@@ -61,10 +61,7 @@ function GiveBack.Stop(Arguments)
 		local av = Space.Shaders[ak]
 		Shader.Library.Destroy(av.ShaderID, ShaderGive)
 	end
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("AllShaders Stopped")
+	io.write("AllShaders Stopped\n")
 end
 GiveBack.Requirements = {"Shader"}
 return GiveBack

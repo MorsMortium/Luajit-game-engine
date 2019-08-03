@@ -90,7 +90,7 @@ function GiveBack.Create(GotWindow, Arguments)
 		end
 
 		--If the WindowRender exist than it changes it from default
-		if WindowRender.Library.Renders[GotWindow.WindowRenderer] then
+		if WindowRender.Library.WindowRenders[GotWindow.WindowRenderer] then
 			Window.WindowRenderer = GotWindow.WindowRenderer
 		end
 
@@ -138,9 +138,6 @@ function GiveBack.Destroy(Window, Arguments)
 		SDL.destroyRenderer(SDL.getRenderer(Window.WindowID))
 	end
 	SDL.destroyWindow(Window.WindowID)
-	for ak,av in pairs(Window) do
-		Window[ak] = nil
-	end
 end
 
 GiveBack.Requirements = {"SDL", "SDLInit", "General", "ffi", "WindowRender"}

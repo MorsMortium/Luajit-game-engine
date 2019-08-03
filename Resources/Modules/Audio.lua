@@ -17,7 +17,7 @@ function GiveBack.Start(Configurations, Arguments)
   PortAudio.Library.checkError(PortAudio.Library.dll.Pa_OpenStream(Space.Stream, InputParameters, OutputParameters, 44100, 0, PortAudio.Library.dll.paClipOff, nil, nil))
   PortAudio.Library.checkError(PortAudio.Library.dll.Pa_StartStream(Space.Stream[0]))
   --]]
-  print("Audio Started")
+  io.write("Audio Started\n")
 end
 function GiveBack.Stop(Arguments)
   local Space, PortAudio, ffi = Arguments[1], Arguments[2], Arguments[4]
@@ -26,7 +26,7 @@ function GiveBack.Stop(Arguments)
   PortAudio.Library.checkError(PortAudio.Library.dll.Pa_CloseStream(Space.Stream[0]))
   PortAudio.Library.checkError(PortAudio.Library.dll.Pa_Terminate())
   --]]
-  print("Audio Stopped")
+  io.write("Audio Stopped\n")
 end
 GiveBack.Requirements = {"PortAudio", "ffi"}
 return GiveBack

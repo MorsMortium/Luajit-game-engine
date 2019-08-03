@@ -7,24 +7,30 @@ function GiveBack.ResponseCollisions(RealCollision, Arguments)
 
     --Activates both object's OnCollisionPowers and fills in the needed data
     local av = RealCollision[ak]
-    for bk=1,#av[1].OnCollisionPowers do
-      local bv = av[1].OnCollisionPowers[bk]
+    local OnCollisionPowers = av[1].OnCollisionPowers
+    local Powers = av[1].Powers
+    local Parent = av[2].Parent
+    for bk=1,#OnCollisionPowers do
+      local bv = OnCollisionPowers[bk]
       if bv then
-        av[1].Powers[bk].Active = true
-        av[1].Powers[bk].Device = av[2].Parent
-        av[1].Powers[bk].Contact = mtv
+        Powers[bk].Active = true
+        Powers[bk].Device = Parent
+        Powers[bk].Contact = mtv
       end
     end
 
-    for bk=1,#av[2].OnCollisionPowers do
-      local bv = av[2].OnCollisionPowers[bk]
+    OnCollisionPowers = av[2].OnCollisionPowers
+    Powers = av[2].Powers
+    Parent = av[1].Parent
+    for bk=1,#OnCollisionPowers do
+      local bv = OnCollisionPowers[bk]
       if bv then
-        av[2].Powers[bk].Active = true
-        av[2].Powers[bk].Device = av[1].Parent
-        av[2].Powers[bk].Contact = mtv
+        Powers[bk].Active = true
+        Powers[bk].Device = Parent
+        Powers[bk].Contact = mtv
       end
     end
-    
+
     --TODO: constraints
   end
 end

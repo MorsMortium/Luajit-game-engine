@@ -26,7 +26,7 @@ function GiveBack.Create(GotProgram, Arguments)
 	end
 
 	-- Link the Program
-	print("Linking Program: "..GotProgram.Name)
+	io.write("Linking Program: "..GotProgram.Name, "\n")
 	OpenGL.glLinkProgram(Program.ProgramID)
 
 	--Prepare error handling
@@ -43,7 +43,7 @@ function GiveBack.Create(GotProgram, Arguments)
 		local ProgramErrorMessage = Char(InfoLogLength[0] + 1)
 		OpenGL.glGetProgramInfoLog(Program.ProgramID, InfoLogLength[0], nil,
 		ProgramErrorMessage)
-		print(ffi.string(ProgramErrorMessage))
+		io.write(ffi.string(ProgramErrorMessage), "\n")
 	end
 
 	--Detaching the shaders of the Program

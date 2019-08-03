@@ -29,7 +29,7 @@ function GiveBack.RequireAll(Requirements, Data)
 			Data[av.Name].Library = LibraryOrError
 			Data[av.Name].StartStopSpace = av.StartStopSpace
 		else
-			print(LibraryOrError)
+			io.write(LibraryOrError, "\n")
 		end
 	end
 	return LoadConfigurations(Requirements, Data.LON)
@@ -153,14 +153,14 @@ function GiveBack.StartAll(Data, Order, Configurations)
 end
 function GiveBack.PrintBadModules(Data)
 	local NotLoaded = {}
-	print("Error, not loaded Modules:")
+	io.write("Error, not loaded Modules:\n")
 	for ak, av in pairs(Data) do
 		if av.Started == nil then
 			NotLoaded[#NotLoaded + 1] = ak
-			print(ak)
+			io.write(ak, "\n")
 		end
 	end
-	print("Needed by:")
+	io.write("Needed by:\n")
 	for ak,av in pairs(Data) do
 		if not av.Started then
 			local Needs = false
@@ -172,18 +172,18 @@ function GiveBack.PrintBadModules(Data)
 				end
 			end
 			if Needs then
-				print(ak)
+				io.write(ak, "\n")
 			end
 		end
 	end
 end
 function GiveBack.PrintCauses(Data)
-	print("Caused by:")
+	io.write("Caused by:\n")
 	for ak,av in pairs(Data) do
 		if type(av.Library) == "table" and av.Library.Requirements then
 			for bk,bv in pairs(av.Library.Requirements) do
 				if Data[bv] == nil then
-					print("Missing module:", bv)
+					io.write("Missing module:", bv, "\n")
 				end
 			end
 		end
@@ -201,7 +201,7 @@ function GiveBack.PrintCauses(Data)
 		for bk=ak + 1,#FullDepPerModule do
 			local bv = FullDepPerModule[bk]
 			if CompareLists(av.FullDep, bv.FullDep) then
-				print("Cross dependency:", av.Name, bv.Name)
+				io.write("Cross dependency:", av.Name, " ", bv.Name, "\n")
 			end
 		end
 	end
@@ -212,6 +212,7 @@ function GiveBack.StopAll(Data, Order)
 		if type(Data[av]) == "table" and type(Data[av].Library) == "table" and
 		type(Data[av].Library.Stop) == "function" then
 			Data[av].Library.Stop(RequCalc(Data, Data[av]))
+			Data[av].Space = nil
 		end
 		Data[av] = nil
 	end
@@ -221,7 +222,7 @@ function GiveBack.LoadLibrary(Name, Command, Data)
 	if type(Data[Name]) == "table" and Data[Name].Started then
 		return Data[Name].Library[Command], RequCalc(Data, Data[Name])
 	end
-	return loadstring("if not no" .. Name .. "print then print('" .. Name ..
-	"' .. ' not found') no" .. Name .. "print = true return true end"), {}
+	return loadstring("if not no" .. Name .. "print then io.write('" .. Name ..
+	"' .. ' not found\n') no" .. Name .. "print = true return true end"), {}
 end
 return GiveBack

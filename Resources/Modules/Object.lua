@@ -8,7 +8,6 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	local IsVector3 = General.Library.IsVector3
 	local EulerToQuaternion = General.Library.EulerToQuaternion
 	local GoodTypesOfTable = General.Library.GoodTypesOfTable
-	local GoodTypesOfHashTable = General.Library.GoodTypesOfHashTable
 	local gsl = lgsl.Library.gsl
 
 	--Creating the Object table
@@ -32,6 +31,7 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	gsl.gsl_matrix_set_zero(Object.ScaleMatrix)
 	Object.ScaleMatrix.data[15] = 1
 	Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
+	gsl.gsl_matrix_set_zero(Object.RotationMatrix)
 	Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
 	gsl.gsl_matrix_set_identity(Object.TranslationMatrix)
 
@@ -44,7 +44,7 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	--Flags for upgrading the matrices
 	Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = true, true,
 	true
-
+	Object.Min, Object.Max = {}, {}
 	--The translation in the world, it will be the Object's center of mass too
 	--Default: origin
 	Object.Translation = {0, 0, 0}
@@ -71,11 +71,11 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 	Object.AngularAcceleration = {1, 0, 0, 0}
 
 	-- Defines, which of the Cameras can see it, Default: All
-	Object.VisualLayers = {["All"] = true}
-
+	Object.VisualLayers = {}
+	Object.VLayerKeys = {}
 	-- Defines, which Other bodies, effects can affect it, Default: All
-	Object.PhysicsLayers = {["All"] = true}
-
+	Object.PhysicsLayers = {}
+	Object.PLayerKeys = {}
 	-- Defines the body's mass
 	-- Default: 1, if Object is fixed, then mass is infinite
 	Object.Mass = 1
@@ -142,12 +142,26 @@ function GiveBack.Create(GotObject, Parent, Arguments)
 			end
 		end
 
-		if GoodTypesOfHashTable(GotObject.VisualLayers, "boolean") then
-			Object.VisualLayers = GotObject.VisualLayers
+		for ak=1,#GotObject.VisualLayers do
+			local av = GotObject.VisualLayers[ak]
+			Object.VisualLayers[av] = true
+			Object.VLayerKeys[ak] = av
 		end
 
-		if GoodTypesOfHashTable(GotObject.PhysicsLayers, "boolean") then
-			Object.PhysicsLayers = GotObject.PhysicsLayers
+		if Object.VLayerKeys[1] == nil then
+			Object.VisualLayers["All"] = true
+			Object.VLayerKeys[1] = "All"
+		end
+
+		for ak=1,#GotObject.PhysicsLayers do
+			local av = GotObject.PhysicsLayers[ak]
+			Object.PhysicsLayers[av] = true
+			Object.PLayerKeys[ak] = av
+		end
+
+		if Object.PLayerKeys[1] == nil then
+			Object.PhysicsLayers["All"] = true
+			Object.PLayerKeys[1] = "All"
 		end
 
 		if Object.Fixed then
@@ -203,8 +217,8 @@ end
 --Copies an Object, it's faster to copy a preloaded one, than making a new from
 --Scratch
 function GiveBack.Copy(GotObject, Parent, Arguments)
-	local General, GeneralGive, ffi, lgsl = Arguments[1], Arguments[2],
-	Arguments[3], Arguments[7]
+	local General, GeneralGive, ffi, ObjectRender, ObjectRenderGive, lgsl = Arguments[1], Arguments[2],
+	Arguments[3], Arguments[5], Arguments[6], Arguments[7]
 	local gsl = lgsl.Library.gsl
 	local Object = {}
 	Object.Parent = Parent
@@ -254,15 +268,21 @@ function GiveBack.Copy(GotObject, Parent, Arguments)
 	Object.Max = {GotObject.Max[1],
 								GotObject.Max[2],
 								GotObject.Max[3]}
-	Object.Radius = GotObject.Radius
 	Object.VisualLayers = {}
-	for ak,av in pairs(GotObject.VisualLayers) do
-		Object.VisualLayers[ak] = av
+	Object.VLayerKeys = {}
+	for ak=1,#GotObject.VLayerKeys do
+		local av = GotObject.VLayerKeys[ak]
+		Object.VLayerKeys[ak] = av
+		Object.VisualLayers[av] = true
 	end
 	Object.PhysicsLayers = {}
-	for ak,av in pairs(GotObject.PhysicsLayers) do
-		Object.PhysicsLayers[ak] = av
+	Object.PLayerKeys = {}
+	for ak=1,#GotObject.PLayerKeys do
+		local av = GotObject.PLayerKeys[ak]
+		Object.PLayerKeys[ak] = av
+		Object.PhysicsLayers[av] = true
 	end
+
 	Object.Powers = {}
 	for ak=1,#GotObject.Powers do
 		Object.Powers[ak] = GotObject.Powers[ak]
@@ -273,7 +293,7 @@ function GiveBack.Copy(GotObject, Parent, Arguments)
 	end
 	Object.Mass = GotObject.Mass
 	Object.ObjectRenderer = GotObject.ObjectRenderer
-	Object.RenderData = General.Library.DeepCopy(GotObject.RenderData, ffi)
+	Object.RenderData = ObjectRender.Library.ObjectRenders[Object.ObjectRenderer].CopyRenderData(GotObject.RenderData, ObjectRenderGive)
 	return Object
 end
 
@@ -288,9 +308,6 @@ function GiveBack.Destroy(Object, Arguments)
 	gsl.gsl_matrix_free(Object.TranslationMatrix)
 	gsl.gsl_matrix_free(Object.BufferMatrix)
 	gsl.gsl_matrix_free(Object.ModelMatrix)
-	for ak,av in pairs(Object) do
-		Object[ak] = nil
-	end
 end
 GiveBack.Requirements = {"General", "ffi", "ObjectRender", "lgsl"}
 return GiveBack
