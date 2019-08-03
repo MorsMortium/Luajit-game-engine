@@ -49,16 +49,16 @@ function GiveBack.DecodeFromFile(Name)
           return DataOrError
         end
       else
-        print("LON error in file:", tostring(GiveBack.Path) .. tostring(Name))
-        print(DataOrError)
+        io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+        io.write(DataOrError, "\n")
       end
     else
-      print("LON error in file:", tostring(GiveBack.Path) .. tostring(Name))
-      print("Return statement not first")
+      io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+      io.write("Return statement not first\n")
     end
   else
-    print("LON error in file:", tostring(GiveBack.Path) .. tostring(Name))
-    print("File not found")
+    io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+    io.write("File not found\n")
   end
 end
 
@@ -164,8 +164,8 @@ end
 function GiveBack.EncodeToFile(Name, Data)
   local String = FullString(Data)
   if not SaveFile(Name, String) then
-    print("LON error in file:", tostring(GiveBack.Path) .. tostring(Name))
-    print("Access denied")
+    io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+    io.write("Access denied\n")
   end
 end
 return GiveBack

@@ -39,7 +39,7 @@ function GiveBack.Start(Configurations, Arguments)
 		Space.glew = false
 	end
 	OpenGL.Library.glEnable(OpenGL.Library.GL_DEPTH_TEST)
-	print("openglinit Started")
+	io.write("openglinit Started\n")
 end
 
 --Destroys the dummy window
@@ -58,10 +58,7 @@ function GiveBack.Stop(Arguments)
 	local SDL = SDL.Library
 	GiveBack.DeleteDummyWindow(Arguments)
 	SDL.GL_DeleteContext(Space.Context)
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("openglinit Stopped")
+	io.write("openglinit Stopped\n")
 end
 GiveBack.Requirements = {"SDL", "SDLInit", "OpenGL"}
 return GiveBack

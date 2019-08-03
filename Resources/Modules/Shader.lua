@@ -24,7 +24,7 @@ function GiveBack.Create(GotShader, Arguments)
         		ShaderCode = File:read("*all")
         		File:close()
 		else
-        		print("File not found")
+        		io.write("File not found\n")
 		end
 	else
 		--Read the Shader code from the string
@@ -40,7 +40,7 @@ function GiveBack.Create(GotShader, Arguments)
 	local InfoLogLength = ffi.new("int[1]")
 
 
-	print("Compiling Shader: "..GotShader.Name)
+	io.write("Compiling Shader: "..GotShader.Name, "\n")
 
 	--Load source into OpenGL
 	local SourcePointer = ffi.new("const char *[1]", ShaderCodeC)
@@ -61,7 +61,7 @@ function GiveBack.Create(GotShader, Arguments)
 		local ShaderErrorMessage = Char(InfoLogLength[0] + 1)
 		OpenGL.glGetShaderInfoLog(Shader.ShaderID, InfoLogLength[0], nil,
 		ShaderErrorMessage)
-		print(ffi.string(ShaderErrorMessage))
+		io.write(ffi.string(ShaderErrorMessage), "\n")
 	end
 
 	--Set type of Shader

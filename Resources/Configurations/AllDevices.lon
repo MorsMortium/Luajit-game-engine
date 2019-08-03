@@ -1,4 +1,5 @@
 return{
 	["DeviceTypes"] = {"Default", "SpaceShip", "Axes", "TestShip", "BulletNeverDies", "One", "Bullet", "Asteroid", "CollisionTest", "Face", "GravityTest", "GravityTest2", "Point", "ThrusterTest"},
-	["Devices"] = {"SpaceShip"}
+	["Devices"] = {"SpaceShip"},
+	["MaxNumberOfObjects"] = 100000
 }

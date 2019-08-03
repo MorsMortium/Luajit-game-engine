@@ -14,5 +14,5 @@ return{{
 		["Type"] = "OpenGL",
 		["UpVector"] = {0, 1, 0},
 		["VerticalResolution"] = 500,
-		["VisualLayers"] = {["All"] = true}
+		["VisualLayers"] = {"All"}
 	}}

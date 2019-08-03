@@ -25,7 +25,7 @@ function GiveBack.Start(Configurations, Arguments)
 	Space.Programs[DefaultProgram.Name] =
 	Program.Library.Create(DefaultProgram, ProgramGive)
 	--]]
-	print("AllPrograms Started")
+	io.write("AllPrograms Started\n")
 end
 
 --Deletes every Program
@@ -35,10 +35,7 @@ function GiveBack.Stop(Arguments)
 		local av = Space.Programs[ak]
 		Program.Library.Destroy(av.ProgramID, ProgramGive)
 	end
-	for ak,av in pairs(Space) do
-		Space[ak] = nil
-	end
-	print("AllPrograms Stopped")
+	io.write("AllPrograms Stopped\n")
 end
 GiveBack.Requirements = {"Program"}
 return GiveBack

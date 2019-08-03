@@ -4,7 +4,7 @@ return{
 			["Fixed"] = false,
 			["Mass"] = 1,
 			["ObjectRenderer"] = "ColorPerSide",
-			["PhysicsLayers"] = {["All"] = true},
+			["PhysicsLayers"] = {"All"},
 			["Points"] = {{0, 1, 0, 1}, {0, 0, 0, 1}, {-1, 0, 0, 1}, {0, 0, -1, 1}},
 			["Powers"] = {{
 					["Active"] = false,
@@ -20,6 +20,6 @@ return{
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {2, 0, 0},
-			["VisualLayers"] = {["All"] = true}
+			["VisualLayers"] = {"All"}
 		}}
 }

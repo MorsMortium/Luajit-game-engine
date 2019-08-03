@@ -51,7 +51,7 @@ function GiveBack.Start(Configurations, Arguments)
 			GiveBack.CameraRenders[ak] = nil
 		end
 	end
-	print("WindowRender Started")
+	io.write("WindowRender Started\n")
 end
 
 --Deletes the space it allocated for the renderers
@@ -59,7 +59,7 @@ function GiveBack.Stop(Arguments)
 	for ak, av in pairs(GiveBack.CameraRenders) do
     av.Space = nil
 	end
-	print("WindowRender Stopped")
+	io.write("WindowRender Stopped\n")
 end
 GiveBack.Requirements =
 {"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllDeviceRenders"}

@@ -22,7 +22,6 @@ end
 local function Stop(Data, Order)
 	local LauncherUtilities = Data.LauncherUtilities.Library
 	LauncherUtilities.StopAll(Data, Order)
-	Data = nil
 end
 local function Game(Requirements, Data, Order)
 	local Number, Time, MainExit, InputExit, LoadModule, Modules = 0, 0, false,

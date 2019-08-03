@@ -4,12 +4,12 @@ return{
 			["Fixed"] = true,
 			["Mass"] = 1,
 			["ObjectRenderer"] = "Default",
-			["PhysicsLayers"] = {["None"] = true},
+			["PhysicsLayers"] = {"None"},
 			["Points"] = {{1, 0, 0, 1}, {0, 1, 0, 1}, {0, 0, 1, 1}, {0, 0, 0, 1}},
 			["RenderData"] = {{255, 0, 0, 255}, {0, 255, 0, 255}, {0, 0, 255, 255}, {0, 0, 0, 255}},
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {0, 0, 0},
-			["VisualLayers"] = {["All"] = true}
+			["VisualLayers"] = {"All"}
 		}}
 }

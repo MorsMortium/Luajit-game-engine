@@ -50,11 +50,11 @@ return{
 			["Mass"] = 1,
 			["ObjectRenderer"] = "WireFrame",
 			["OnCollisionPowers"] = {false, false, false, false, false, false, false, false, false, false, false, false, false, true},
-			["PhysicsLayers"] = {["SpaceShip"] = true},
+			["PhysicsLayers"] = {"SpaceShip"},
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = true,
-					["String"] = "local Devices, Device, Object = ... if Object.Powers[2].Active then print('Game Over') end",
+					["String"] = "local Devices, Device, Object = ... if Object.Powers[2].Active then io.write('Game Over\\n') end",
 					["Type"] = "Command"
 				}, {
 					["Active"] = false,
@@ -131,7 +131,7 @@ return{
 						Power.SumTime = Power.SumTime + Time
 						if Power.SumTime > 2000 then
 							Power.Niceness = Power.Niceness - 1
-							print('Niceness:', Power.Niceness)
+							io.write('Niceness: ', Power.Niceness, '\n')
 							Power.SumTime = Power.SumTime - 2000
 						end
 					else
@@ -158,7 +158,7 @@ return{
 					if Power.LastScore then
 						if Power.LastScore < Power.Score then
 							Power.LastScore = Power.Score
-							print('Score:', Power.LastScore)
+							io.write('Score: ', Power.LastScore, '\n')
 						end
 					else
 						Power.LastScore = 0
@@ -178,6 +178,6 @@ return{
 			["Rotation"] = {0, 0, 0},
 			["Scale"] = {1, 1, 1},
 			["Translation"] = {0, 0, -2},
-			["VisualLayers"] = {["All"] = true}
+			["VisualLayers"] = {"All"}
 		}}
 }

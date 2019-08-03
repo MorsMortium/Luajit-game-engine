@@ -46,7 +46,7 @@ function Gravity.Use(Devices, Device, Object, Power, Time, Arguments)
     for bk=1,#av.Objects do
       local bv = av.Objects[bk]
   		if (Device ~= ak or Object ~= bk) and
-      SameLayer(Object.PhysicsLayers, bv.PhysicsLayers) and
+      SameLayer(Object.PhysicsLayers, Object.PlayerKeys, bv.PhysicsLayers, bv.PlayerKeys) and
       VectorLength(VectorSubtraction(Object.Translation, bv.Translation))
       < Power.Distance then
         local Direction = Normalise(VectorSubtraction(Object.Translation, bv.Translation))
@@ -173,21 +173,24 @@ function SelfSlow.Use(Devices, Device, Object, Power, Time, Arguments)
   Object.AngularAcceleration =
   QuaternionMultiplication(Object.AngularAcceleration, Slerp({1, 0, 0, 0}, QuaternionInverse(Object.AngularVelocity), Power.Rate ^ Time))
 end
+
+--Destroypara destroys the object using it if it's command returns true
+
 local function DefaultDestroypara(...)
   return false
 end
 
---Destroypara destroys the object using it if it's command returns true
 GiveBack.Powers.Destroypara = {}
 local Destroypara = GiveBack.Powers.Destroypara
-function Destroypara.DataCheck(Devices, Device, Object, Power, Time)
-	local Data = {}
+function Destroypara.DataCheck(Devices, Device, Object, Power, Time, Arguments)
+  local General, AllDevices, AllDevicesGive = Arguments[1], Arguments[7], Arguments[8]
+  local Data = {}
 	Data.Type = "Destroypara"
   if Power.String == nil then
     Data.Command = DefaultDestroypara
   else
     Data.Command = loadstring(Power.String)
-    if not pcall(Data.Command) then
+    if not pcall(Data.Command, Devices, Device, Object, Power, General) then
       Data.Command = DefaultDestroypara
     end
   end
@@ -203,51 +206,39 @@ function Destroypara.DataCheck(Devices, Device, Object, Power, Time)
 end
 function Destroypara.Use(Devices, Device, Object, Power, Time, Arguments)
   local General, AllDevices, AllDevicesGive = Arguments[1], Arguments[7], Arguments[8]
-  local Ran, IfDestroy =
-  pcall(Power.Command, Devices, Device, Object, Power, General)
-  if Ran and IfDestroy then
-    if Power.IfObject then
-      local DeviceID = 1
-      for ak=1,#Devices do
-        local av = Devices[ak]
-        if av == Device then
-          DeviceID = ak
-          break
-        end
+  if Power.Command(Devices, Device, Object, Power, General) then
+    local DeviceID = 1
+    for ak=1,#Devices do
+      local av = Devices[ak]
+      if av == Device then
+        DeviceID = ak
+        break
       end
-      if 1 < #Device.Objects then
-        local ObjectID = 1
-        for ak=1,#Device.Objects do
-          local av = Device.Objects[ak]
-          if av == Object then
-            ObjectID = ak
-            break
-          end
-        end
-        AllDevices.Library.RemoveObject(DeviceID, ObjectID, AllDevicesGive)
-      else
-        AllDevices.Library.RemoveDevice(DeviceID, AllDevicesGive)
-      end
-    else
-      local DeviceID = 1
-      for ak=1,#Devices do
-        local av = Devices[ak]
-        if av == Device then
-          DeviceID = ak
-          break
-        end
-      end
-      AllDevices.Library.RemoveDevice(DeviceID, AllDevicesGive)
     end
-    return true
+    if Power.IfObject and 1 < #Device.Objects then
+      local ObjectID = 1
+      for ak=1,#Device.Objects do
+        local av = Device.Objects[ak]
+        if av == Object then
+          ObjectID = ak
+          break
+        end
+      end
+      AllDevices.Library.RemoveObject(DeviceID, ObjectID, AllDevicesGive)
+      return true
+    end
+    AllDevices.Library.RemoveDevice(DeviceID, AllDevicesGive)
+    return true, true
   end
 end
 
 --Command runs small script which can be custom mechanics for the object/device
 --Or all devices
+
 local function DefaultCommand(...)
   return false
 end
+
 GiveBack.Powers.Command = {}
 local Command = GiveBack.Powers.Command
 function Command.DataCheck(Devices, Device, Object, Power, Time)
@@ -270,6 +261,9 @@ end
 function Command.Use(Devices, Device, Object, Power, Time)
   pcall(Power.Command, Devices, Device, Object, Power, Time)
 end
+
+--Summon adds an object or device, then modifies it with it's command
+
 local function DefaultSummon(...)
   local Created, Creator = ...
     for ak=1,#Created.Objects do
@@ -280,10 +274,9 @@ local function DefaultSummon(...)
       end
       av.Rotation[4] = Creator.Rotation[4]
     end
-    print('Bad modifier function')
+    io.write("Bad modifier function\n")
 end
 
---Summon adds an object or device, then modifies it with it's command
 GiveBack.Powers.Summon = {}
 local Summon = GiveBack.Powers.Summon
 function Summon.DataCheck(Devices, Device, Object, Power, Time, Arguments)
