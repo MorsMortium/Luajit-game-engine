@@ -1,22 +1,24 @@
-local GiveBack = {}
+return function(args)
+	local Space, SDL, ffi, General = args[1], args[2], args[3], args[4]
+	local ffi, SDL = ffi.Library, SDL.Library
+	local GiveBack = {}
 
---Inits the SDL system, and it's subsystems if needed
-function GiveBack.Start(Configurations, Arguments)
-	local Space, SDL, ffi, General = Arguments[1], Arguments[2], Arguments[4],
-	Arguments[6]
+	function GiveBack.Reload(args)
+		Space, SDL, ffi, General = args[1], args[2], args[3], args[4]
+		ffi, SDL = ffi.Library, SDL.Library
+  end
 
-	--Load data for subsystems
-	Space.SDLData = Configurations
-	local ffi = ffi.Library
-	local SDL = SDL.Library
+	--Inits the SDL system, and it's subsystems if needed
+	function GiveBack.Start(Configurations)
 
-	--Inits SDL
-	if SDL.init(0) ~= 0 then
-		error(ffi.sring(SDL.getError()))
-	else
+		--Load data for subsystems
+		Space.SDLData = Configurations
 
-		--Inits SDL subsystems, if none of them is specifies then it inits video
-		if General.Library.GoodTypesOfTable(Space.SDLData, "string") then
+		--Inits SDL
+		if SDL.init(0) ~= 0 then
+			error(ffi.sring(SDL.getError()))
+		elseif General.Library.GoodTypesOfTable(Space.SDLData, "string") then
+			--Inits SDL subsystems, if none of them is specifies then it inits video
 			for ak=1,#Space.SDLData do
 				local av = Space.SDLData[ak]
 				SDL.initSubSystem(SDL[av])
@@ -24,16 +26,13 @@ function GiveBack.Start(Configurations, Arguments)
 		else
 			SDL.initSubSystem(SDL.INIT_VIDEO)
 		end
+		io.write("SDLInit Started\n")
 	end
-	io.write("SDLInit Started\n")
-end
 
---Quits SDL
-function GiveBack.Stop(Arguments)
-	local Space, SDL = Arguments[1], Arguments[2]
-	local SDL = SDL.Library
-	SDL.quit()
-	io.write("SDLInit Stopped\n")
+	--Quits SDL
+	function GiveBack.Stop()
+		SDL.quit()
+		io.write("SDLInit Stopped\n")
+	end
+	return GiveBack
 end
-GiveBack.Requirements = {"SDL", "ffi", "General"}
-return GiveBack

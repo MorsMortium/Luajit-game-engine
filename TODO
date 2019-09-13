@@ -3,7 +3,6 @@
 -error messages where needed (but no exit if not needed)
 performance: multicore Physics
              multicore rendering?
-             max number of devices? (elements ffi new)
              reduce data conversion
              no collision check if no movement
 looks: clean Launcher.lua

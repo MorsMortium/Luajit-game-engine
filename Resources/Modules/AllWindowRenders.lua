@@ -1,40 +1,43 @@
-local GiveBack = {}
-function GiveBack.Start(Configurations, Arguments)
-	local Space = Arguments[1]
-	Space.LastTime = 0
-	io.write("AllWindowRenders Started\n")
-end
-function GiveBack.Stop(Arguments)
-	local Space = Arguments[1]
-	io.write("AllWindowRenders Stopped\n")
-end
+return function(args)
+	local Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1], args[2], args[3], args[4], args[5], args[6]
+	local SDL, WindowRenders = SDL.Library, WindowRender.Library.WindowRenders
+	local GiveBack = {}
 
---Renders every Window
---Recalculates fps for every 30 frames
---TODO: Move fps out of here
-function GiveBack.RenderAllWindows(Number, Arguments)
-	local Space, SDL, AllWindows, WindowRender, WindowRenderGive, OpenGLInit =
-	Arguments[1], Arguments[2], Arguments[6], Arguments[8], Arguments[9],
-	Arguments[10]
-	if Number % 30 == 0 then
-		Space.FramesPerSecond = 30 / (SDL.Library.getTicks() - Space.LastTime) * 1000
-		Space.LastTime = SDL.Library.getTicks()
+	function GiveBack.Reload(args)
+		Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1], args[2], args[3], args[4], args[5], args[6]
+		SDL, WindowRenders = SDL.Library, WindowRender.Library.WindowRenders
 	end
-	for ak=1,#AllWindows.Space.Windows do
-		local av = AllWindows.Space.Windows[ak]
-		if ak ~= Space.LastWindow and av.Type == "OpenGL" then
-			SDL.Library.GL_MakeCurrent(av.WindowID, OpenGLInit.Space.Context)
-			Space.LastWindow = ak
+
+	function GiveBack.Start(Configurations)
+		Space.LastTime = 0
+		io.write("AllWindowRenders Started\n")
+	end
+	function GiveBack.Stop()
+		io.write("AllWindowRenders Stopped\n")
+	end
+
+	--Renders every Window
+	--Recalculates fps for every 30 frames
+	--TODO: Move fps out of here
+	function GiveBack.RenderAllWindows(Number)
+		if Number % 30 == 0 then
+			Space.FramesPerSecond = 30 / (SDL.getTicks() - Space.LastTime) * 1000
+			Space.LastTime = SDL.getTicks()
 		end
-		local WRender = WindowRender.Library.WindowRenders[av.WindowRenderer]
-		WRender[av.Type].Render(av, WRender.Space, WindowRenderGive)
-		if av.Type == "OpenGL" then
-			SDL.Library.GL_SwapWindow(av.WindowID)
-		else
-			SDL.Library.renderPresent(av.Renderer)
+		for ak=1,#AllWindows.Space.Windows do
+			local av = AllWindows.Space.Windows[ak]
+			if ak ~= Space.LastWindow and av.Type == "OpenGL" then
+				SDL.GL_MakeCurrent(av.WindowID, OpenGLInit.Space.Context)
+				Space.LastWindow = ak
+			end
+			local WRender = WindowRenders[av.WindowRenderer]
+			WRender[av.Type].Render(av, WRender.Space)
+			if av.Type == "OpenGL" then
+				SDL.GL_SwapWindow(av.WindowID)
+			else
+				SDL.renderPresent(av.Renderer)
+			end
 		end
 	end
+	return GiveBack
 end
-GiveBack.Requirements =
-{"SDL", "SDLInit", "AllWindows", "WindowRender", "OpenGLInit"}
-return GiveBack
