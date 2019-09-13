@@ -1,76 +1,73 @@
-local GiveBack = {}
+return function(args)
+	local Space, OpenGLInit, SDL, SDLInit, Window = args[1], args[2], args[3], args[4], args[5]
+	local SDL, Create, Destroy = SDL.Library, Window.Library.Create, Window.Library.Destroy
+	local GiveBack = {}
 
---This script manages Windows
+	function GiveBack.Reload(args)
+		Space, OpenGLInit, SDL, SDLInit, Window = args[1], args[2], args[3], args[4], args[5]
+		SDL, Create, Destroy = SDL.Library, Window.Library.Create, Window.Library.Destroy
+  end
 
---Loads data for every Window and creates them
-function GiveBack.Start(Configurations, Arguments)
-	local Space, OpenGLInit, OpenGLInitGive, SDL, Window, WindowGive =
-	Arguments[1], Arguments[2], Arguments[3], Arguments[4], Arguments[8],
-	Arguments[9]
-	local AllWindows = Configurations
-	Space.Windows = {}
-	if type(AllWindows) == "table" then
-		for ak=1,#AllWindows do
-			local av = AllWindows[ak]
-			Space.Windows[ak] = Window.Library.Create(av, WindowGive)
-			if av.Type == "OpenGL" then
-				Space.OpenGLWindow = ak
-				Space.Windows[ak].OpenGL = true
+	--This script manages Windows
+	--Loads data for every Window and creates them
+	function GiveBack.Start(Configurations)
+		Space.Windows = {}
+		if type(Configurations) == "table" then
+			for ak=1,#Configurations do
+				local av = Configurations[ak]
+				Space.Windows[ak] = Create(av)
+				if av.Type == "OpenGL" then
+					Space.OpenGLWindow = ak
+					Space.Windows[ak].OpenGL = true
+				end
 			end
+			if Space.OpenGLWindow then
+				SDL.GL_MakeCurrent(Space.Windows[Space.OpenGLWindow].WindowID,
+				OpenGLInit.Space.Context)
+			end
+		else
+			Space.Windows[1] = Create(nil)
 		end
-		if Space.OpenGLWindow then
-			SDL.Library.GL_MakeCurrent(Space.Windows[Space.OpenGLWindow].WindowID,
-			OpenGLInit.Space.Context)
+		OpenGLInit.Library.DeleteDummyWindow()
+		SDL.GL_SetSwapInterval(0)
+		io.write("AllWindows Started\n")
+	end
+
+	--Deletes every Window
+	function GiveBack.Stop()
+		for ak=1,#Space.Windows do
+			local av = Space.Windows[ak]
+			SDL.destroyRenderer(SDL.getRenderer(av.WindowID))
+			Destroy(av)
 		end
-	else
-		Space.Windows[1] = Window.Library.Create(nil, WindowGive)
+		io.write("AllWindows Stopped\n")
 	end
-	OpenGLInit.Library.DeleteDummyWindow(OpenGLInitGive)
-	SDL.Library.GL_SetSwapInterval(0)
-	io.write("AllWindows Started\n")
-end
 
---Deletes every Window
-function GiveBack.Stop(Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[4],
-	Arguments[8], Arguments[9]
-	for ak=1,#Space.Windows do
-		local av = Space.Windows[ak]
-		SDL.Library.destroyRenderer(SDL.Library.getRenderer(av.WindowID))
-		Window.Library.Destroy(av, WindowGive)
-	end
-	io.write("AllWindows Stopped\n")
-end
-
---Adds one Window
-function GiveBack.Add(Window, Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[4],
-	Arguments[8], Arguments[9]
-	if type(Window) == "table" then
-		Space.Windows[#Space.Windows + 1] = Window.Library.Create(Window, WindowGive)
-		if Window.Type == "OpenGL" then
-			Space.Windows[#Space.Windows].OpenGL = true
-			SDL.Library.GL_MakeCurrent(Space.Windows[#Space.Windows].WindowID,
-			OpenGLInit.Space.Context)
+	--Adds one Window
+	function GiveBack.Add(Window)
+		if type(Window) == "table" then
+			Space.Windows[#Space.Windows + 1] = Create(Window)
+			if Window.Type == "OpenGL" then
+				Space.Windows[#Space.Windows].OpenGL = true
+				SDL.GL_MakeCurrent(Space.Windows[#Space.Windows].WindowID,
+				OpenGLInit.Space.Context)
+			end
+		else
+			Space.Windows[#Space.Windows + 1] = Create(nil)
 		end
-	else
-		Space.Windows[#Space.Windows + 1] = Window.Library.Create(nil, WindowGive)
 	end
-end
 
---Removes one Window
-function GiveBack.Remove(Number, Arguments)
-	local Space, SDL, Window, WindowGive = Arguments[1], Arguments[4],
-	Arguments[8], Arguments[9]
-	local av = Space.Windows[#Space.Windows]
-	local Index = #Space.Windows
-	if type(Number) == "number" and Number < Index then
-		Index = Number
+	--Removes one Window
+	function GiveBack.Remove(Number)
+		local av = Space.Windows[#Space.Windows]
+		local Index = #Space.Windows
+		if type(Number) == "number" and Number < Index then
+			Index = Number
+		end
+		local av = Space.Windows[Index]
+		SDL.destroyRenderer(SDL.getRenderer(av.WindowID))
+		Destroy(av.WindowID)
+		table.remove(Space.Windows, Index)
 	end
-	local av = Space.Windows[Index]
-	SDL.Library.destroyRenderer(SDL.Library.getRenderer(av.WindowID))
-	Window.Library.Destroy(av.WindowID, WindowGive)
-	table.remove(Space.Windows, Index)
+	return GiveBack
 end
-GiveBack.Requirements = {"OpenGLInit", "SDL", "SDLInit", "Window"}
-return GiveBack

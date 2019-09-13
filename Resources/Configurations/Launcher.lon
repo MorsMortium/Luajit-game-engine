@@ -1,7 +1,7 @@
 return{
 	["ConfigurationPath"] = "./Resources/Configurations/",
 	["ModulePath"] = "./Resources/Modules/?.lua;./Resources/Modules/?;",
-	["Requirements"] = {{
+	["Modules"] = {{
 			["Name"] = "ffi",
 			["Path"] = "ffi",
 			["StartStopSpace"] = false
@@ -12,7 +12,8 @@ return{
 		}, {
 			["Name"] = "Audio",
 			["Path"] = "Audio",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"PortAudio", "ffi"}
 		}, {
 			["Name"] = "lgsl",
 			["Path"] = "lgsl",
@@ -20,15 +21,18 @@ return{
 		}, {
 			["Name"] = "Camera",
 			["Path"] = "Camera",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"General", "CameraRender", "lgsl"}
 		}, {
 			["Name"] = "Main",
 			["Path"] = "Main",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"Physics"}
 		}, {
 			["Name"] = "General",
 			["Path"] = "General",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"lgsl", "ffi", "CTypes"}
 		}, {
 			["Name"] = "SDL",
 			["Path"] = "SDL2",
@@ -41,98 +45,123 @@ return{
 			["Configuration"] = "SDLData.lon",
 			["Name"] = "SDLInit",
 			["Path"] = "SDLInit",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"SDL", "ffi", "General"}
 		}, {
 			["Configuration"] = "OpenGLData.lon",
 			["Name"] = "OpenGLInit",
 			["Path"] = "OpenGLInit",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"SDL", "SDLInit", "OpenGL"}
 		}, {
 			["Name"] = "Shader",
 			["Path"] = "Shader",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"OpenGL", "OpenGLInit", "ffi", "CTypes"}
 		}, {
 			["Configuration"] = "AllShaders.lon",
 			["Name"] = "AllShaders",
 			["Path"] = "AllShaders",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"Shader"}
 		}, {
 			["Name"] = "Program",
 			["Path"] = "Program",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"AllShaders", "OpenGL", "ffi", "CTypes"}
 		}, {
 			["Configuration"] = "AllPrograms.lon",
 			["Name"] = "AllPrograms",
 			["Path"] = "AllPrograms",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"Program"}
 		}, {
 			["Name"] = "ObjectRender",
 			["Path"] = "ObjectRender",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] =
+			{"OpenGL", "OpenGLInit", "CTypes", "AllPrograms", "General", "SDL", "ffi"}
 		}, {
 			["Name"] = "AllDeviceRenders",
 			["Path"] = "AllDeviceRenders",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"General", "CTypes", "ObjectRender", "AllDevices"}
 		}, {
 			["Name"] = "Object",
 			["Path"] = "Object",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"General", "ffi", "ObjectRender", "lgsl"}
 		}, {
 			["Name"] = "WindowRender",
 			["Path"] = "WindowRender",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllCameras"}
 		}, {
 			["Name"] = "Window",
 			["Path"] = "Window",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"SDL", "SDLInit", "General", "CTypes", "WindowRender"}
 		}, {
 			["Configuration"] = "AllWindows.lon",
 			["Name"] = "AllWindows",
 			["Path"] = "AllWindows",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"OpenGLInit", "SDL", "SDLInit", "Window"}
 		}, {
 			["Name"] = "AllWindowRenders",
 			["Path"] = "AllWindowRenders",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] =
+			{"SDL", "SDLInit", "AllWindows", "WindowRender", "OpenGLInit"}
 		}, {
-			["Configuration"] = "AllInputs.lon",
 			["Name"] = "AllInputs",
 			["Path"] = "AllInputs",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] =
+			{"SDL", "SDLInit", "ffi", "Window", "AllWindows", "AllDevices", "Input", "CTypes"}
 		}, {
 			["Name"] = "Physics",
 			["Path"] = "Physics",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = false,
+			["Requirements"] =
+			{"AllDevices", "General", "AllPowers", "CollisionDetection", "CollisionResponse"}
 		}, {
 			["Configuration"] = "AllCameras.lon",
 			["Name"] = "AllCameras",
 			["Path"] = "AllCameras",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"Camera", "CTypes", "OpenGL", "SDL"}
 		}, {
 			["Name"] = "Device",
 			["Path"] = "Device",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"Object", "General"}
 		}, {
 			["Configuration"] = "AllDevices.lon",
 			["Name"] = "AllDevices",
 			["Path"] = "AllDevices",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"LON", "General", "Device", "Object"}
 		}, {
 			["Name"] = "Power",
 			["Path"] = "Power",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"General", "Device", "lgsl", "AllDevices", "ffi"}
 		}, {
 			["Name"] = "AllPowers",
 			["Path"] = "AllPowers",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] = {"Power", "AllDevices"}
 		}, {
 			["Name"] = "CollisionDetection",
 			["Path"] = "CollisionDetection",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"General"}
 		}, {
 			["Name"] = "CollisionResponse",
 			["Path"] = "CollisionResponse",
-			["StartStopSpace"] = false
+			["StartStopSpace"] = false,
+			["Requirements"] = {"General"}
 		}, {
 			["Name"] = "OBJ",
 			["Path"] = "obj_loader",
@@ -140,10 +169,25 @@ return{
 		}, {
 			["Name"] = "CameraRender",
 			["Path"] = "CameraRender",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] =
+			{"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllDeviceRenders"}
+		}, {
+			["Name"] = "Input",
+			["Path"] = "Input",
+			["StartStopSpace"] = false,
+			["Requirements"] = {"AllWindowRenders"}
 		}, {
 			["Name"] = "AllCameraRenders",
 			["Path"] = "AllCameraRenders",
-			["StartStopSpace"] = true
+			["StartStopSpace"] = true,
+			["Requirements"] =
+			{"OpenGL", "AllDevices", "lgsl", "General", "SDL", "CameraRender", "AllCameras", "CTypes"}
+		}, {
+			["Configuration"] = "CTypes.lon",
+			["Name"] = "CTypes",
+			["Path"] = "CTypes",
+			["StartStopSpace"] = true,
+			["Requirements"] = {"ffi", "OpenGL", "SDL"}
 		}}
 }

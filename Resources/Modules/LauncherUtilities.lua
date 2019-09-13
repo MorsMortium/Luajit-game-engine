@@ -1,13 +1,43 @@
 local GiveBack = {}
-local function LoadModules(Modules)
+
+local function RequCalc(MainTable, Table)
+	local Give = {}
+  if Table.StartStopSpace then
+		Give[1] = Table.Space
+	end
+	if Table.Requirements then
+		for ak=1,#Table.Requirements do
+			local av = Table.Requirements[ak]
+      Give[#Give + 1] = MainTable[av]
+		end
+	end
+	return Give
+end
+
+function GiveBack.LoadModules(Modules, Data)
 	if type(Modules) == "table" then
 		for ak=1,#Modules do
 			local av = Modules[ak]
-			Data[av.name].Library = nil
-			Data[av.name].Library = require(av.Path)
+			local Ran, LibraryOrError
+      package.loaded[av.Path] = nil
+      Ran, LibraryOrError = pcall(require, av.Path)
+      if Ran and type(LibraryOrError) == "function" then
+        Ran, LibraryOrError = pcall(LibraryOrError, RequCalc(Data, Data[av.Name]))
+      end
+      if Ran and LibraryOrError then
+        Data[av.Name].Library = LibraryOrError
+      end
 		end
+    --Lazy method, might become slow on higher number of modules
+    --TODO: Speed it up by only reloading needed modules
+    for ak,av in pairs(Data) do
+      if type(av.Library) == "table" and type(av.Library.Reload) == "function" then
+        av.Library.Reload(RequCalc(Data, av))
+      end
+    end
 	end
 end
+
 local function LoadConfigurations(List, LON)
   local Configurations = {}
   if type(List) == "table" then
@@ -20,48 +50,12 @@ local function LoadConfigurations(List, LON)
   end
 	return Configurations
 end
-function GiveBack.RequireAll(Requirements, Data)
-	for ak=1,#Requirements do
-		local av = Requirements[ak]
-		local Ran, LibraryOrError = pcall(require, av.Path)
-		if Ran and LibraryOrError then
-			Data[av.Name] = {}
-			Data[av.Name].Library = LibraryOrError
-			Data[av.Name].StartStopSpace = av.StartStopSpace
-		else
-			io.write(LibraryOrError, "\n")
-		end
-	end
-	return LoadConfigurations(Requirements, Data.LON)
-end
-local function RequCalc(MainTable, Table)
-	local Give = {}
-	if type(Table) == "table" and type(Table.Space) == "table" then
-		Give[1] = Table.Space
-	end
-	if type(Table) == "table" and type(Table.Library) == "table" and
-	type(Table.Library.Requirements) == "table" then
-		for ak=1,#Table.Library.Requirements do
-			local av = Table.Library.Requirements[ak]
-			if type(MainTable[av]) == "table" and
-			type(MainTable[av].Library) == "table" and
-			type(MainTable[av].Library.Requirements) == "table" then
-				Give[#Give + 1] = MainTable[av]
-				Give[#Give + 1] = RequCalc(MainTable, MainTable[av])
-			else
-				Give[#Give + 1] = MainTable[av]
-				Give[#Give + 1] = true
-			end
-		end
-	end
-	return Give
-end
+
 local function RequList(MainTable, Table)
 	local List = {}
-	if type(Table) == "table" and type(Table.Library) == "table" and
-	type(Table.Library.Requirements) == "table" then
-		for ak=1,#Table.Library.Requirements do
-			local av = Table.Library.Requirements[ak]
+	if type(Table) == "table" and type(Table.Requirements) == "table" then
+		for ak=1,#Table.Requirements do
+			local av = Table.Requirements[ak]
 			local InList = false
 			for bk=1,#List do
 				local bv = List[bk]
@@ -78,9 +72,8 @@ local function RequList(MainTable, Table)
 		while ak <= #List do
 			local av = List[ak]
 			if type(MainTable[av]) == "table" and
-			type(MainTable[av].Library) == "table" and
-			type(MainTable[av].Library.Requirements) == "table" then
-				local PlusRequ = MainTable[av].Library.Requirements
+			type(MainTable[av].Requirements) == "table" then
+				local PlusRequ = MainTable[av].Requirements
 				for bk=1,#PlusRequ do
 					local bv = PlusRequ[bk]
 					local InList = false
@@ -112,36 +105,63 @@ local function CompareLists(List1, List2)
 		end
 	end
 end
-function GiveBack.StartAll(Data, Order, Configurations)
+function GiveBack.StartAll(Data, Order, Modules)
+	local Configurations = LoadConfigurations(Modules, Data.LON)
 	local Pending
 	local Change = true
-	local turn = 0
 	while Change do
-		turn = turn + 1
 		Pending = false
 		Change = false
-		for ak, av in pairs(Data) do
-			if not av.Started then
+		for ak=1,#Modules do
+			local av = Modules[ak]
+			if not Data[av.Name] then
 				local Allrequisgood = true
-				if type(av) == "table" and type(av.Library) == "table" and
-				type(av.Library.Requirements) == "table" then
-					for bk=1,#av.Library.Requirements do
-						local bv = av.Library.Requirements[bk]
-						if Data[bv] == nil or not Data[bv].Started then
+				if type(av.Requirements) == "table" then
+					for bk=1,#av.Requirements do
+						local bv = av.Requirements[bk]
+						if Data[bv] == nil then
 							Allrequisgood = false
 						end
 					end
 				end
 				if Allrequisgood then
-					Order[#Order + 1] = ak
-					if av.StartStopSpace then
-						Change = true
-						av.Space = {}
-						av.Library.Start(Configurations[ak], RequCalc(Data, av))
-						av.Started = true
+					local Ran, LibraryOrError
+          Data[av.Name] = {}
+          Data[av.Name].StartStopSpace = av.StartStopSpace
+          if av.StartStopSpace then
+            Data[av.Name].Space = {}
+          end
+          if av.Requirements then
+            Data[av.Name].Requirements = av.Requirements
+          end
+          Ran, LibraryOrError = pcall(require, av.Path)
+          if Ran and type(LibraryOrError) == "function" then
+            Ran, LibraryOrError = pcall(LibraryOrError, RequCalc(Data, Data[av.Name]))
+          end
+					if Ran and LibraryOrError then
+						Data[av.Name].Library = LibraryOrError
+						local AllRequIsStarted = true
+						if type(av.Requirements) == "table" then
+							for bk=1,#av.Requirements do
+								local bv = av.Requirements[bk]
+								if type(Data[bv]) == "table" and not Data[bv].Started then
+									AllRequIsStarted = false
+								end
+							end
+						end
+						if AllRequIsStarted then
+							Order[#Order + 1] = av.Name
+							Change = true
+							Data[av.Name].Started = true
+							if av.StartStopSpace then
+								Data[av.Name].Library.Start(Configurations[av.Name])
+							end
+						else
+							Pending = true
+						end
 					else
-						Change = true
-						av.Started = true
+						io.write(LibraryOrError, "\n")
+						Pending = true
 					end
 				else
 					Pending = true
@@ -180,8 +200,8 @@ end
 function GiveBack.PrintCauses(Data)
 	io.write("Caused by:\n")
 	for ak,av in pairs(Data) do
-		if type(av.Library) == "table" and av.Library.Requirements then
-			for bk,bv in pairs(av.Library.Requirements) do
+		if type(av.Library) == "table" and av.Requirements then
+			for bk,bv in pairs(av.Requirements) do
 				if Data[bv] == nil then
 					io.write("Missing module:", bv, "\n")
 				end
@@ -190,7 +210,7 @@ function GiveBack.PrintCauses(Data)
 	end
 	local FullDepPerModule = {}
 	for ak,av in pairs(Data) do
-		if not av.Started and type(av.Library) == "table" and av.Library.Requirements then
+		if not av.Started and type(av.Library) == "table" and av.Requirements then
 			FullDepPerModule[#FullDepPerModule + 1] = {Name = ak}
 			FullDepPerModule[#FullDepPerModule].FullDep =
 			RequList(Data, av)
@@ -211,7 +231,7 @@ function GiveBack.StopAll(Data, Order)
 		local av = Order[ak]
 		if type(Data[av]) == "table" and type(Data[av].Library) == "table" and
 		type(Data[av].Library.Stop) == "function" then
-			Data[av].Library.Stop(RequCalc(Data, Data[av]))
+			Data[av].Library.Stop()
 			Data[av].Space = nil
 		end
 		Data[av] = nil
@@ -220,9 +240,10 @@ end
 function GiveBack.LoadLibrary(Name, Command, Data)
 	local LauncherUtilities = Data.LauncherUtilities.Library
 	if type(Data[Name]) == "table" and Data[Name].Started then
-		return Data[Name].Library[Command], RequCalc(Data, Data[Name])
+		return Data[Name].Library[Command]
 	end
 	return loadstring("if not no" .. Name .. "print then io.write('" .. Name ..
 	"' .. ' not found\n') no" .. Name .. "print = true return true end"), {}
 end
+
 return GiveBack

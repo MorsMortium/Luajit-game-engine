@@ -11,7 +11,12 @@ More to come...
 ## Contribution
 For ideas on what You can do to help the project, see the [TODO](TODO) file
 ## Sponsoring
-If You like the project, consider sponsoring it via patreon:  
-[https://www.patreon.com/MorsMortium]
+If You like the project, consider sponsoring it via patreon or Ko-fi:  
+https://www.patreon.com/MorsMortium
+https://ko-fi.com/morsmortium
+## Contacts
+If You have any ideas for improving the project, that is out of the scope of an
+Issue, You can contact me on my email address:
+morsmortium@gmail.com
 ## License
 This project is licensed under the GPL v3.0 License - see the [LICENSE.md](LICENSE.md) file for details

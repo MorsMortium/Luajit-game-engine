@@ -1,12 +1,12 @@
 local GiveBack = {}
 
 --Path variable
-GiveBack.Path = "./"
+local Path = "./"
 
---Loads a file, returns its content or false, in case of error
-local function LoadFile(Name)
+--Loads a file, returns its content or nil, in case of error
+local function ReadFile(Name)
   local Content = ""
-  local File = io.open(tostring(GiveBack.Path) .. tostring(Name), "r" )
+  local File = io.open(Path .. tostring(Name), "r" )
   if (File) then
     Content = File:read("*a")
     File:close()
@@ -34,7 +34,7 @@ end
 --Loads file, checks, if it begins with return, runs it, and gives back the table
 --Doesn't raise an error, instead prints it and returns nil
 function GiveBack.DecodeFromFile(Name)
-  local String = LoadFile(Name)
+  local String = ReadFile(Name)
   if String then
     if "return" == String:match("(%w+)(.+)") then
       local DataFunction = loadstring(String)
@@ -49,15 +49,15 @@ function GiveBack.DecodeFromFile(Name)
           return DataOrError
         end
       else
-        io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+        io.write("LON error in file: ", Path .. tostring(Name), "\n")
         io.write(DataOrError, "\n")
       end
     else
-      io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+      io.write("LON error in file: ", Path .. tostring(Name), "\n")
       io.write("Return statement not first\n")
     end
   else
-    io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+    io.write("LON error in file: ", Path .. tostring(Name), "\n")
     io.write("File not found\n")
   end
 end
@@ -151,7 +151,7 @@ end
 
 --Saves string into file
 local function SaveFile(Name, String)
-  local File = io.open(tostring(GiveBack.Path) .. tostring(Name), "w" )
+  local File = io.open(Path .. tostring(Name), "w" )
   if File then
     File:write(String)
     File:close()
@@ -168,4 +168,15 @@ function GiveBack.EncodeToFile(Name, Data)
     io.write("Access denied\n")
   end
 end
+
+function GiveBack.SetPath(NewPath)
+  if type(NewPath) == "string" then
+    Path = NewPath
+  end
+end
+
+function GiveBack.GetPath()
+  return Path
+end
+
 return GiveBack

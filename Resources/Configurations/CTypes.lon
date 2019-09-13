@@ -1,0 +1,1 @@
+return{"int[?]", "char[?]", "double[?]", "const char *[?]", "GLint[?]", "GLuint[?]", "float[?]", "SDL_Event"}

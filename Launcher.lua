@@ -2,18 +2,17 @@
 io.output():setvbuf("no")
 local Data, Order = {}, {}
 Data.LON =
-{Library = require("./Resources/Modules/LON")}
+{Library = require("./Resources/Modules/LON"), Started = true}
 Data.LauncherUtilities =
-{Library = require("./Resources/Modules/LauncherUtilities")}
+{Library = require("./Resources/Modules/LauncherUtilities"), Started = true}
 local LauncherData =
 Data.LON.Library.DecodeFromFile("Resources/Configurations/Launcher.lon")
-local Requirements = LauncherData.Requirements
+local Modules = LauncherData.Modules
 package.path = LauncherData.ModulePath .. package.path
-Data.LON.Library.Path = LauncherData.ConfigurationPath
-local function Start(Requirements, Data, Order)
+Data.LON.Library.SetPath(LauncherData.ConfigurationPath)
+local function Start(Modules, Data, Order)
 	local LauncherUtilities = Data.LauncherUtilities.Library
-	local Configurations = LauncherUtilities.RequireAll(Requirements, Data)
-	local Pending = LauncherUtilities.StartAll(Data, Order, Configurations)
+	local Pending = LauncherUtilities.StartAll(Data, Order, Modules)
 	if Pending then
 		LauncherUtilities.PrintBadModules(Data)
 		LauncherUtilities.PrintCauses(Data)
@@ -23,32 +22,33 @@ local function Stop(Data, Order)
 	local LauncherUtilities = Data.LauncherUtilities.Library
 	LauncherUtilities.StopAll(Data, Order)
 end
-local function Game(Requirements, Data, Order)
-	local Number, Time, MainExit, InputExit, LoadModule, Modules = 0, 0, false,
-	false, false
-	Start(Requirements, Data, Order)
+local function Game(Modules, Data, Order)
+	local Number, Time, MainExit, InputExit, LoadModule, ModulesTable = 0, 0,
+	false, false, false
+	Start(Modules, Data, Order)
 	local LoadLibrary = Data.LauncherUtilities.Library.LoadLibrary
-	local Input = {LoadLibrary("AllInputs", "Input", Data)}
-	local Main = {LoadLibrary("Main", "Main", Data)}
-	local WindowRender = {LoadLibrary("AllWindowRenders", "RenderAllWindows", Data)}
-	local CameraRender = {LoadLibrary("AllCameraRenders", "RenderAllCameras", Data)}
+	local LoadModules = Data.LauncherUtilities.Library.LoadModules
+	local Input = LoadLibrary("AllInputs", "Input", Data)
+	local Main = LoadLibrary("Main", "Main", Data)
+	local WindowRender = LoadLibrary("AllWindowRenders", "RenderAllWindows", Data)
+	local CameraRender = LoadLibrary("AllCameraRenders", "RenderAllCameras", Data)
 	local SDL = Data.SDL.Library
 	local LastTime = SDL.getTicks()
 	while not (MainExit or InputExit) do
 		Time = SDL.getTicks() - LastTime
 		if 0 < Time then
 			LastTime = SDL.getTicks()
-			MainExit, LoadModule, Modules = Main[1](Time, Main[2])
-			if LoadModule then
-				LoadModules(Modules)
+			MainExit, LoadModule, ModulesTable = Main(Time)
+			if (not MainExit) and LoadModule then
+				LoadModules(ModulesTable, Data)
 				LoadModule = false
 			end
-			CameraRender[1](CameraRender[2])
-			WindowRender[1](Number, WindowRender[2])
-			InputExit = Input[1](Input[2])
+			CameraRender()
+			WindowRender(Number)
+			InputExit = Input()
 			Number = Number + 1
 		end
 	end
 	Stop(Data, Order)
 end
-Game(Requirements, Data, Order)
+Game(Modules, Data, Order)
