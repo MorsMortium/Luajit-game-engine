@@ -156,6 +156,7 @@ function GiveBack.StartAll(Data, Order, Modules)
 							if av.StartStopSpace then
 								Data[av.Name].Library.Start(Configurations[av.Name])
 							end
+							io.write(av.Name, " Started\n")
 						else
 							Pending = true
 						end
@@ -235,6 +236,7 @@ function GiveBack.StopAll(Data, Order)
 			Data[av].Space = nil
 		end
 		Data[av] = nil
+		io.write(av, " Stopped\n")
 	end
 end
 function GiveBack.LoadLibrary(Name, Command, Data)

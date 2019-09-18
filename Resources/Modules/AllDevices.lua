@@ -115,7 +115,6 @@ return function(args)
 		Create(OBJ.Library.makedevice("./Resources/hand.obj", "Hand"))
 		GiveBack.AddDevice("Hand")
 		--]]
-		io.write("AllDevices Started\n")
 	end
 
 	--Removes one Object from a Device
@@ -156,7 +155,6 @@ return function(args)
 			local av = Space.Devices[ak]
 			Destroy(av)
 		end
-		io.write("AllDevices Stopped\n")
 	end
 
 	--Clears created and destroyed Objects list (CollisionDetection and AllPowers)

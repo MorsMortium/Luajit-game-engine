@@ -31,7 +31,6 @@ return function(args)
 		Space.Programs[DefaultProgram.Name] =
 		Create(DefaultProgram, ProgramGive)
 		--]]
-		io.write("AllPrograms Started\n")
 	end
 
 	--Deletes every Program
@@ -39,7 +38,6 @@ return function(args)
 		for ak=1,#Space.Programs do
 			Destroy(Space.Programs[ak].ProgramID)
 		end
-		io.write("AllPrograms Stopped\n")
 	end
 	return GiveBack
 end

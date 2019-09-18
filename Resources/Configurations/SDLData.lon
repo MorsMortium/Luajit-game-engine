@@ -1,1 +1,1 @@
-return{"INIT_VIDEO"}
+return{"INIT_VIDEO", "INIT_AUDIO"}

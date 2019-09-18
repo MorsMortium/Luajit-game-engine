@@ -62,7 +62,6 @@ return function(args)
 				GiveBack.WindowRenders[ak] = nil
 			end
 		end
-		io.write("WindowRender Started\n")
 	end
 
 	--Deletes the space it allocated for the renderers
@@ -70,7 +69,6 @@ return function(args)
 		for ak, av in pairs(GiveBack.WindowRenders) do
     	av.Space = nil
 		end
-		io.write("WindowRender Stopped\n")
 	end
 	return GiveBack
 end

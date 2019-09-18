@@ -28,13 +28,11 @@ return function(args)
         end
       end
     end
-    io.write("CTypes Started\n")
   end
   function GiveBack.Stop()
     for ak,av in pairs(GiveBack.Types) do
       GiveBack.Types[ak] = nil
     end
-     io.write("CTypes Stopped\n")
    end
    return GiveBack
 end

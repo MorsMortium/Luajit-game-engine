@@ -25,7 +25,6 @@ return function(args)
     PortAudio.checkError(PortAudio.dll.Pa_OpenStream(Space.Stream, InputParameters, OutputParameters, 44100, 0, PortAudio.dll.paClipOff, nil, nil))
     PortAudio.checkError(PortAudio.dll.Pa_StartStream(Space.Stream[0]))
     --]]
-    io.write("Audio Started\n")
   end
   function GiveBack.Stop()
     --[[
@@ -33,7 +32,6 @@ return function(args)
      PortAudio.checkError(PortAudio.dll.Pa_CloseStream(Space.Stream[0]))
      PortAudio.checkError(PortAudio.dll.Pa_Terminate())
      --]]
-     io.write("Audio Stopped\n")
    end
    return GiveBack
 end

@@ -256,13 +256,11 @@ return function(args)
 				GiveBack.ObjectRenders[k] = nil
 			end
 		end
-		io.write("ObjectRender Started\n")
 	end
 	function GiveBack.Stop()
 		for ak, av in pairs(GiveBack.ObjectRenders) do
 			av.Space = nil
 		end
-		io.write("ObjectRender Stopped\n")
 	end
 	return GiveBack
 end

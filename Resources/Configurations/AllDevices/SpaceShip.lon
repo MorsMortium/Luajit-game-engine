@@ -54,7 +54,8 @@ return{
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = true,
-					["String"] = "local Devices, Device, Object = ... if Object.Powers[2].Active then io.write('Game Over\\n') end",
+					["String"] = [[ local Devices, Device, Object = ...
+					if Object.Powers[2].Active then io.write('Game Over\n') end ]],
 					["Type"] = "Command"
 				}, {
 					["Active"] = false,
