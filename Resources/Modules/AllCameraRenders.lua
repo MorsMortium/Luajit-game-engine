@@ -136,12 +136,10 @@ return function(args)
     Space.RendererSurface = SDL.createRGBSurface(0, 640, 480, 32, 0, 0, 0, 0)
     Space.Renderer = SDL.createSoftwareRenderer(Space.RendererSurface)
     Space.ViewProjectionMatrix = CTypes.Library.Types["float[?]"].Type(16)
-    io.write("AllCameras Started\n")
   end
   function GiveBack.Stop()
     SDL.destroyRenderer(Space.Renderer)
     SDL.freeSurface(Space.RendererSurface)
-    io.write("AllCameras Stopped\n")
   end
   return GiveBack
 end

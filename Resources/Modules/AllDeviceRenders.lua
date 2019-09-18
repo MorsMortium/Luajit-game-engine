@@ -23,10 +23,8 @@ return function(args)
       Space.NumberPerType[ak].RenderData = {}
       Space.NumberPerType[ak].Elements = av.MakeElements(AllDevices.Space.MaxNumberOfObjects, Space.GLuint)
     end
-    io.write("AllDeviceRenders Started\n")
   end
   function GiveBack.Stop()
-    io.write("AllDeviceRenders Stopped\n")
   end
 
   --Checks whether an Object is in the same visual layers as the Camera, if true

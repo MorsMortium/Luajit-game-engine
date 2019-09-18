@@ -44,7 +44,6 @@ return function(args)
 			Space.glew = false
 		end
 		OpenGL.glEnable(OpenGL.GL_DEPTH_TEST)
-		io.write("OpenglInit Started\n")
 	end
 
 	--Destroys the dummy window
@@ -59,7 +58,6 @@ return function(args)
 	function GiveBack.Stop()
 		GiveBack.DeleteDummyWindow()
 		SDL.GL_DeleteContext(Space.Context)
-		io.write("OpenglInit Stopped\n")
 	end
 	return GiveBack
 end

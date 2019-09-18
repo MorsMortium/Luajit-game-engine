@@ -15,24 +15,32 @@ return function(args)
 		Space.SDLData = Configurations
 
 		--Inits SDL
+		Space.SubSystems = {}
 		if SDL.init(0) ~= 0 then
-			error(ffi.sring(SDL.getError()))
+			error(ffi.string(SDL.getError()))
 		elseif General.Library.GoodTypesOfTable(Space.SDLData, "string") then
 			--Inits SDL subsystems, if none of them is specifies then it inits video
 			for ak=1,#Space.SDLData do
 				local av = Space.SDLData[ak]
-				SDL.initSubSystem(SDL[av])
+				if SDL[av] then
+					SDL.initSubSystem(SDL[av])
+					local Error = ffi.string(SDL.getError())
+					if Error ~= "" then
+						print(Error)
+					else
+						Space.SubSystems[av] = true
+					end
+				end
 			end
 		else
 			SDL.initSubSystem(SDL.INIT_VIDEO)
+			Space.SubSystems["INIT_VIDEO"] = true
 		end
-		io.write("SDLInit Started\n")
 	end
 
 	--Quits SDL
 	function GiveBack.Stop()
 		SDL.quit()
-		io.write("SDLInit Stopped\n")
 	end
 	return GiveBack
 end

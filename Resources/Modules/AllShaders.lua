@@ -53,7 +53,6 @@ return function(args)
 		--DefaultShader.Inputs[1] =
 		Space.Shaders[DefaultShader.Name] = Create(DefaultShader, ShaderGive)
 		--]]
-		io.write("AllShaders Started\n")
 	end
 
 	--Deletes every Shader
@@ -61,7 +60,6 @@ return function(args)
 		for ak=1,#Space.Shaders do
 			Destroy(Space.Shaders[ak].ShaderID)
 		end
-		io.write("AllShaders Stopped\n")
 	end
 	return GiveBack
 end

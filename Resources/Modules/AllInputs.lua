@@ -16,10 +16,8 @@ return function(args)
 	function GiveBack.Start(Configurations)
 		Space.Event = SDL_Event()
 		Space.Text = ""
-		io.write("AllInputs Started\n")
 	end
 	function GiveBack.Stop()
-		io.write("AllInputs Stopped\n")
 	end
 
 	--Takes inputs and runs commands if there is button for it

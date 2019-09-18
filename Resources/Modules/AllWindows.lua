@@ -30,7 +30,6 @@ return function(args)
 		end
 		OpenGLInit.Library.DeleteDummyWindow()
 		SDL.GL_SetSwapInterval(0)
-		io.write("AllWindows Started\n")
 	end
 
 	--Deletes every Window
@@ -40,7 +39,6 @@ return function(args)
 			SDL.destroyRenderer(SDL.getRenderer(av.WindowID))
 			Destroy(av)
 		end
-		io.write("AllWindows Stopped\n")
 	end
 
 	--Adds one Window

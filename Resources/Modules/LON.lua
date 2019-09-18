@@ -135,17 +135,17 @@ end
 --Handles, if it's not a table but another type, that has been passed
 local function FullString(Data)
   if type(Data) == "table" then
-    return "return" .. ToString(Data)
+    return "return" .. ToString(Data) .. "\n"
   elseif type(Data) == "function" then
-    return "return"
+    return "return\n"
   elseif type(Data) == "string" then
     if string.match(Data, "\n") then
-      return "return [[ " .. Data .. " ]]"
+      return "return [[ " .. Data .. " ]]\n"
     else
-      return "return \""..Data.."\""
+      return "return \""..Data.."\"\n"
     end
   else
-    return "return " .. tostring(Data)
+    return "return " .. tostring(Data) .. "\n"
   end
 end
 

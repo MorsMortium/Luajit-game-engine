@@ -1,5 +1,5 @@
 return function(args)
-  local General, Device, lgsl, AllDevices, ffi = args[1], args[2], args[3], args[4], args[5]
+  local Space, General, Device, lgsl, AllDevices, ffi = args[1], args[2], args[3], args[4], args[5], args[6]
   local SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
   VectorAddition, VectorScale, QuaternionMultiplication, Slerp,
   QuaternionInverse = General.Library.SameLayer, General.Library.VectorLength,
@@ -324,6 +324,18 @@ return function(args)
       {Command = Power.Command, Creator = Object})
     end
     Power.Active = false
+  end
+
+  --Checks whether every Power has all it's functions, if not, it deletes it
+	function GiveBack.Start(Configurations)
+		for ak,av in pairs(GiveBack.Powers) do
+			if type(av.DataCheck) ~= "function" or type(av.Use) ~= "function" then
+				GiveBack.Powers[ak] = nil
+			end
+		end
+	end
+
+  function GiveBack.Stop()
   end
   return GiveBack
 end

@@ -61,7 +61,6 @@ return function(args)
         GiveBack.Add(av)
       end
     end
-    io.write("AllCameras Started\n")
   end
 
   --Deletes every Camera
@@ -73,7 +72,6 @@ return function(args)
     for ak=1,#Space.SoftwareCameras do
       SDL.freeSurface(Space.SoftwareCameras[ak].Surface)
     end
-    io.write("AllCameras Stopped\n")
   end
 
   --Deletes one Camera

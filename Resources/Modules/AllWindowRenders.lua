@@ -10,10 +10,8 @@ return function(args)
 
 	function GiveBack.Start(Configurations)
 		Space.LastTime = 0
-		io.write("AllWindowRenders Started\n")
 	end
 	function GiveBack.Stop()
-		io.write("AllWindowRenders Stopped\n")
 	end
 
 	--Renders every Window
