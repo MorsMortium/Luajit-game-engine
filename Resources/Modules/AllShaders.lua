@@ -1,11 +1,15 @@
 return function(args)
-	local Space, Shader = args[1], args[2]
-	local Create, Destroy = Shader.Library.Create, Shader.Library.Destroy
+	local Space, Shader, Globals = args[1], args[2], args[3]
+	local Globals = Globals.Library.Globals
+	local Create, Destroy, type = Shader.Library.Create, Shader.Library.Destroy,
+	Globals.type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, Shader = args[1], args[2]
-		Create, Destroy = Shader.Library.Create, Shader.Library.Destroy
+		Space, Shader, Globals = args[1], args[2], args[3]
+		Globals = Globals.Library.Globals
+		Create, Destroy, type = Shader.Library.Create, Shader.Library.Destroy,
+		Globals.type
 	end
 
 	--Loads every Shader with Shader.lua
@@ -28,12 +32,12 @@ return function(args)
 		"./Resources/Shaders/DefaultOpenGLWindowFragmentShader.txt"
 		DefaultShader.ShaderType = "GL_FRAGMENT_SHADER"
 		--DefaultShader.Uniforms[1] =
-		Space.Shaders[DefaultShader.Name] = Create(DefaultShader, ShaderGive)
+		Space.Shaders[DefaultShader.Name] = Create(DefaultShader)
 		DefaultShader.Name = "DefaultObjectFragmentShader"
 		DefaultShader.String =
 		"./Resources/Shaders/DefaultObjectFragmentShader.txt"
 		DefaultShader.Uniforms[1] = "COLOR"
-		Space.Shaders[DefaultShader.Name] = Create(DefaultShader, ShaderGive)
+		Space.Shaders[DefaultShader.Name] = Create(DefaultShader)
 		DefaultShader.Name = "DefaultObjectVertexShader"
 		DefaultShader.String =
 		"./Resources/Shaders/DefaultObjectVertexShader.txt"
@@ -44,14 +48,14 @@ return function(args)
 		DefaultShader.Inputs = {}
 		DefaultShader.Inputs[1] = "Position"
 		DefaultShader.Uniforms[1] = "MVP"
-		Space.Shaders[DefaultShader.Name] = Create(DefaultShader, ShaderGive)
+		Space.Shaders[DefaultShader.Name] = Create(DefaultShader)
 		DefaultShader.Name = "DefaultOpenGLWindowVertexShader"
 		DefaultShader.String =
 		"./Resources/Shaders/DefaultOpenGLWindowVertexShader.txt"
 		DefaultShader.Inputs = nil
 		DefaultShader.Uniforms = nil
 		--DefaultShader.Inputs[1] =
-		Space.Shaders[DefaultShader.Name] = Create(DefaultShader, ShaderGive)
+		Space.Shaders[DefaultShader.Name] = Create(DefaultShader)
 		--]]
 	end
 

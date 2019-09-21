@@ -1,9 +1,13 @@
 return function(args)
-	local AllWindowRenders = args[1]
+	local AllWindowRenders, Globals = args[1], args[2]
+	local Globals = Globals.Library.Globals
+	local pcall, loadstring, write = Globals.pcall, Globals.loadstring, Globals.write
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		AllWindowRenders = args[1]
+		AllWindowRenders, Globals = args[1], args[2]
+		Globals = Globals.Library.Globals
+		pcall, loadstring, write = Globals.pcall, Globals.loadstring, Globals.write
   end
 
 	GiveBack.Inputs = {}
@@ -19,14 +23,14 @@ return function(args)
 	end
 	function GiveBack.Inputs.Down.Delete(AllInputsSpace)
 		AllInputsSpace.Text = ""
-		io.write("\n")
+		write("\n")
 	end
 	function GiveBack.Inputs.Down.P(AllInputsSpace)
-		io.write(AllWindowRenders.Space.FramesPerSecond, " FramesPerSecond\n")
+		write(AllWindowRenders.Space.FramesPerSecond, " FramesPerSecond\n")
 	end
 	function GiveBack.Inputs.Down.Backspace(AllInputsSpace)
 		AllInputsSpace.Text = AllInputsSpace.Text:sub(1, -2)
-		io.write(AllInputsSpace.Text, "\n")
+		write(AllInputsSpace.Text, "\n")
 	end
 	return GiveBack
 end

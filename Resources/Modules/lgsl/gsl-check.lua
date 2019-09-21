@@ -1,3 +1,4 @@
+local require = require
 
 local ffi = require("ffi")
 local gsl = require("lgsl.gsl")

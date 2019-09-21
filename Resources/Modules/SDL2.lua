@@ -1,6 +1,7 @@
 -- Do not change this file manually
 -- Generated with dev/create-init.lua
-local ffi = require("ffi")
+local require = require
+local ffi, pcall = require("ffi"), pcall
 local C = ffi.load('SDL2')
 local sdl = {C=C}
 

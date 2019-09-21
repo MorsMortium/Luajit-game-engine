@@ -19,6 +19,7 @@
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 --
 
+local require = require
 local lgsl = {
   matrix = require("lgsl.matrix"),
   complex = require("lgsl.complex"),

@@ -1,18 +1,24 @@
 return function(args)
-	local lgsl, ffi, CTypes = args[1], args[2], args[3]
-	local gsl, Types, ffi = lgsl.Library.gsl, CTypes.Library.Types, ffi.Library
+	local lgsl, ffi, CTypes, Globals = args[1], args[2], args[3], args[4]
+	local gsl, Types, ffi, Globals = lgsl.Library.gsl, CTypes.Library.Types,
+	ffi.Library, Globals.Library.Globals
+	local abs, acos, sin, cos, type, sqrt, min, max = Globals.abs, Globals.acos,
+	Globals.sin, Globals.cos, Globals.type, Globals.sqrt, Globals.min, Globals.max
+
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		lgsl, ffi, CTypes = args[1], args[2], args[3]
-		gsl, Types, ffi = lgsl.Library.gsl, CTypes.Library.Types, ffi.Library
+		lgsl, ffi, CTypes, Globals = args[1], args[2], args[3], args[4]
+		gsl, Types, ffi, Globals = lgsl.Library.gsl, CTypes.Library.Types,
+		ffi.Library, Globals.Library.Globals
+		abs, acos, sin, cos, type, sqrt, min, max = Globals.abs, Globals.acos,
+		Globals.sin, Globals.cos, Globals.type, Globals.sqrt, Globals.min, Globals.max
   end
 	--General functions used in various places
 	--Mostly vector functions
 	--TODO: Move vector stuff into different file, and use gsl where possible or
 	--Where it's faster
-	local abs, acos, sin, cos, type, sqrt, min, max =
-	math.abs, math.acos, math.sin, math.cos, type, math.sqrt, math.min, math.max
+
 
 	--Checks if a variable is a table, and all of it's values are of one type
 	function GiveBack.GoodTypesOfTable(Table, GoodType)
@@ -171,7 +177,7 @@ return function(args)
 	--Normalises a quaternion
 	function GiveBack.QuaternionNormalise(q)
 		local magnitude =
-		math.sqrt(GiveBack.QuaternionNormal(q))
+		sqrt(GiveBack.QuaternionNormal(q))
 		return {q[1] / magnitude, q[2] / magnitude, q[3] / magnitude, q[4] / magnitude}
 	end
 

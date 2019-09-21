@@ -1,13 +1,19 @@
 return function(args)
-	local OpenGL, OpenGLInit, ffi, CTypes = args[1], args[2], args[3], args[4]
-	local ffi, OpenGL, Types = ffi.Library, OpenGL.Library, CTypes.Library.Types
+	local OpenGL, OpenGLInit, ffi, CTypes, Globals = args[1], args[2], args[3],
+	args[4], args[5]
+	local Globals = Globals.Library.Globals
+	local ffi, OpenGL, Types, open, write = ffi.Library, OpenGL.Library,
+	CTypes.Library.Types, Globals.open, Globals.write
 	local char, GLint, int, constcharp = Types["char[?]"].Type,
 	Types["GLint[?]"].Type, Types["int[?]"].Type, Types["const char *[?]"].Type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		OpenGL, OpenGLInit, ffi, CTypes = args[1], args[2], args[3], args[4]
-		ffi, OpenGL, Types = ffi.Library, OpenGL.Library, CTypes.Library.Types
+		OpenGL, OpenGLInit, ffi, CTypes, Globals = args[1], args[2], args[3],
+		args[4], args[5]
+		Globals = Globals.Library.Globals
+		ffi, OpenGL, Types, open, write = ffi.Library, OpenGL.Library,
+		CTypes.Library.Types, Globals.open, Globals.write
 		char, GLint, int, constcharp = Types["char[?]"].Type,
 		Types["GLint[?]"].Type, Types["int[?]"].Type, Types["const char *[?]"].Type
   end
@@ -25,12 +31,12 @@ return function(args)
 		local ShaderCode = ""
 		if GotShader.IfPath then
 			--Read the Shader code from the file
-			local File = io.open(GotShader.String, "rb")
+			local File = open(GotShader.String, "rb")
 			if (File) then
 				ShaderCode = File:read("*all")
 				File:close()
 			else
-				io.write("File not found\n")
+				write("File not found\n")
 			end
 		else
 			--Read the Shader code from the string
@@ -45,7 +51,7 @@ return function(args)
 		local Result = GLint(1, OpenGL.GL_FALSE)
 		local InfoLogLength = int(1)
 
-		io.write("Compiling Shader: "..GotShader.Name, "\n")
+		write("Compiling Shader: "..GotShader.Name, "\n")
 
 		--Load source into OpenGL
 		local SourcePointer = constcharp(1, ShaderCodeC)
@@ -66,7 +72,7 @@ return function(args)
 			local ShaderErrorMessage = char(InfoLogLength[0] + 1)
 			OpenGL.glGetShaderInfoLog(Shader.ShaderID, InfoLogLength[0], nil,
 			ShaderErrorMessage)
-			io.write(ffi.string(ShaderErrorMessage), "\n")
+			write(ffi.string(ShaderErrorMessage), "\n")
 		end
 
 		--Set type of Shader

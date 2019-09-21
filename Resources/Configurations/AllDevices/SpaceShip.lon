@@ -54,8 +54,9 @@ return{
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = true,
-					["String"] = [[ local Devices, Device, Object = ...
-					if Object.Powers[2].Active then io.write('Game Over\n') end ]],
+					["String"] = [[
+					local Devices, Device, Object, Power, Time, Globals = ...
+					if Object.Powers[2].Active then Globals.write('Game Over\n') end ]],
 					["Type"] = "Command"
 				}, {
 					["Active"] = false,
@@ -91,7 +92,8 @@ return{
 					["Active"] = false,
 					["IfObject"] = true,
 					["Name"] = "Bullet",
-					["String"] = [[ local Created, Creator, General = ...
+					["String"] = [[
+					local Created, Creator, General, Globals = ...
 					local Center, Point, v = Creator.Translation, {Creator.Transformated.data[0],
 					Creator.Transformated.data[1], Creator.Transformated.data[2]}, Created.Objects[1]
 					v.LinearVelocity = General.Library.VectorSubtraction(Point, Center)
@@ -109,30 +111,32 @@ return{
 				}, {
 					["Active"] = false,
 					["Name"] = "Asteroid",
-					["String"] = [[ local Created, Creator, General = ...
+					["String"] = [[
+					local Created, Creator, General, Globals = ...
 					local Center, v = Creator.Translation, Created.Objects[1]
 					for i=1,3 do
-						if math.random(1, 2) == 1 then
-							v.Translation[i] = Center[i] + math.random(30, 50)
+						if Globals.random(1, 2) == 1 then
+							v.Translation[i] = Center[i] + Globals.random(30, 50)
 						else
-							v.Translation[i] = Creator.Translation[i] - math.random(30, 50)
+							v.Translation[i] = Creator.Translation[i] - Globals.random(30, 50)
 						end
 					end
 					local c1, c2 = Creator.Translation, v.Translation
 					local Move = General.Library.VectorSubtraction(c1, c2)
 					for i=1,3 do
 						v.LinearVelocity[i] = Move[i]/10000
-						v.AngularVelocity[i + 1] = math.random()/300
+						v.AngularVelocity[i + 1] = Globals.random()/300
 					end ]],
 					["Type"] = "Summon"
 				}, {
 					["Active"] = true,
-					["String"] = [[ local Devices, Device, Object, Power, Time = ...
+					["String"] = [[
+					local Devices, Device, Object, Power, Time, Globals = ...
 					if Power.SumTime then
 						Power.SumTime = Power.SumTime + Time
 						if Power.SumTime > 2000 then
 							Power.Niceness = Power.Niceness - 1
-							io.write('Niceness: ', Power.Niceness, '\n')
+							Globals.write('Niceness: ', Power.Niceness, '\n')
 							Power.SumTime = Power.SumTime - 2000
 						end
 					else
@@ -142,7 +146,8 @@ return{
 					["Type"] = "Command"
 				}, {
 					["Active"] = true,
-					["String"] = [[ local Devices, Device, Object, Power, Time = ...
+					["String"] = [[
+					local Devices, Device, Object, Power, Time, Globals = ...
 					if Power.SumTime then
 						Power.SumTime = Power.SumTime + Time
 						if Power.SumTime > Object.Powers[11].Niceness then
@@ -155,11 +160,12 @@ return{
 					["Type"] = "Command"
 				}, {
 					["Active"] = true,
-					["String"] = [[ local Devices, Device, Object, Power = ...
+					["String"] = [[
+					local Devices, Device, Object, Power, Time, Globals = ...
 					if Power.LastScore then
 						if Power.LastScore < Power.Score then
 							Power.LastScore = Power.Score
-							io.write('Score: ', Power.LastScore, '\n')
+							Globals.write('Score: ', Power.LastScore, '\n')
 						end
 					else
 						Power.LastScore = 0
@@ -168,7 +174,8 @@ return{
 					["Type"] = "Command"
 				}, {
 					["Active"] = false,
-					["String"] = [[ local Devices, Device, Object, Power = ...
+					["String"] = [[
+					local Devices, Device, Object, Power, Time, Globals = ...
 					if Power.Device and Power.Device.Name == 'Asteroid' then
 						Object.Powers[2].Active = true
 						Power.Active = false

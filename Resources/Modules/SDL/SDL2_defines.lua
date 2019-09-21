@@ -1,6 +1,7 @@
 -- Function definitions which were not output by
 -- the C preprocessor
 
+local bit = bit
 local sdl
 
 local function registerdefines(sdl)

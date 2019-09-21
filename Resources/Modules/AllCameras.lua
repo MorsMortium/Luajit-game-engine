@@ -1,13 +1,19 @@
 return function(args)
-  local Space, Camera, CTypes, OpenGL, SDL = args[1], args[2], args[3], args[4], args[5]
-  local OpenGL, SDL, Types = OpenGL.Library, SDL.Library, CTypes.Library.Types
-  local GLuint = Types["GLuint[?]"].Type
+  local Space, Camera, CTypes, OpenGL, SDL, Globals = args[1], args[2], args[3],
+  args[4], args[5], args[6]
+  local OpenGL, SDL, Types, Globals = OpenGL.Library, SDL.Library,
+  CTypes.Library.Types, Globals.Library.Globals
+  local GLuint, remove, type = Types["GLuint[?]"].Type, Globals.remove,
+  Globals.type
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Space, Camera, CTypes, OpenGL, SDL = args[1], args[2], args[3], args[4], args[5]
-    OpenGL, SDL, Types = OpenGL.Library, SDL.Library, CTypes.Library.Types
-    GLuint = Types["GLuint[?]"].Type
+    Space, Camera, CTypes, OpenGL, SDL, Globals = args[1], args[2], args[3],
+    args[4], args[5], args[6]
+    OpenGL, SDL, Types, Globals = OpenGL.Library, SDL.Library,
+    CTypes.Library.Types, Globals.Library.Globals
+    GLuint, remove, type = Types["GLuint[?]"].Type, Globals.remove,
+    Globals.type
   end
 
   --Adds one Camera to the Game
@@ -83,14 +89,14 @@ return function(args)
       end
       OpenGL.glDeleteRenderbuffers(1, Space.OpenGLCameras[Index].DBO)
       OpenGL.glDeleteTextures(1, Space.OpenGLCameras[Index].Texture)
-      table.remove(Space.OpenGLCameras, Index)
+      remove(Space.OpenGLCameras, Index)
     else
       local Index = #Space.SoftwareCameras
       if type(Number) == "number" and Number < Index then
         Index = Number
       end
       SDL.freeSurface(Space.SoftwareCameras[Index].Surface)
-      table.remove(Space.SoftwareCameras, Index)
+      remove(Space.SoftwareCameras, Index)
     end
   end
   return GiveBack

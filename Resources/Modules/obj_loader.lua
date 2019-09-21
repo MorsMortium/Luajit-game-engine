@@ -58,8 +58,9 @@ function loader.parse(object)
 		vp	= {}, -- Parameter space vertices - u, [v], [w]
 		f	= {}, -- Faces
 	}
-
-	for _, line in ipairs(object) do
+	
+	for _=1,#object do
+		local line = object[_]
 		local l = string_split(line, "%s+")
 
 		if l[1] == "v" then

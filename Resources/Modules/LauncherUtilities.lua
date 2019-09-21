@@ -1,5 +1,9 @@
 local GiveBack = {}
 
+local pairs, pcall, require, type, write, loadstring = pairs, pcall, require,
+type, io.write, loadstring
+local Order = {}
+
 local function RequCalc(MainTable, Table)
 	local Give = {}
   if Table.StartStopSpace then
@@ -105,7 +109,7 @@ local function CompareLists(List1, List2)
 		end
 	end
 end
-function GiveBack.StartAll(Data, Order, Modules)
+function GiveBack.StartAll(Data, Modules)
 	local Configurations = LoadConfigurations(Modules, Data.LON)
 	local Pending
 	local Change = true
@@ -156,12 +160,12 @@ function GiveBack.StartAll(Data, Order, Modules)
 							if av.StartStopSpace then
 								Data[av.Name].Library.Start(Configurations[av.Name])
 							end
-							io.write(av.Name, " Started\n")
+							write(av.Name, " Started\n")
 						else
 							Pending = true
 						end
 					else
-						io.write(LibraryOrError, "\n")
+						write(LibraryOrError, "\n")
 						Pending = true
 					end
 				else
@@ -174,14 +178,14 @@ function GiveBack.StartAll(Data, Order, Modules)
 end
 function GiveBack.PrintBadModules(Data)
 	local NotLoaded = {}
-	io.write("Error, not loaded Modules:\n")
+	write("Error, not loaded Modules:\n")
 	for ak, av in pairs(Data) do
 		if av.Started == nil then
 			NotLoaded[#NotLoaded + 1] = ak
-			io.write(ak, "\n")
+			write(ak, "\n")
 		end
 	end
-	io.write("Needed by:\n")
+	write("Needed by:\n")
 	for ak,av in pairs(Data) do
 		if not av.Started then
 			local Needs = false
@@ -193,18 +197,18 @@ function GiveBack.PrintBadModules(Data)
 				end
 			end
 			if Needs then
-				io.write(ak, "\n")
+				write(ak, "\n")
 			end
 		end
 	end
 end
 function GiveBack.PrintCauses(Data)
-	io.write("Caused by:\n")
+	write("Caused by:\n")
 	for ak,av in pairs(Data) do
 		if type(av.Library) == "table" and av.Requirements then
 			for bk,bv in pairs(av.Requirements) do
 				if Data[bv] == nil then
-					io.write("Missing module:", bv, "\n")
+					write("Missing module:", bv, "\n")
 				end
 			end
 		end
@@ -222,12 +226,12 @@ function GiveBack.PrintCauses(Data)
 		for bk=ak + 1,#FullDepPerModule do
 			local bv = FullDepPerModule[bk]
 			if CompareLists(av.FullDep, bv.FullDep) then
-				io.write("Cross dependency:", av.Name, " ", bv.Name, "\n")
+				write("Cross dependency:", av.Name, " ", bv.Name, "\n")
 			end
 		end
 	end
 end
-function GiveBack.StopAll(Data, Order)
+function GiveBack.StopAll(Data)
 	for ak=(#Order),1,-1 do
 		local av = Order[ak]
 		if type(Data[av]) == "table" and type(Data[av].Library) == "table" and
@@ -236,7 +240,7 @@ function GiveBack.StopAll(Data, Order)
 			Data[av].Space = nil
 		end
 		Data[av] = nil
-		io.write(av, " Stopped\n")
+		write(av, " Stopped\n")
 	end
 end
 function GiveBack.LoadLibrary(Name, Command, Data)

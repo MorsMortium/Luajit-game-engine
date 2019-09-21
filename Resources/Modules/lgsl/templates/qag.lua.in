@@ -1,17 +1,17 @@
 # -- qag.lua.in
-# -- 
+# --
 # -- Copyright (C) 2009-2011 Francesco Abbate
-# -- 
+# --
 # -- This program is free software; you can redistribute it and/or modify
 # -- it under the terms of the GNU General Public License as published by
 # -- the Free Software Foundation; either version 3 of the License, or (at
 # -- your option) any later version.
-# -- 
+# --
 # -- This program is distributed in the hope that it will be useful, but
 # -- WITHOUT ANY WARRANTY; without even the implied warranty of
 # -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # -- General Public License for more details.
-# -- 
+# --
 # -- You should have received a copy of the GNU General Public License
 # -- along with this program; if not, write to the Free Software
 # -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -27,6 +27,7 @@
 # GSL_DBL_MIN     = 2.2250738585072014e-308
 # GSL_DBL_MAX     = 1.7976931348623157e+308
 
+local math = math
 local abs, min, max, pow = math.abs, math.min, math.max, math.pow
 
 local ffi = require("ffi")
@@ -62,7 +63,7 @@ local function rescale_error (err, result_abs, result_asc)
       local min_err = 50 * 2.2204460492503e-16 * result_abs
       err = max(err, min_err)
    end
-   
+
    return err
 end
 
@@ -131,18 +132,18 @@ end
 local function qpsrt()
    local last = ws_size - 1
    local i_nrmax = ws_nrmax
-   local i_maxerr = ws_order[i_nrmax] 
-  
+   local i_maxerr = ws_order[i_nrmax]
+
    -- Check whether the list contains more than two error estimates
 
    if last < 2 then
-      ws_order[0] = 0 
-      ws_order[1] = 1 
-      ws_i = i_maxerr 
-      return 
+      ws_order[0] = 0
+      ws_order[1] = 1
+      ws_i = i_maxerr
+      return
    end
 
-   local errmax = ws_elist[i_maxerr] 
+   local errmax = ws_elist[i_maxerr]
 
    -- This part of the routine is only executed if, due to a difficult
    -- integrand, subdivision increased the error estimate. In the normal
@@ -150,49 +151,49 @@ local function qpsrt()
    -- error estimate.
 
    while i_nrmax > 0 and errmax > ws_elist[ws_order[i_nrmax - 1]] do
-      ws_order[i_nrmax] = ws_order[i_nrmax - 1] 
+      ws_order[i_nrmax] = ws_order[i_nrmax - 1]
       i_nrmax = i_nrmax - 1
    end
 
    -- Compute the number of elements in the list to be maintained in
    -- descending ws_order. This number depends on the number of
    -- subdivisions still allowed.
-  
+
    local top = last < $(limit/2 + 2) and last or $(limit) - last + 1
-  
+
    -- Insert errmax by traversing the list top-down, starting
    -- comparison from the element ws_elist(ws_order(i_nrmax+1)).
-  
-   local i = i_nrmax + 1 
-  
+
+   local i = i_nrmax + 1
+
    -- The ws_order of the tests in the following line is important to
    -- prevent a segmentation fault
 
    while i < top and errmax < ws_elist[ws_order[i]] do
-      ws_order[i-1] = ws_order[i] 
-      i = i+1 
+      ws_order[i-1] = ws_order[i]
+      i = i+1
    end
-  
-   ws_order[i-1] = i_maxerr 
-  
+
+   ws_order[i-1] = i_maxerr
+
    -- Insert errmin by traversing the list bottom-up
-  
-   local errmin = ws_elist[last] 
-  
-   local k = top - 1 
-  
+
+   local errmin = ws_elist[last]
+
+   local k = top - 1
+
    while k > i - 2 and errmin >= ws_elist[ws_order[k]] do
-      ws_order[k+1] = ws_order[k] 
-      k = k - 1 
+      ws_order[k+1] = ws_order[k]
+      k = k - 1
    end
-  
-   ws_order[k+1] = last 
+
+   ws_order[k+1] = last
 
    -- Set i_max and e_max
-   i_maxerr = ws_order[i_nrmax] 
-  
-   ws_i = i_maxerr 
-   ws_nrmax = i_nrmax 
+   i_maxerr = ws_order[i_nrmax]
+
+   ws_i = i_maxerr
+   ws_nrmax = i_nrmax
 end
 
 
@@ -204,13 +205,13 @@ local function update(a1, b1, area1, error1, a2, b2, area2, error2)
    local new_level = ws_level[i_max] + 1
 
    -- append the newly-created intervals to the list
-  
+
    if error2 > error1 then
       ws_alist[i_max] = a2         -- blist[maxerr] is already == b2
       ws_rlist[i_max] = area2
       ws_elist[i_max] = error2
       ws_level[i_max] = new_level
-      
+
       ws_alist[i_new] = a1
       ws_blist[i_new] = b1
       ws_rlist[i_new] = area1
@@ -221,14 +222,14 @@ local function update(a1, b1, area1, error1, a2, b2, area2, error2)
       ws_rlist[i_max] = area1
       ws_elist[i_max] = error1
       ws_level[i_max] = new_level
-      
+
       ws_alist[i_new] = a2
       ws_blist[i_new] = b2
       ws_rlist[i_new] = area2
       ws_elist[i_new] = error2
       ws_level[i_new] = new_level
    end
-  
+
    ws_size = ws_size + 1
 
    if new_level > ws_maximum_level then
@@ -273,7 +274,7 @@ local function qag (f, a, b, epsabs, epsrel, limit)
    initialise (a, b)
 
    if limit > $(limit) then
-      error "iteration limit exceeds available workspace" 
+      error "iteration limit exceeds available workspace"
    end
 
    if epsabs <= 0 and (epsrel < 50 * $(GSL_DBL_EPSILON) or epsrel < 0.5e-28) then

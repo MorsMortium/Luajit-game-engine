@@ -1,8 +1,7 @@
 
 local check = {}
 
-local floor = math.floor
-local type = type
+local floor, type = math.floor, type
 
 local function is_integer(x)
    if type(x) == 'number' then

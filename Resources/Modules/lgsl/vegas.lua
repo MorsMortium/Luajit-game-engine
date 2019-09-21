@@ -1,29 +1,30 @@
 -- vegas.lua
--- 
+--
 -- Create a function that can perform a VEGAS Monte Carlo multidimensional
 -- numerical integration.
 --
 -- Copyright (C) 2009-2015 Lesley De Cruz & Francesco Abbate
--- 
+--
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 3 of the License, or (at
 -- your option) any later version.
--- 
+--
 -- This program is distributed in the hope that it will be useful, but
 -- WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 -- General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+local require = require
 
 local ffi = require("ffi")
 local template = require("lgsl.template")
-
-local abs  = math.abs
+local type, math = type, math
+local abs, random = math.abs, math.random
 
 local default_spec = {
    K = 50, -- max bins: even integer, will be divided by two
@@ -50,7 +51,7 @@ local function getintegrator(state,template_spec)
   --   warmup number of calls for warmup phase (default 1e4)
   return function(f,a,b,calls,options)
     local r = options and options.r
-    local rget = r and (function() return r:get() end) or math.random
+    local rget = r and (function() return r:get() end) or random
     local chidev = options and options.chidev or 0.5
     local N = template_spec.N
     calls = calls or 1e4*N
@@ -76,7 +77,7 @@ local function getintegrator(state,template_spec)
         result_state.result,result_state.sigma = state.integrate(f,a_work,rget)
         result_state.nruns = result_state.nruns+1
       until abs(state.chisq() - 1) < chidev
-      return result_state 
+      return result_state
     end
     result_state.continue = cont
     cont(calls)
@@ -105,7 +106,7 @@ local function vegas_prepare(spec)
   local state = template.load('lgsl.templates.vegas-defs', template_spec)
   return getintegrator(state,template_spec)
 end
-  
+
 --- perform VEGAS Monte Carlo integration of f with default specs; determine N
 -- from bound vector.
 -- @param f function of an N-dimensional vector (/table/ffi-array...)

@@ -95,7 +95,7 @@ return function(args)
           Head = ActiveList[Head]
         elseif PossibleCollisions[Current] and PossibleCollisions[Current][BroadPhaseAxes[3][ak]] == 2 or
         PossibleCollisions[BroadPhaseAxes[3][ak]] and PossibleCollisions[BroadPhaseAxes[3][ak]][Current] == 2 then
-          --if there's a pair with a value of 2 it gives it to BroadCollisions in
+          --if there's a pair with a value of 2 it puts it in BroadCollisions in
           --BroadCollisions[#BroadCollisions + 1] = {ObjectA, ObjectB} style
           --TODO: Smaller if statement
           BroadCollisions[#BroadCollisions + 1] = {Current, BroadPhaseAxes[3][ak]}

@@ -19,14 +19,18 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+local require = require
 local ffi = require("ffi")
-local bit = require("bit")
+local bit = bit
 local band, rshift = bit.band, bit.rshift
 local gsl = require("lgsl.gsl")
 local algo = require("lgsl.sort")
 
-local sqrt, abs, floor = math.sqrt, math.abs, math.floor
+local math = math
+local sqrt, abs, floor, atan2, min = math.sqrt, math.abs, math.floor, math.atan2, math.min
 local format = string.format
+
+local type, concat = type, table.concat
 
 local check = require("lgsl.check")
 local is_integer, is_real = check.is_integer, check.is_real
@@ -238,7 +242,7 @@ end
 
 local function complex_arg(z)
     local x, y = cartesian(z)
-    return math.atan2(y, x)
+    return atan2(y, x)
 end
 
 local function itostr(im, eps, fmt, signed)
@@ -283,9 +287,10 @@ end
 local function concat_pad(t, pad)
    local sep = ' '
    local row
-   for i, s in ipairs(t) do
-      local x = string.rep(' ', pad - #s) .. s
-      row = row and (row .. sep .. x) or x
+   for i=1,#t do
+     s = t[i]
+     local x = string.rep(' ', pad - #s) .. s
+     row = row and (row .. sep .. x) or x
    end
    return row
 end
@@ -321,7 +326,7 @@ local function matrix_display_gen(sel)
                 ss[i+1] = '[ ' .. concat_pad(lsrow[i+1], lmax) .. ' ]'
              end
 
-             return table.concat(ss, '\n')
+             return concat(ss, '\n')
           end
 end
 
@@ -609,7 +614,7 @@ local complex = {
    norm  = complex_abs,
    norm2 = complex_norm2,
    rect  = cartesian,
-   i     = 1i,
+   i     = 1,
    arg   = complex_arg
 }
 
@@ -1090,12 +1095,14 @@ local gsl_inverse_trig_list = {
    'sinh', 'cosh', 'sech', 'csch', 'tanh', 'coth'
 }
 
-for _, name in ipairs(gsl_function_list) do
-   complex[name] = c_function_lookup(name)
+for _=1,#gsl_function_list do
+  local name = gsl_function_list[_]
+  complex[name] = c_function_lookup(name)
 end
 
-for _, name in ipairs(gsl_inverse_trig_list) do
-   complex['a' .. name] = c_invtrig_lookup(name)
+for _=1,#gsl_inverse_trig_list do
+  local name = gsl_inverse_trig_list[_]
+  complex['a' .. name] = c_invtrig_lookup(name)
 end
 
 complex.sqrt = csqrt
@@ -1311,7 +1318,7 @@ end
 function matrix.qr(m)
    local M,N = m.size1, m.size2
    local QR = matrix_copy(m)
-   local t = matrix_alloc(math.min(tonumber(M),tonumber(N)), 1)
+   local t = matrix_alloc(min(tonumber(M),tonumber(N)), 1)
    local tau = gsl.gsl_matrix_column(t, 0)
    gsl_check(gsl.gsl_linalg_QR_decomp(QR, tau))
    local Q = matrix_alloc(M, M)

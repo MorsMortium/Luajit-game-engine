@@ -1,4 +1,5 @@
 
+local math = math
 local abs, max, min = math.abs, math.max, math.min
 
 # order = 5
@@ -133,7 +134,7 @@ local function rkf45_evolve(s, f, t1)
 	 cblas.cblas_daxpy ($(N), h * $(c4), ws_k4, 1, ws_y, 1)
 	 cblas.cblas_daxpy ($(N), h * $(c5), ws_k5, 1, ws_y, 1)
 	 cblas.cblas_daxpy ($(N), h * $(c6), ws_k6, 1, ws_y, 1)
- 
+
 #        if not y_err_only then
             -- we use ws_k2 because it is no longer needed here
             f(t + h, ws_y, ws_k2)

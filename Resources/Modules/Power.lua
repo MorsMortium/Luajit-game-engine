@@ -1,23 +1,33 @@
 return function(args)
-  local Space, General, Device, lgsl, AllDevices, ffi = args[1], args[2], args[3], args[4], args[5], args[6]
+  local Space, General, Device, lgsl, AllDevices, ffi, Globals = args[1],
+  args[2], args[3], args[4], args[5], args[6], args[7]
+  local Globals = Globals.Library.Globals
   local SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
   VectorAddition, VectorScale, QuaternionMultiplication, Slerp,
-  QuaternionInverse = General.Library.SameLayer, General.Library.VectorLength,
+  QuaternionInverse, cos, sin, pcall, type, loadstring, pairs, write =
+  General.Library.SameLayer, General.Library.VectorLength,
   General.Library.VectorSubtraction, General.Library.Normalise,
   General.Library.VectorSign, General.Library.VectorAddition,
   General.Library.VectorScale, General.Library.QuaternionMultiplication,
-  General.Library.Slerp, General.Library.QuaternionInverse
+  General.Library.Slerp, General.Library.QuaternionInverse, Globals.cos,
+  Globals.sin, Globals.pcall, Globals.type, Globals.loadstring, Globals.pairs,
+  Globals.write
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    General, Device, lgsl, AllDevices, ffi = args[1], args[2], args[3], args[4], args[5]
+    Space, General, Device, lgsl, AllDevices, ffi, Globals = args[1],
+    args[2], args[3], args[4], args[5], args[6], args[7]
+    Globals = Globals.Library.Globals
     SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
     VectorAddition, VectorScale, QuaternionMultiplication, Slerp,
-    QuaternionInverse = General.Library.SameLayer, General.Library.VectorLength,
+    QuaternionInverse, cos, sin, pcall, type, loadstring, pairs, write =
+    General.Library.SameLayer, General.Library.VectorLength,
     General.Library.VectorSubtraction, General.Library.Normalise,
     General.Library.VectorSign, General.Library.VectorAddition,
     General.Library.VectorScale, General.Library.QuaternionMultiplication,
-    General.Library.Slerp, General.Library.QuaternionInverse
+    General.Library.Slerp, General.Library.QuaternionInverse, Globals.cos,
+    Globals.sin, Globals.pcall, Globals.type, Globals.loadstring, Globals.pairs,
+    Globals.write
   end
 
   --This script is responsible for mechanics that aren't derived from physics
@@ -26,10 +36,10 @@ return function(args)
   --Converts an axis-angle rotatiton into a quaternion rotatiton
   local function AxisAngleToQuaternion(Axis, Angle)
     return
-    {math.cos(Angle / 2),
-    Axis[1] * math.sin(Angle/2),
-    Axis[2] * math.sin(Angle/2),
-    Axis[3] * math.sin(Angle/2)}
+    {cos(Angle / 2),
+    Axis[1] * sin(Angle/2),
+    Axis[2] * sin(Angle/2),
+    Axis[3] * sin(Angle/2)}
   end
   GiveBack.Powers = {}
 
@@ -248,7 +258,7 @@ return function(args)
       Data.Command = DefaultCommand
     else
       Data.Command = loadstring(Power.String)
-      if not pcall(Data.Command, Devices, Device, Object, Power, Time) then
+      if not pcall(Data.Command, Devices, Device, Object, Power, Time, Globals) then
         Data.Command = DefaultCommand
       end
     end
@@ -259,7 +269,7 @@ return function(args)
     return Data
   end
   function Command.Use(Devices, Device, Object, Power, Time)
-    pcall(Power.Command, Devices, Device, Object, Power, Time)
+    pcall(Power.Command, Devices, Device, Object, Power, Time, Globals)
   end
 
   --Summon adds an object or device, then modifies it with it's command
@@ -274,7 +284,7 @@ return function(args)
       end
       av.Rotation[4] = Creator.Rotation[4]
     end
-    io.write("Bad modifier function\n")
+    write("Bad modifier function\n")
   end
 
   GiveBack.Powers.Summon = {}
@@ -294,7 +304,7 @@ return function(args)
       Data.Command = DefaultSummon
     else
       Data.Command = loadstring(Power.String)
-      if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], General) then
+      if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], General, Globals) then
         Data.Command = DefaultSummon
       end
     end

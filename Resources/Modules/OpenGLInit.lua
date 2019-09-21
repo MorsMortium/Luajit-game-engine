@@ -1,11 +1,17 @@
 return function(args)
-	local Space, SDL, SDLInit, OpenGL = args[1], args[2], args[3], args[4]
-	local SDL, OpenGL = SDL.Library, OpenGL.Library
+	local Space, SDL, SDLInit, OpenGL, Globals = args[1], args[2], args[3], args[4],
+	args[5]
+	local Globals = Globals.Library.Globals
+	local SDL, OpenGL, bor, type = SDL.Library, OpenGL.Library, Globals.bor,
+	Globals.type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, OpenGL = args[1], args[2], args[3], args[4]
-		SDL, OpenGL = SDL.Library, OpenGL.Library
+		Space, SDL, SDLInit, OpenGL, Globals = args[1], args[2], args[3], args[4],
+		args[5]
+		Globals = Globals.Library.Globals
+		SDL, OpenGL, bor, type = SDL.Library, OpenGL.Library, Globals.bor,
+		Globals.type
   end
 
 	--Inits the OpenGL system, and glew, if needed.
@@ -14,7 +20,7 @@ return function(args)
 	function GiveBack.Start(Configurations)
 		Space.OpenGLData = Configurations
 		Space.DummyWindow = SDL.createWindow("", SDL.WINDOWPOS_UNDEFINED,
-		SDL.WINDOWPOS_UNDEFINED, 64, 64, bit.bor(SDL.WINDOW_OPENGL, SDL.WINDOW_HIDDEN))
+		SDL.WINDOWPOS_UNDEFINED, 64, 64, bor(SDL.WINDOW_OPENGL, SDL.WINDOW_HIDDEN))
 		if type(Space.OpenGLData) == "table" then
 			if type(Space.OpenGLData.OpenGLVersion) == "table" and
 			type(Space.OpenGLData.OpenGLVersion.Minor) == "number" and

@@ -1,13 +1,15 @@
 return function(args)
-	local Power, AllDevices = args[1], args[2]
+	local Power, AllDevices, Globals = args[1], args[2], args[3]
+	local Globals = Globals.Library.Globals
 	local Powers, Devices, remove = Power.Library.Powers, AllDevices.Space.Devices,
-	table.remove
+	Globals.remove
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, Power, AllDevices = args[1], args[2], args[3]
+		Power, AllDevices, Globals = args[1], args[2], args[3]
+		Globals = Globals.Library.Globals
 		Powers, Devices, remove = Power.Library.Powers, AllDevices.Space.Devices,
-		table.remove
+		Globals.remove
 	end
 
 	--DataChecks every new Device's every Object, needed because Summon's AllDevices

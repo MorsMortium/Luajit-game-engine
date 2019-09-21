@@ -1,9 +1,17 @@
 return function(args)
-  local Space, ffi, OpenGL, SDL = args[1], args[2], args[3], args[4]
+  local Space, ffi, OpenGL, SDL, Globals = args[1], args[2], args[3], args[4],
+  args[5]
+  local Globals = Globals.Library.Globals
+  local pcall, type, pairs, write = Globals.pcall, Globals.type, Globals.pairs,
+  Globals.write
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Space, ffi, OpenGL, SDL = args[1], args[2], args[3], args[4]
+    Space, ffi, OpenGL, SDL, Globals = args[1], args[2], args[3], args[4],
+    args[5]
+    Globals = Globals.Library.Globals
+    pcall, type, pairs, write = Globals.pcall, Globals.type, Globals.pairs,
+    Globals.write
   end
 
   GiveBack.Types = {}
@@ -24,7 +32,7 @@ return function(args)
           end
           GiveBack.Types[av] = {Type = TypeOrError, Size = ffi.Library.sizeof(SizeString)}
         else
-          io.write(TypeOrError, "\n")
+          write(TypeOrError, "\n")
         end
       end
     end

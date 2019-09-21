@@ -1,11 +1,15 @@
 return function(args)
-	local Space, Program = args[1], args[2]
-	local Create, Destroy = Program.Library.Create, Program.Library.Destroy
+	local Space, Program, Globals = args[1], args[2], args[3]
+	local Globals = Globals.Library.Globals
+	local Create, Destroy, type = Program.Library.Create, Program.Library.Destroy,
+	Globals.type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, Program = args[1], args[2]
-		Create, Destroy = Program.Library.Create, Program.Library.Destroy
+		Space, Program, Globals = args[1], args[2], args[3]
+		Globals = Globals.Library.Globals
+		Create, Destroy, type = Program.Library.Create, Program.Library.Destroy,
+		Globals.type
 	end
 
 	--Creates every Program with Program.lua from shaders loaded by AllShaders.lua
@@ -24,12 +28,12 @@ return function(args)
 		DefaultProgram.Shaders =
 		{"DefaultOpenGLWindowVertexShader", "DefaultOpenGLWindowFragmentShader"}
 		Space.Programs[DefaultProgram.Name] =
-		Create(DefaultProgram, ProgramGive)
+		Create(DefaultProgram)
 		DefaultProgram.Name = "DefaultObjectProgram"
 		DefaultProgram.Shaders =
 		{"DefaultObjectVertexShader", "DefaultObjectFragmentShader"}
 		Space.Programs[DefaultProgram.Name] =
-		Create(DefaultProgram, ProgramGive)
+		Create(DefaultProgram)
 		--]]
 	end
 

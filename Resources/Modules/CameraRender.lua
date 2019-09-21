@@ -1,11 +1,17 @@
 return function(args)
-	local BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, AllDeviceRenders = args[1], args[2], args[3], args[4], args[5], args[6]
-	local SDL, OpenGL = SDL.Library, OpenGL.Library
+	local BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, AllDeviceRenders, Globals =
+	args[1], args[2], args[3], args[4], args[5], args[6], args[7]
+	local Globals = Globals.Library.Globals
+	local SDL, OpenGL, bor, type, pairs = SDL.Library, OpenGL.Library, Globals.bor,
+	Globals.type, Globals.pairs
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, AllDeviceRenders = args[1], args[2], args[3], args[4], args[5], args[6]
-		SDL, OpenGL = SDL.Library, OpenGL.Library
+		BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, AllDeviceRenders, Globals =
+		args[1], args[2], args[3], args[4], args[5], args[6], args[7]
+		Globals = Globals.Library.Globals
+		SDL, OpenGL, bor, type, pairs = SDL.Library, OpenGL.Library, Globals.bor,
+		Globals.type, Globals.pairs
   end
 
 	--Different Camera rendering scripts are stored here
@@ -32,9 +38,8 @@ return function(args)
 	Test.OpenGL = {}
 	function Test.OpenGL.Render(VBO, RDBO, CameraObject, MVP, Space)
 		OpenGL.glClearColor(0, 0, 0, 1)
-		OpenGL.glClear(bit.bor(OpenGL.GL_COLOR_BUFFER_BIT, OpenGL.GL_DEPTH_BUFFER_BIT))
-		AllDeviceRenders.Library.RenderAllDevices(VBO, RDBO, CameraObject, MVP,
-		AllDeviceRendersGive)
+		OpenGL.glClear(bor(OpenGL.GL_COLOR_BUFFER_BIT, OpenGL.GL_DEPTH_BUFFER_BIT))
+		AllDeviceRenders.Library.RenderAllDevices(VBO, RDBO, CameraObject, MVP)
 	end
 	Test.Software = {}
 	function Test.Software.Render(CameraObject, Renderer, Space)

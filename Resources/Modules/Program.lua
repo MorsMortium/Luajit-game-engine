@@ -1,15 +1,19 @@
 return function(args)
-	local AllShaders, OpenGL, ffi, CTypes = args[1], args[2], args[3], args[4]
-	local ffi, OpenGL, Shaders, Types = ffi.Library, OpenGL.Library,
-	AllShaders.Space.Shaders, CTypes.Library.Types
+	local AllShaders, OpenGL, ffi, CTypes, Globals = args[1], args[2], args[3],
+	args[4], args[5]
+	local Globals = Globals.Library.Globals
+	local ffi, OpenGL, Shaders, Types, type, write = ffi.Library, OpenGL.Library,
+	AllShaders.Space.Shaders, CTypes.Library.Types, Globals.type, Globals.write
 	local char, GLint, int = Types["char[?]"].Type, Types["GLint[?]"].Type,
 	Types["int[?]"].Type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		AllShaders, OpenGL, ffi, CTypes = args[1], args[2], args[3], args[4]
-		ffi, OpenGL, Shaders, Types = ffi.Library, OpenGL.Library,
-		AllShaders.Space.Shaders, CTypes.Library.Types
+		AllShaders, OpenGL, ffi, CTypes, Globals = args[1], args[2], args[3],
+		args[4], args[5]
+		Globals = Globals.Library.Globals
+		ffi, OpenGL, Shaders, Types, type, write = ffi.Library, OpenGL.Library,
+		AllShaders.Space.Shaders, CTypes.Library.Types, Globals.type, Globals.write
 		char, GLint, int = Types["char[?]"].Type, Types["GLint[?]"].Type,
 		Types["int[?]"].Type
   end
@@ -33,7 +37,7 @@ return function(args)
 		end
 
 		-- Link the Program
-		io.write("Linking Program: "..GotProgram.Name, "\n")
+		write("Linking Program: "..GotProgram.Name, "\n")
 		OpenGL.glLinkProgram(Program.ProgramID)
 
 		--Prepare error handling
@@ -50,7 +54,7 @@ return function(args)
 			local ProgramErrorMessage = char(InfoLogLength[0] + 1)
 			OpenGL.glGetProgramInfoLog(Program.ProgramID, InfoLogLength[0], nil,
 			ProgramErrorMessage)
-			io.write(ffi.string(ProgramErrorMessage), "\n")
+			write(ffi.string(ProgramErrorMessage), "\n")
 		end
 
 		--Detaching the shaders of the Program

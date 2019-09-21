@@ -1,11 +1,15 @@
 return function(args)
-	local General, CameraRender, lgsl = args[1], args[2], args[3]
-	local IsVector3, type, gsl = General.Library.IsVector3, type, lgsl.Library.gsl
+	local General, CameraRender, lgsl, Globals = args[1], args[2], args[3], args[4]
+	local Globals = Globals.Library.Globals
+	local IsVector3, type, gsl = General.Library.IsVector3, Globals.type,
+	lgsl.Library.gsl
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		General, CameraRender, lgsl = args[1], args[2], args[3]
-		IsVector3, type, gsl = General.Library.IsVector3, type, lgsl.Library.gsl
+		General, CameraRender, lgsl, Globals = args[1], args[2], args[3], args[4]
+		Globals = Globals.Library.Globals
+		IsVector3, type, gsl = General.Library.IsVector3, Globals.type,
+		lgsl.Library.gsl
   end
 
 	--Creates and returns one Camera

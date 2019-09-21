@@ -1,11 +1,17 @@
 return function(args)
-	local Space, OpenGLInit, SDL, SDLInit, Window = args[1], args[2], args[3], args[4], args[5]
-	local SDL, Create, Destroy = SDL.Library, Window.Library.Create, Window.Library.Destroy
+	local Space, OpenGLInit, SDL, SDLInit, Window, Globals = args[1], args[2],
+	args[3], args[4], args[5], args[6]
+	local Globals = Globals.Library.Globals
+	local SDL, Create, Destroy, remove, type = SDL.Library, Window.Library.Create,
+	Window.Library.Destroy, Globals.remove, Globals.type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, OpenGLInit, SDL, SDLInit, Window = args[1], args[2], args[3], args[4], args[5]
-		SDL, Create, Destroy = SDL.Library, Window.Library.Create, Window.Library.Destroy
+		Space, OpenGLInit, SDL, SDLInit, Window, Globals = args[1], args[2],
+		args[3], args[4], args[5], args[6]
+		Globals = Globals.Library.Globals
+		SDL, Create, Destroy, remove, type = SDL.Library, Window.Library.Create,
+		Window.Library.Destroy, Globals.remove, Globals.type
   end
 
 	--This script manages Windows
@@ -65,7 +71,7 @@ return function(args)
 		local av = Space.Windows[Index]
 		SDL.destroyRenderer(SDL.getRenderer(av.WindowID))
 		Destroy(av.WindowID)
-		table.remove(Space.Windows, Index)
+		remove(Space.Windows, Index)
 	end
 	return GiveBack
 end

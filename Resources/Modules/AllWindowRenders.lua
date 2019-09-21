@@ -1,10 +1,12 @@
 return function(args)
-	local Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1], args[2], args[3], args[4], args[5], args[6]
+	local Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1],
+	args[2], args[3], args[4], args[5], args[6]
 	local SDL, WindowRenders = SDL.Library, WindowRender.Library.WindowRenders
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1], args[2], args[3], args[4], args[5], args[6]
+		Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1],
+		args[2], args[3], args[4], args[5], args[6]
 		SDL, WindowRenders = SDL.Library, WindowRender.Library.WindowRenders
 	end
 
