@@ -1,15 +1,21 @@
 return function(args)
-	local Space, SDL, SDLInit, ffi, Window, AllWindows, AllDevices, Input, CTypes =
-	args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
-	local SDL, Inputs, Types = SDL.Library, Input.Library.Inputs, CTypes.Library.Types
-	local SDL_Event = Types["SDL_Event"].Type
+	local Space, SDL, SDLInit, ffi, Window, AllWindows, AllDevices, Input, CTypes,
+	Globals = args[1], args[2], args[3], args[4], args[5], args[6], args[7],
+	args[8], args[9], args[10]
+	local SDL, Inputs, Types, Globals = SDL.Library, Input.Library.Inputs,
+	CTypes.Library.Types, Globals.Library.Globals
+	local SDL_Event, pcall, remove, type, loadstring, write = Types["SDL_Event"].Type,
+	Globals.pcall, Globals.remove, Globals.type, Globals.loadstring, Globals.write
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, ffi, Window, AllWindows, AllDevices, Input, CTypes =
-		args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
-		SDL, Inputs, Types = SDL.Library, Input.Library.Inputs, CTypes.Library.Types
-		SDL_Event = Types["SDL_Event"].Type
+		Space, SDL, SDLInit, ffi, Window, AllWindows, AllDevices, Input, CTypes,
+		Globals = args[1], args[2], args[3], args[4], args[5], args[6], args[7],
+		args[8], args[9], args[10]
+		SDL, Inputs, Types, Globals = SDL.Library, Input.Library.Inputs,
+		CTypes.Library.Types, Globals.Library.Globals
+		SDL_Event, pcall, remove, type, loadstring, write = Types["SDL_Event"].Type,
+		Globals.pcall, Globals.remove, Globals.type, Globals.loadstring, Globals.write
 	end
 
 	--Sets up inputs based on button presses and releases
@@ -28,14 +34,14 @@ return function(args)
 				return true
 			elseif Space.Event.type == SDL.TEXTINPUT then
 				Space.Text = Space.Text .. ffi.Library.string(Space.Event.text.text)
-				io.write(Space.Text, "\n")
+				write(Space.Text, "\n")
 			elseif Space.Event.type == SDL.WINDOWEVENT then
 				if Space.Event.window.event == SDL.WINDOWEVENT_CLOSE then
 					local EventWindowID = Space.Event.window.windowID
 					for ak=1,#AllWindows.Space.Windows do
 						local av = AllWindows.Space.Windows[ak]
 						if av.WindowID == SDL.getWindowFromID(EventWindowID) then
-							table.remove(AllWindows.Space.Windows, ak)
+							remove(AllWindows.Space.Windows, ak)
 							Window.Library.Destroy(av)
 							break
 						end

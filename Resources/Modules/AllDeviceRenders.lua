@@ -1,13 +1,17 @@
 return function(args)
-  local Space, General, CTypes, ObjectRender, AllDevices = args[1], args[2], args[3], args[4], args[5]
-  local SameLayer, ConcatenateCArrays =
-  General.Library.SameLayer, General.Library.ConcatenateCArrays
+  local Space, General, CTypes, ObjectRender, AllDevices, Globals = args[1],
+  args[2], args[3], args[4], args[5], args[6]
+  local Globals = Globals.Library.Globals
+  local SameLayer, ConcatenateCArrays, pairs =
+  General.Library.SameLayer, General.Library.ConcatenateCArrays, Globals.pairs
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Space, General, CTypes, ObjectRender, AllDevices = args[1], args[2], args[3], args[4], args[5]
-    SameLayer, ConcatenateCArrays = General.Library.SameLayer,
-    General.Library.ConcatenateCArrays
+    Space, General, CTypes, ObjectRender, AllDevices, Globals = args[1],
+    args[2], args[3], args[4], args[5], args[6]
+    Globals = Globals.Library.Globals
+    SameLayer, ConcatenateCArrays, pairs =
+    General.Library.SameLayer, General.Library.ConcatenateCArrays, Globals.pairs
   end
 
   --Thist script is responsible for drawing every Device to a Camera

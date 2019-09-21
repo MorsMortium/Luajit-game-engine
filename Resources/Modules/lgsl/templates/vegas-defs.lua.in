@@ -29,6 +29,7 @@
 
 local ffi = require("ffi")
 
+local math = math
 local floor, min, max = math.floor, math.min, math.max
 local modf, sqrt, log  = math.modf, math.sqrt, math.log
 

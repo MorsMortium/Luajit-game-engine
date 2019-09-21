@@ -22,7 +22,7 @@ return{
 			["Name"] = "Camera",
 			["Path"] = "Camera",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"General", "CameraRender", "lgsl"}
+			["Requirements"] = {"General", "CameraRender", "lgsl", "Globals"}
 		}, {
 			["Name"] = "Main",
 			["Path"] = "Main",
@@ -32,7 +32,7 @@ return{
 			["Name"] = "General",
 			["Path"] = "General",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"lgsl", "ffi", "CTypes"}
+			["Requirements"] = {"lgsl", "ffi", "CTypes", "Globals"}
 		}, {
 			["Name"] = "SDL",
 			["Path"] = "SDL2",
@@ -52,61 +52,61 @@ return{
 			["Name"] = "OpenGLInit",
 			["Path"] = "OpenGLInit",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"SDL", "SDLInit", "OpenGL"}
+			["Requirements"] = {"SDL", "SDLInit", "OpenGL", "Globals"}
 		}, {
 			["Name"] = "Shader",
 			["Path"] = "Shader",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"OpenGL", "OpenGLInit", "ffi", "CTypes"}
+			["Requirements"] = {"OpenGL", "OpenGLInit", "ffi", "CTypes", "Globals"}
 		}, {
 			["Configuration"] = "AllShaders.lon",
 			["Name"] = "AllShaders",
 			["Path"] = "AllShaders",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"Shader"}
+			["Requirements"] = {"Shader", "Globals"}
 		}, {
 			["Name"] = "Program",
 			["Path"] = "Program",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"AllShaders", "OpenGL", "ffi", "CTypes"}
+			["Requirements"] = {"AllShaders", "OpenGL", "ffi", "CTypes", "Globals"}
 		}, {
 			["Configuration"] = "AllPrograms.lon",
 			["Name"] = "AllPrograms",
 			["Path"] = "AllPrograms",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"Program"}
+			["Requirements"] = {"Program", "Globals"}
 		}, {
 			["Name"] = "ObjectRender",
 			["Path"] = "ObjectRender",
 			["StartStopSpace"] = true,
 			["Requirements"] =
-			{"OpenGL", "OpenGLInit", "CTypes", "AllPrograms", "General", "SDL", "ffi"}
+			{"OpenGL", "OpenGLInit", "CTypes", "AllPrograms", "General", "SDL", "ffi", "Globals"}
 		}, {
 			["Name"] = "AllDeviceRenders",
 			["Path"] = "AllDeviceRenders",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"General", "CTypes", "ObjectRender", "AllDevices"}
+			["Requirements"] = {"General", "CTypes", "ObjectRender", "AllDevices", "Globals"}
 		}, {
 			["Name"] = "Object",
 			["Path"] = "Object",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"General", "ffi", "ObjectRender", "lgsl"}
+			["Requirements"] = {"General", "ffi", "ObjectRender", "lgsl", "Globals"}
 		}, {
 			["Name"] = "WindowRender",
 			["Path"] = "WindowRender",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllCameras"}
+			["Requirements"] = {"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllCameras", "Globals"}
 		}, {
 			["Name"] = "Window",
 			["Path"] = "Window",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"SDL", "SDLInit", "General", "CTypes", "WindowRender"}
+			["Requirements"] = {"SDL", "SDLInit", "General", "CTypes", "WindowRender", "Globals"}
 		}, {
 			["Configuration"] = "AllWindows.lon",
 			["Name"] = "AllWindows",
 			["Path"] = "AllWindows",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"OpenGLInit", "SDL", "SDLInit", "Window"}
+			["Requirements"] = {"OpenGLInit", "SDL", "SDLInit", "Window", "Globals"}
 		}, {
 			["Name"] = "AllWindowRenders",
 			["Path"] = "AllWindowRenders",
@@ -118,7 +118,7 @@ return{
 			["Path"] = "AllInputs",
 			["StartStopSpace"] = true,
 			["Requirements"] =
-			{"SDL", "SDLInit", "ffi", "Window", "AllWindows", "AllDevices", "Input", "CTypes"}
+			{"SDL", "SDLInit", "ffi", "Window", "AllWindows", "AllDevices", "Input", "CTypes", "Globals"}
 		}, {
 			["Name"] = "Physics",
 			["Path"] = "Physics",
@@ -130,28 +130,28 @@ return{
 			["Name"] = "AllCameras",
 			["Path"] = "AllCameras",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"Camera", "CTypes", "OpenGL", "SDL"}
+			["Requirements"] = {"Camera", "CTypes", "OpenGL", "SDL", "Globals"}
 		}, {
 			["Name"] = "Device",
 			["Path"] = "Device",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"Object", "General"}
+			["Requirements"] = {"Object", "General", "Globals"}
 		}, {
 			["Configuration"] = "AllDevices.lon",
 			["Name"] = "AllDevices",
 			["Path"] = "AllDevices",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"LON", "General", "Device", "Object"}
+			["Requirements"] = {"LON", "General", "Device", "Object", "Globals"}
 		}, {
 			["Name"] = "Power",
 			["Path"] = "Power",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"General", "Device", "lgsl", "AllDevices", "ffi"}
+			["Requirements"] = {"General", "Device", "lgsl", "AllDevices", "ffi", "Globals"}
 		}, {
 			["Name"] = "AllPowers",
 			["Path"] = "AllPowers",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"Power", "AllDevices"}
+			["Requirements"] = {"Power", "AllDevices", "Globals"}
 		}, {
 			["Name"] = "CollisionDetection",
 			["Path"] = "CollisionDetection",
@@ -171,29 +171,29 @@ return{
 			["Path"] = "CameraRender",
 			["StartStopSpace"] = true,
 			["Requirements"] =
-			{"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllDeviceRenders"}
+			{"SDL", "SDLInit", "OpenGL", "OpenGLInit", "AllDeviceRenders", "Globals"}
 		}, {
 			["Name"] = "Input",
 			["Path"] = "Input",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"AllWindowRenders"}
+			["Requirements"] = {"AllWindowRenders", "Globals"}
 		}, {
 			["Name"] = "AllCameraRenders",
 			["Path"] = "AllCameraRenders",
 			["StartStopSpace"] = true,
 			["Requirements"] =
-			{"OpenGL", "AllDevices", "lgsl", "General", "SDL", "CameraRender", "AllCameras", "CTypes"}
+			{"OpenGL", "AllDevices", "lgsl", "General", "SDL", "CameraRender", "AllCameras", "CTypes", "Globals"}
 		}, {
 			["Configuration"] = "CTypes.lon",
 			["Name"] = "CTypes",
 			["Path"] = "CTypes",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"ffi", "OpenGL", "SDL"}
+			["Requirements"] = {"ffi", "OpenGL", "SDL", "Globals"}
 		}, {
 			["Name"] = "UpdateAxes",
 			["Path"] = "UpdateAxes",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"AllDevices"}
+			["Requirements"] = {"AllDevices", "Globals"}
 		}, {
 			["Name"] = "SweepAndPrune",
 			["Path"] = "SweepAndPrune",
@@ -203,6 +203,11 @@ return{
 			["Name"] = "GJKEPA",
 			["Path"] = "GJKEPA",
 			["StartStopSpace"] = false,
-			["Requirements"] = {"General"}
+			["Requirements"] = {"General", "Globals"}
+		}, {
+			["Name"] = "Globals",
+			["Path"] = "Globals",
+			["StartStopSpace"] = true,
+			["Requirements"] = {}
 		}}
 }

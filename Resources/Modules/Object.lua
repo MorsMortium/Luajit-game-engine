@@ -1,16 +1,22 @@
 return function(args)
-	local General, ffi, ObjectRender, lgsl = args[1], args[2], args[3], args[4]
+	local General, ffi, ObjectRender, lgsl, Globals = args[1], args[2], args[3],
+	args[4], args[5]
+	local Globals = Globals.Library.Globals
 	local IsVector3, EulerToQuaternion, GoodTypesOfTable, UpdateObject, IsMatrix4,
-	ObjectRenders, gsl = General.Library.IsVector3, General.Library.EulerToQuaternion,
-	General.Library.GoodTypesOfTable, General.Library.UpdateObject,
-	General.Library.IsMatrix4, ObjectRender.Library.ObjectRenders, lgsl.Library.gsl
+	ObjectRenders, gsl, huge, type = General.Library.IsVector3,
+	General.Library.EulerToQuaternion, General.Library.GoodTypesOfTable,
+	General.Library.UpdateObject, General.Library.IsMatrix4,
+	ObjectRender.Library.ObjectRenders, lgsl.Library.gsl, Globals.huge, Globals.type
 	local GiveBack = {}
 	function GiveBack.Reload(args)
-		General, ffi, ObjectRender, lgsl = args[1], args[2], args[3], args[4]
+		General, ffi, ObjectRender, lgsl, Globals = args[1], args[2], args[3],
+		args[4], args[5]
+		Globals = Globals.Library.Globals
 		IsVector3, EulerToQuaternion, GoodTypesOfTable, UpdateObject, IsMatrix4,
-		ObjectRenders, gsl = General.Library.IsVector3, General.Library.EulerToQuaternion,
-		General.Library.GoodTypesOfTable, General.Library.UpdateObject,
-		General.Library.IsMatrix4, ObjectRender.Library.ObjectRenders, lgsl.Library.gsl
+		ObjectRenders, gsl, huge, type = General.Library.IsVector3,
+		General.Library.EulerToQuaternion, General.Library.GoodTypesOfTable,
+		General.Library.UpdateObject, General.Library.IsMatrix4,
+		ObjectRender.Library.ObjectRenders, lgsl.Library.gsl, Globals.huge, Globals.type
   end
 
 	--Creates and returns one Object. Objects are parts of a Device
@@ -170,7 +176,7 @@ return function(args)
 			end
 
 			if Object.Fixed then
-				Object.Mass = math.huge
+				Object.Mass = huge
 			elseif type(GotObject.Mass) == "number" then
 				Object.Mass = GotObject.Mass
 			end

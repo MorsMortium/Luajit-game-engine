@@ -1,22 +1,24 @@
 return function(args)
-  local General = args[1]
+  local General, Globals = args[1], args[2]
+  local Globals = Globals.Library.Globals
   local VectorSubtraction, DotProduct, VectorScale,
-  VectorAddition, CrossProduct, Normalise, VectorZero, VectorEqual =
+  VectorAddition, CrossProduct, Normalise, VectorZero, VectorEqual, write =
   General.Library.VectorSubtraction, General.Library.DotProduct,
   General.Library.VectorScale, General.Library.VectorAddition,
   General.Library.CrossProduct, General.Library.Normalise,
-  General.Library.VectorZero, General.Library.VectorEqual
+  General.Library.VectorZero, General.Library.VectorEqual, Globals.write
 
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    General = args[1]
+    General, Globals = args[1], args[2]
+    Globals = Globals.Library.Globals
     VectorSubtraction, DotProduct, VectorScale,
-    VectorAddition, CrossProduct, Normalise, VectorZero, VectorEqual =
+    VectorAddition, CrossProduct, Normalise, VectorZero, VectorEqual, write =
     General.Library.VectorSubtraction, General.Library.DotProduct,
     General.Library.VectorScale, General.Library.VectorAddition,
     General.Library.CrossProduct, General.Library.Normalise,
-    General.Library.VectorZero, General.Library.VectorEqual
+    General.Library.VectorZero, General.Library.VectorEqual, Globals.write
   end
 
   local function VectorCopy(c, o)
@@ -280,7 +282,7 @@ return function(args)
         end
       end
     end --End for iterations
-    io.write("EPA did not converge\n")
+    write("EPA did not converge\n")
     --Return most recent closest point
     local contactdata = ExtrapolateContactInformation(faces[closest_face])
     return VectorScale(faces[closest_face][3], DotProduct(faces[closest_face][1], faces[closest_face][3])), contactdata[1], contactdata[2], contactdata[3], true

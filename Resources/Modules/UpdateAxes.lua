@@ -1,9 +1,13 @@
 return function(args)
-  local AllDevices = args[1]
+  local AllDevices, Globals = args[1], args[2]
+  local Globals = Globals.Library.Globals
+  local floor, insert = Globals.floor, Globals.insert
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    AllDevices = args[1]
+    AllDevices, Globals = args[1], args[2]
+    Globals = Globals.Library.Globals
+    floor, insert = Globals.floor, Globals.insert
   end
 
   --Sorting functions for sweep and prune broad phase collision detection
@@ -77,7 +81,7 @@ return function(args)
     end
     local MinKey, MaxKey, CheckKey = 1, #Table
     while true do
-      CheckKey = math.floor((MaxKey+MinKey)/2)
+      CheckKey = floor((MaxKey+MinKey)/2)
       local CompareValue = Command(Table[CheckKey], Value)
       if CompareValue == 0 then
         return CheckKey
@@ -96,7 +100,7 @@ return function(args)
   end
 
   local function BinaryInsert(Table, Value, Command)
-    table.insert(Table, Binary(Table, Value, Command), Value)
+    insert(Table, Binary(Table, Value, Command), Value)
   end
 
   --Updates lists of objects

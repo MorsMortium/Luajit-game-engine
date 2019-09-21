@@ -3,10 +3,13 @@ local GiveBack = {}
 --Path variable
 local Path = "./"
 
+local type, tostring, pairs, pcall, open, write, loadstring, sort = type,
+tostring, pairs, pcall, io.open, io.write, loadstring, table.sort
+
 --Loads a file, returns its content or nil, in case of error
 local function ReadFile(Name)
   local Content = ""
-  local File = io.open(Path .. tostring(Name), "r" )
+  local File = open(Path .. tostring(Name), "r" )
   if (File) then
     Content = File:read("*a")
     File:close()
@@ -49,16 +52,16 @@ function GiveBack.DecodeFromFile(Name)
           return DataOrError
         end
       else
-        io.write("LON error in file: ", Path .. tostring(Name), "\n")
-        io.write(DataOrError, "\n")
+        write("LON error in file: ", Path .. tostring(Name), "\n")
+        write(DataOrError, "\n")
       end
     else
-      io.write("LON error in file: ", Path .. tostring(Name), "\n")
-      io.write("Return statement not first\n")
+      write("LON error in file: ", Path .. tostring(Name), "\n")
+      write("Return statement not first\n")
     end
   else
-    io.write("LON error in file: ", Path .. tostring(Name), "\n")
-    io.write("File not found\n")
+    write("LON error in file: ", Path .. tostring(Name), "\n")
+    write("File not found\n")
   end
 end
 
@@ -85,7 +88,7 @@ local function ToString(Table, Tab)
   --populate the table that holds the keys
   for ak in pairs(Table) do Keys[#Keys + 1] = ak end
   --sort the keys
-  table.sort(Keys, KeySort)
+  sort(Keys, KeySort)
   for ak, av in pairs(Table) do
     if type(ak) == "string" then
       NumKeysOnly = false
@@ -93,7 +96,8 @@ local function ToString(Table, Tab)
     end
   end
   --use the keys to retrieve the values in the sorted order
-  for _,ak in ipairs(Keys) do
+  for _=1,#Keys do
+    local ak = Keys[_]
     local av = Table[ak]
     if type(av) ~= "function" then
       if not NumKeysOnly then Result = Result .. string.rep("\t", Tabs) end
@@ -151,7 +155,7 @@ end
 
 --Saves string into file
 local function SaveFile(Name, String)
-  local File = io.open(Path .. tostring(Name), "w" )
+  local File = open(Path .. tostring(Name), "w" )
   if File then
     File:write(String)
     File:close()
@@ -164,8 +168,8 @@ end
 function GiveBack.EncodeToFile(Name, Data)
   local String = FullString(Data)
   if not SaveFile(Name, String) then
-    io.write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
-    io.write("Access denied\n")
+    write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+    write("Access denied\n")
   end
 end
 

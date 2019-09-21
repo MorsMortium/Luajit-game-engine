@@ -1,33 +1,37 @@
 return function(args)
-  local Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender, AllCameras, CTypes =
-  args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
+  local Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender, AllCameras,
+  CTypes, Globals = args[1], args[2], args[3], args[4], args[5], args[6],
+  args[7], args[8], args[9], args[10]
+  local Globals = Globals.Library.Globals
   local DotProduct, CrossProduct, Normalise, VectorSubtraction, VectorLength,
-  VectorAddition, VectorScale, gsl, OpenGL, SDL, VectorEqual =
+  VectorAddition, VectorScale, gsl, OpenGL, SDL, VectorEqual, pi, tan =
   General.Library.DotProduct, General.Library.CrossProduct,
   General.Library.Normalise, General.Library.VectorSubtraction,
   General.Library.VectorLength, General.Library.VectorAddition,
   General.Library.VectorScale, lgsl.Library.gsl, OpenGL.Library, SDL.Library,
-  General.Library.VectorEqual
+  General.Library.VectorEqual, Globals.pi, Globals.tan
 
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender, AllCameras, CTypes =
-    args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
+    Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender, AllCameras,
+    CTypes, Globals = args[1], args[2], args[3], args[4], args[5], args[6],
+    args[7], args[8], args[9], args[10]
+    Globals = Globals.Library.Globals
     DotProduct, CrossProduct, Normalise, VectorSubtraction, VectorLength,
-    VectorAddition, VectorScale, gsl, OpenGL, SDL, VectorEqual =
+    VectorAddition, VectorScale, gsl, OpenGL, SDL, VectorEqual, pi, tan =
     General.Library.DotProduct, General.Library.CrossProduct,
     General.Library.Normalise, General.Library.VectorSubtraction,
     General.Library.VectorLength, General.Library.VectorAddition,
     General.Library.VectorScale, lgsl.Library.gsl, OpenGL.Library, SDL.Library,
-    General.Library.VectorEqual
+    General.Library.VectorEqual, Globals.pi, Globals.tan
   end
 
   --Creates a Camera's projection matrix
   --TODO:Better place for the matrix and update stuff
   local function ProjectionMatrix(FieldOfView, Aspect, MinimumDistance, MaximumDistance, ProjectionMatrix)
-    local D2R = math.pi / 180
-    local YScale = 1 / math.tan(D2R * FieldOfView / 2)
+    local D2R = pi / 180
+    local YScale = 1 / tan(D2R * FieldOfView / 2)
     local XScale = YScale / Aspect
     local MDMMD = MinimumDistance - MaximumDistance
     local m = ProjectionMatrix.data
@@ -56,19 +60,20 @@ return function(args)
     AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject] then
       local FollowObject =
       AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject]
-
-      local Translationv = {FollowObject.Points.data[(av.FollowPoint-1) * 4],
-                            FollowObject.Points.data[(av.FollowPoint-1) * 4 + 1],
-                            FollowObject.Points.data[(av.FollowPoint-1) * 4 + 2]}
+      local Points = FollowObject.Points.data
+      local Translationv = {Points[(av.FollowPoint-1) * 4],
+                            Points[(av.FollowPoint-1) * 4 + 1],
+                            Points[(av.FollowPoint-1) * 4 + 2]}
       local Length = av.FollowDistance/VectorLength(Translationv)
       local Center = FollowObject.Translation
-      local PointUp = {FollowObject.Transformated.data[(av.FollowPointUp-1) * 4],
-                      FollowObject.Transformated.data[(av.FollowPointUp-1) * 4 + 1],
-                      FollowObject.Transformated.data[(av.FollowPointUp-1) * 4 + 2]}
+      local Transformated = FollowObject.Transformated.data
+      local PointUp = {Transformated[(av.FollowPointUp-1) * 4],
+                      Transformated[(av.FollowPointUp-1) * 4 + 1],
+                      Transformated[(av.FollowPointUp-1) * 4 + 2]}
 
-      local NewDirection = {FollowObject.Transformated.data[(av.FollowPoint-1) * 4],
-                            FollowObject.Transformated.data[(av.FollowPoint-1) * 4 + 1],
-                            FollowObject.Transformated.data[(av.FollowPoint-1) * 4 + 2]}
+      local NewDirection = {Transformated[(av.FollowPoint-1) * 4],
+                            Transformated[(av.FollowPoint-1) * 4 + 1],
+                            Transformated[(av.FollowPoint-1) * 4 + 2]}
       if not VectorEqual(av.Direction, NewDirection) then
         av.Direction = NewDirection
         av.ViewMatrixCalc = true

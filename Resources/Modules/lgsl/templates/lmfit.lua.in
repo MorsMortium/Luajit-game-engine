@@ -1,4 +1,6 @@
 
+local require = require
+local math = math
 local abs, min, max, sqrt = math.abs, math.min, math.max, math.sqrt
 local matrix = require("lgsl.matrix")
 local ffi = require("ffi")
@@ -50,7 +52,7 @@ local function compute_actual_reduction (fnorm, fnorm1)
    else
       actred = -1
    end
-   
+
    return actred
 end
 
@@ -127,7 +129,7 @@ end
 -- This function computes the solution to the least squares system
 
 -- phi = [ A x =  b , lambda D x = 0 ]^2
---  
+--
 -- where A is an M by N matrix, D is an N by N diagonal matrix, lambda
 -- is a scalar parameter and b is a vector of length M.
 
@@ -145,7 +147,7 @@ end
 -- P^T (A^T A + lambda^2 D^T D) P = S^T S
 
 -- Parameters,
--- 
+--
 -- r: On input, contains the full upper triangle of R. On output the
 -- strict lower triangle contains the transpose of the strict upper
 -- triangle of S, and the diagonal of S is stored in sdiag.  The full
@@ -228,22 +230,22 @@ local function qrsolv(r, p, lambda, diag, qtb, x, sdiag, wa)
 	       do
 		  local new_rkk = cosine * rkk + sine * sdiagk
 		  local new_wak = cosine * wak + sine * qtbpj
-            
+
 		  qtbpj = -sine * wak + cosine * qtbpj
 
 		  gsl.gsl_matrix_set(r, k, k, new_rkk)
 		  gsl.gsl_vector_set(wa, k, new_wak)
 	       end
-	       
-	       -- Accumulate the transformation in the row of s 
+
+	       -- Accumulate the transformation in the row of s
 
 	       for i = k + 1, n-1 do
 		  local rik = gsl.gsl_matrix_get (r, i, k)
 		  local sdiagi = gsl.gsl_vector_get (sdiag, i)
-              
+
 		  local new_rik = cosine * rik + sine * sdiagi
 		  local new_sdiagi = -sine * rik + cosine * sdiagi
-              
+
 		  gsl.gsl_matrix_set(r, i, k, new_rik)
 		  gsl.gsl_vector_set(sdiag, i, new_sdiagi)
 	       end
@@ -252,11 +254,11 @@ local function qrsolv(r, p, lambda, diag, qtb, x, sdiag, wa)
 
 	 -- Store the corresponding diagonal element of s and restore the
          -- corresponding diagonal element of r
-	 
+
 	 do
 	    local rjj = gsl.gsl_matrix_get (r, j, j)
 	    local xj = gsl.gsl_vector_get(x, j)
-        
+
 	    gsl.gsl_vector_set (sdiag, j, rjj)
 	    gsl.gsl_matrix_set (r, j, j, xj)
 	 end
@@ -317,12 +319,12 @@ local function count_nsing (r)
 
    local n = tonumber(r.size2)
    local j = n
-   
+
    for i = 0, n-1 do
       local rii = gsl.gsl_matrix_get (r, i, i)
-      if rii == 0 then 
+      if rii == 0 then
 	 j = i
-	 break 
+	 break
       end
    end
 
@@ -350,9 +352,9 @@ local function compute_newton_direction (r, perm, qtf, x)
      for j = nsing-1, 0, -1 do
 	local rjj = gsl.gsl_matrix_get (r, j, j)
 	local temp = gsl.gsl_vector_get (x, j) / rjj
-          
+
 	gsl.gsl_vector_set (x, j, temp)
-          
+
 	for i = 0, j-1 do
 	   local rij = gsl.gsl_matrix_get (r, i, j)
 	   local xi = gsl.gsl_vector_get (x, i)
@@ -477,8 +479,8 @@ local function lmpar (r, perm, qtf, diag, delta, par, newton, gradient, sdiag, x
       local wnorm = gsl.gsl_blas_dnrm2 (w)
       local phider = wnorm * wnorm
 
-      -- w == zero if r rank-deficient, 
-      -- then set lower bound to zero form MINPACK, lmder.f 
+      -- w == zero if r rank-deficient,
+      -- then set lower bound to zero form MINPACK, lmder.f
       -- Hans E. Plesser 2002-02-25 (hans.plesser@itf.nlh.no) */
       par_lower = (wnorm > 0 and fp / (delta * phider) or 0)
    end
@@ -660,7 +662,7 @@ local function lm_set (fdf, x, f, J, dx, scale)
 
   -- Factorize J into QR decomposition
 
-  gsl.gsl_matrix_memcpy (r, J) 
+  gsl.gsl_matrix_memcpy (r, J)
   gsl.gsl_linalg_QRPT_decomp (r, tau, perm, signum_result, work1)
 
   gsl.gsl_vector_set_zero (rptdx)
@@ -693,13 +695,13 @@ local function lm_iterate(fdf, x, f, J, dx, scale)
       gnorm = abs(gsl.gsl_vector_get (gradient, iamax) / fnorm)
    end
 
-  -- Determine the Levenberg-Marquardt parameter 
+  -- Determine the Levenberg-Marquardt parameter
 
    for iter = 1, 10 do
       par = lmpar (r, perm, qtf, diag, delta, par, newton, gradient, sdiag, dx, w)
-      -- Take a trial step 
+      -- Take a trial step
 
-      gsl.gsl_vector_scale (dx, -1) -- reverse the step to go downhill 
+      gsl.gsl_vector_scale (dx, -1) -- reverse the step to go downhill
 
       compute_trial_step (x, dx, x_trial)
 
@@ -709,37 +711,37 @@ local function lm_iterate(fdf, x, f, J, dx, scale)
 	 delta = min(delta, pnorm)
       end
 
-      -- Evaluate function at x + p 
-      -- return immediately if evaluation raised error 
+      -- Evaluate function at x + p
+      -- return immediately if evaluation raised error
       call_f (fdf, x_trial, f_trial)
 
       fnorm1 = gsl.gsl_blas_dnrm2 (f_trial)
 
-      -- Compute the scaled actual reduction 
+      -- Compute the scaled actual reduction
 
       actred = compute_actual_reduction (fnorm, fnorm1)
 
-      -- Compute rptdx = R P^T dx, noting that |J dx| = |R P^T dx| 
+      -- Compute rptdx = R P^T dx, noting that |J dx| = |R P^T dx|
 
       compute_rptdx (r, perm, dx, rptdx)
 
       fnorm1p = gsl.gsl_blas_dnrm2 (rptdx)
 
-      -- Compute the scaled predicted reduction = |J dx|^2 + 2 par |D dx|^2 
+      -- Compute the scaled predicted reduction = |J dx|^2 + 2 par |D dx|^2
 
       do
 	 local t1 = fnorm1p / fnorm
 	 local t2 = (sqrt(par) * pnorm) / fnorm
-    
+
 	 prered = t1 * t1 + t2 * t2 / $(p5)
 	 dirder = -(t1 * t1 + t2 * t2)
       end
 
-      -- compute the ratio of the actual to predicted reduction 
+      -- compute the ratio of the actual to predicted reduction
 
       ratio = (prered > 0 and actred / prered or 0)
 
-      -- update the step bound 
+      -- update the step bound
 
       if ratio > $(p25) then
 	 if par == 0 or ratio >= $(p75) then
@@ -754,17 +756,17 @@ local function lm_iterate(fdf, x, f, J, dx, scale)
 	 end
 
 	 delta = temp * min (delta, pnorm/$(p1))
-	 
+
 	 par = par / temp
       end
 
-      -- test for successful iteration, termination and stringent tolerances 
+      -- test for successful iteration, termination and stringent tolerances
 
       if ratio >= $(p0001) then
 	 gsl.gsl_vector_memcpy (x, x_trial)
 	 gsl.gsl_vector_memcpy (f, f_trial)
 
-	 -- return immediately if evaluation raised error 
+	 -- return immediately if evaluation raised error
 	 call_df (fdf, x_trial, J)
 
 	 -- wa2_j  = diag_j * x_j
@@ -772,7 +774,7 @@ local function lm_iterate(fdf, x, f, J, dx, scale)
 	 fnorm = fnorm1
 	 state_iter = state_iter + 1
 
-	 -- Rescale if necessary 
+	 -- Rescale if necessary
 
 	 if scale then
 	    update_diag (J, diag)

@@ -1,21 +1,21 @@
 # --  qng.lua.in
-# --  
+# --
 # --  Copyright (C) 2009-2011 Francesco Abbate
-# --  
+# --
 # --  This program is free software; you can redistribute it and/or modify
 # --  it under the terms of the GNU General Public License as published by
 # --  the Free Software Foundation; either version 3 of the License, or (at
 # --  your option) any later version.
-# --  
+# --
 # --  This program is distributed in the hope that it will be useful, but
 # --  WITHOUT ANY WARRANTY; without even the implied warranty of
 # --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # --  General Public License for more details.
-# --  
+# --
 # --  You should have received a copy of the GNU General Public License
 # --  along with this program; if not, write to the Free Software
 # --  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-# -- 
+# --
 
 # function vlist(var, n)
 #  local res = {}
@@ -66,6 +66,7 @@
 
 local ffi = require "ffi"
 
+local math = math
 local abs, min, max, pow = math.abs, math.min, math.max, math.pow
 
 ffi.cdef[[
@@ -90,7 +91,7 @@ local function rescale_error (err, result_abs, result_asc)
       local min_err = 50 * 2.2204460492503e-16 * result_abs
       err = max(err, min_err)
    end
-   
+
    return err
 end
 
@@ -106,12 +107,12 @@ local function qng(f, a, b, epsabs, epsrel)
    if epsabs <= 0 and (epsrel < 50 * $(GSL_DBL_EPSILON) or epsrel < 0.5e-28) then
       error "tolerance cannot be acheived with given epsabs and epsrel"
    end
-   
+
    -- Compute the integral using the 10- and 21-point formula.
 
    local res10, res21 = 0, $(w21b[6]) * f_center
    -- approximation to the integral of abs(f)
-   local resabs = $(w21b[6]) * abs(f_center) 
+   local resabs = $(w21b[6]) * abs(f_center)
 
    do
       local abscissa, fval1, fval2, fval
@@ -144,22 +145,22 @@ local function qng(f, a, b, epsabs, epsrel)
 #     end
    end
 
-   resabs = resabs * abs_half_length 
+   resabs = resabs * abs_half_length
 
-   do 
+   do
       local mean = 0.5 * res21
-  
+
       resasc = $(w21b[6]) * abs(f_center - mean)
-    
+
 #     for k=1, 5 do
          resasc = resasc + ($(w21a[k]) * (abs(ws.fv1[$(k-1)] - mean) + abs(ws.fv2[$(k-1)] - mean)) + $(w21b[k]) * (abs(ws.fv3[$(k-1)] - mean) + abs(ws.fv4[$(k-1)] - mean)))
 #     end
-      resasc = resasc * abs_half_length 
+      resasc = resasc * abs_half_length
    end
 
    result_kronrod = res21 * half_length
 
-   err = rescale_error ((res21 - res10) * half_length, resabs, resasc) 
+   err = rescale_error ((res21 - res10) * half_length, resabs, resasc)
 
    --   test for convergence.
 
@@ -212,10 +213,10 @@ local function qng(f, a, b, epsabs, epsrel)
 
    --  test for convergence
 
-   result_kronrod = res87 * half_length 
-  
+   result_kronrod = res87 * half_length
+
    err = rescale_error ((res87 - res43) * half_length, resabs, resasc)
-  
+
    if err < epsabs or err < epsrel * abs(result_kronrod) then
       return result_kronrod, err
    end

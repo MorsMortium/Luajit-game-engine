@@ -1,18 +1,18 @@
 
 # -- rkf45.lua.in
-# -- 
+# --
 # -- Copyright (C) 2009-2011 Francesco Abbate
-# -- 
+# --
 # -- This program is free software; you can redistribute it and/or modify
 # -- it under the terms of the GNU General Public License as published by
 # -- the Free Software Foundation; either version 3 of the License, or (at
 # -- your option) any later version.
-# -- 
+# --
 # -- This program is distributed in the hope that it will be useful, but
 # -- WITHOUT ANY WARRANTY; without even the implied warranty of
 # -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # -- General Public License for more details.
-# -- 
+# --
 # -- You should have received a copy of the GNU General Public License
 # -- along with this program; if not, write to the Free Software
 # -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -26,6 +26,7 @@
 # -- differential equations I, Nonstiff Problems, 2nd revised edition,
 # -- Springer, 2000.
 
+local math = math
 local abs, max, min = math.abs, math.max, math.min
 
 # order = 5
@@ -41,11 +42,11 @@ $(include 'lgsl.templates.ode-defs')
 # B[5] = { '8341/4104', '-32832/4104', '29440/4104', '-845/4104'}
 # B[6] = { '-6080/20520', '41040/20520', '-28352/20520', '9295/20520', '-5643/20520'}
 
-# C = {'902880/7618050', 
-#      '0', 
-#      '3953664/7618050', 
-#      '3855735/7618050', 
-#      '-1371249/7618050', 
+# C = {'902880/7618050',
+#      '0',
+#      '3953664/7618050',
+#      '3855735/7618050',
+#      '-1371249/7618050',
 #      '277020/7618050' }
 
 # -- These are the differences of fifth and fourth order coefficients

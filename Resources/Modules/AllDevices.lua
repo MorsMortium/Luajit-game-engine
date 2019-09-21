@@ -1,17 +1,21 @@
 return function(args)
-	local Space, LON, General, Device, Object = args[1], args[2], args[3], args[4], args[5]
-	local Copy, Merge, Create, Destroy, UpdateObject, GoodTypesOfTable =
-	Device.Library.Copy, Device.Library.Merge, Device.Library.Create,
+	local Space, LON, General, Device, Object, Globals = args[1], args[2],
+	args[3], args[4], args[5], args[6]
+	local Globals = Globals.Library.Globals
+	local Copy, Merge, Create, Destroy, UpdateObject, GoodTypesOfTable, pcall,
+	remove, type = Device.Library.Copy, Device.Library.Merge, Device.Library.Create,
 	Device.Library.Destroy, General.Library.UpdateObject,
-	General.Library.GoodTypesOfTable
+	General.Library.GoodTypesOfTable, Globals.pcall, Globals.remove, Globals.type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, LON, General, Device, Object = args[1], args[2], args[3], args[4], args[5]
-		Copy, Merge, Create, Destroy, UpdateObject, GoodTypesOfTable =
-		Device.Library.Copy, Device.Library.Merge, Device.Library.Create,
+		Space, LON, General, Device, Object, Globals = args[1], args[2],
+		args[3], args[4], args[5], args[6]
+		Globals = Globals.Library.Globals
+		Copy, Merge, Create, Destroy, UpdateObject, GoodTypesOfTable, pcall,
+		remove, type = Device.Library.Copy, Device.Library.Merge, Device.Library.Create,
 		Device.Library.Destroy, General.Library.UpdateObject,
-		General.Library.GoodTypesOfTable
+		General.Library.GoodTypesOfTable, Globals.pcall, Globals.remove, Globals.type
 	end
 
 	--Adds an Object or multiple Objects to a Device (merges two Devices)
@@ -31,7 +35,7 @@ return function(args)
 		Space.NumberOfObjects = Space.NumberOfObjects + #DeviceSource.Objects
 		local NewDevice = Copy(DeviceSource)
 		if ModifierForDevice then
-			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General)
+			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General, Globals)
 			for ak=1,#NewDevice.Objects do
 				local av = NewDevice.Objects[ak]
 				av.ScaleCalc, av.RotationCalc, av.TranslationCalc = true, true, true
@@ -57,7 +61,7 @@ return function(args)
 		Space.NumberOfObjects = Space.NumberOfObjects + #DeviceSource.Objects
 		local NewDevice = Copy(DeviceSource)
 		if ModifierForDevice then
-			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General)
+			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General, Globals)
 			for ak=1,#NewDevice.Objects do
 	    	local av = NewDevice.Objects[ak]
 				av.ScaleCalc, av.RotationCalc, av.TranslationCalc = true, true, true
@@ -132,7 +136,7 @@ return function(args)
 		local RObjects = Space.Devices[DeviceIndex].Objects
 		Space.DestroyedObjects[#Space.DestroyedObjects + 1] = RObjects[ObjectIndex]
 		Object.Library.Destroy(RObjects[ObjectIndex])
-		table.remove(RObjects, ObjectIndex)
+		remove(RObjects, ObjectIndex)
 	end
 
 	--Removes a Device from the game
@@ -148,7 +152,7 @@ return function(args)
 			Space.DestroyedObjects[#Space.DestroyedObjects + 1] = av
 		end
 		Destroy(Devices[DeviceIndex])
-		table.remove(Devices, DeviceIndex)
+		remove(Devices, DeviceIndex)
 	end
 	function GiveBack.Stop()
 		for ak=1,#Space.Devices do

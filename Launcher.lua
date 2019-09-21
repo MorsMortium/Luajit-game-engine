@@ -1,6 +1,7 @@
 --Depends on: LON
 io.output():setvbuf("no")
-local Data, Order = {}, {}
+local require = require
+local Data = {}
 Data.LON =
 {Library = require("./Resources/Modules/LON"), Started = true}
 Data.LauncherUtilities =
@@ -10,22 +11,22 @@ Data.LON.Library.DecodeFromFile("Resources/Configurations/Launcher.lon")
 local Modules = LauncherData.Modules
 package.path = LauncherData.ModulePath .. package.path
 Data.LON.Library.SetPath(LauncherData.ConfigurationPath)
-local function Start(Modules, Data, Order)
+local function Start(Modules, Data)
 	local LauncherUtilities = Data.LauncherUtilities.Library
-	local Pending = LauncherUtilities.StartAll(Data, Order, Modules)
+	local Pending = LauncherUtilities.StartAll(Data, Modules)
 	if Pending then
 		LauncherUtilities.PrintBadModules(Data)
 		LauncherUtilities.PrintCauses(Data)
 	end
 end
-local function Stop(Data, Order)
+local function Stop(Data)
 	local LauncherUtilities = Data.LauncherUtilities.Library
-	LauncherUtilities.StopAll(Data, Order)
+	LauncherUtilities.StopAll(Data)
 end
-local function Game(Modules, Data, Order)
+local function Game(Modules, Data)
 	local Number, Time, MainExit, InputExit, LoadModule, ModulesTable = 0, 0,
 	false, false, false
-	Start(Modules, Data, Order)
+	Start(Modules, Data)
 	local LoadLibrary = Data.LauncherUtilities.Library.LoadLibrary
 	local LoadModules = Data.LauncherUtilities.Library.LoadModules
 	local Input = LoadLibrary("AllInputs", "Input", Data)
@@ -49,6 +50,6 @@ local function Game(Modules, Data, Order)
 			Number = Number + 1
 		end
 	end
-	Stop(Data, Order)
+	Stop(Data)
 end
-Game(Modules, Data, Order)
+Game(Modules, Data)

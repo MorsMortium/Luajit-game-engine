@@ -1,14 +1,20 @@
 return function(args)
-	local SDL, SDLInit, General, CTypes, WindowRender = args[1], args[2], args[3], args[4], args[5]
-	local Types, SDL, DataFromKeys = CTypes.Library.Types, SDL.Library,
-	General.Library.DataFromKeys
+	local SDL, SDLInit, General, CTypes, WindowRender, Globals = args[1], args[2],
+	args[3], args[4], args[5], args[6]
+	local Globals = Globals.Library.Globals
+	local Types, SDL, DataFromKeys, remove, bor, type, unpack =
+	CTypes.Library.Types, SDL.Library, General.Library.DataFromKeys,
+	Globals.remove, Globals.bor, Globals.type, Globals.unpack
 	local int = Types["int[?]"].Type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		SDL, SDLInit, General, CTypes, WindowRender = args[1], args[2], args[3], args[4], args[5]
-		Types, SDL, DataFromKeys = CTypes.Library.Types, SDL.Library,
-		General.Library.DataFromKeys
+		SDL, SDLInit, General, CTypes, WindowRender, Globals = args[1], args[2],
+		args[3], args[4], args[5], args[6]
+		Globals = Globals.Library.Globals
+		Types, SDL, DataFromKeys, remove, bor, type, unpack =
+		CTypes.Library.Types, SDL.Library, General.Library.DataFromKeys,
+		Globals.remove, Globals.bor, Globals.type, Globals.unpack
 		int = Types["int[?]"].Type
   end
 
@@ -108,7 +114,7 @@ return function(args)
 				for ak=1,#Window.Flags do
 					local av = Window.Flags[ak]
 					if(av == SDL.WINDOW_OPENGL) then
-						table.remove(Window.Flags, ak)
+						remove(Window.Flags, ak)
 					end
 				end
 			end
@@ -119,7 +125,7 @@ return function(args)
 
 		--Creation of the Window, with SDL
 		Window.WindowID, Error = SDL.createWindow(Window.Title, Window.X,
-		Window.Y, Window.Width[0], Window.Height[0], bit.bor(unpack(Window.Flags)))
+		Window.Y, Window.Width[0], Window.Height[0], bor(unpack(Window.Flags)))
 		if not Window.WindowID then
 			error(Error)
 		end
@@ -130,7 +136,7 @@ return function(args)
 				Window.Renderer = SDL.createRenderer(Window.WindowID, -1, 0)
 			else
 				Window.Renderer = SDL.createRenderer(Window.WindowID, -1,
-				bit.bor(unpack(DataFromKeys(SDL, Window.RendererFlags))))
+				bor(unpack(DataFromKeys(SDL, Window.RendererFlags))))
 			end
 		end
 

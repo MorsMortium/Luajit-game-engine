@@ -1,25 +1,27 @@
 -- fft.lua
 --
 -- Fast Fourier transform (fft) and inverse (fftinv).
--- 
+--
 -- Copyright (C) 2009-2015 Francesco Abbate
--- 
+--
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 3 of the License, or (at
 -- your option) any later version.
--- 
+--
 -- This program is distributed in the hope that it will be useful, but
 -- WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 -- General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+local require = require
+
 local ffi = require("ffi")
-local bit = require("bit")
+local bit = bit
 local gsl = require("lgsl.gsl")
 local matrix = require("lgsl.matrix")
 local complex = require("lgsl.complex")
@@ -185,7 +187,7 @@ local function fft(x, ip)
       local ws = get_resource('real_workspace', n)
       gsl_check(gsl.gsl_fft_real_transform(data, stride, n, wt, ws))
       return fft_hc(n, stride, data, b)
-   end      
+   end
 end
 
 local function fftinv(ft, ip)
@@ -206,7 +208,7 @@ local function halfcomplex_radix2_index(n, stride, k)
    local half_n = n/2
    if k == 0 then
       return 0, 0
-   elseif k < half_n then 
+   elseif k < half_n then
       return 1, k, n-k
    elseif k == half_n then
       return 0, half_n
@@ -220,7 +222,7 @@ local function halfcomplex_index(n, stride, k)
    local half_n = n/2
    if k == 0 then
       return 0, 0
-   elseif k < half_n then 
+   elseif k < half_n then
       return 1, 2*k-1, 2*k
    elseif k == half_n then
       return 0, half_n
@@ -322,7 +324,7 @@ ffi.metatype(fft_radix2_hc, {
           )
 
 -- local register_ffi_type = debug.getregistry().__gsl_reg_ffi_type
--- 
+--
 -- register_ffi_type(fft_radix2_hc, "radix2 half-complex vector")
 -- register_ffi_type(fft_hc, "half-complex vector")
 

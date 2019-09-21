@@ -1,13 +1,15 @@
 return function(args)
-  local Object, General = args[1], args[2]
-  local Create, Destroy, Copy = Object.Library.Create, Object.Library.Destroy,
-  Object.Library.Copy
+  local Object, General, Globals = args[1], args[2], args[3]
+  local Globals = Globals.Library.Globals
+  local Create, Destroy, Copy, type, loadstring = Object.Library.Create,
+  Object.Library.Destroy, Object.Library.Copy, Globals.type, Globals.loadstring
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Object, General = args[1], args[2]
-    Create, Destroy, Copy = Object.Library.Create, Object.Library.Destroy,
-    Object.Library.Copy
+    Object, General, Globals = args[1], args[2], args[3]
+    Globals = Globals.Library.Globals
+    Create, Destroy, Copy, type, loadstring = Object.Library.Create,
+    Object.Library.Destroy, Object.Library.Copy, Globals.type, Globals.loadstring
   end
 
   --Creates and returns one Device. Devices contain multiple objects, take input

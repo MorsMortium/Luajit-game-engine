@@ -3,14 +3,14 @@
 -- A Lua preprocessor for template code specialization.
 -- Adapted by Steve Donovan, based on original code of Rici Lake.
 --
-
+local append, format, concat, loadstring, setfenv, package = table.insert,
+string.format, table.concat, loadstring, setfenv, package
 local M = {}
 
 -------------------------------------------------------------------------------
 local function preprocess(ch, name, defs)
 
    local function parseDollarParen(pieces, chunk)
-      local append, format = table.insert, string.format
       local s = 1
       for term, executed, e in chunk:gmatch("()$(%b())()") do
 	 append(pieces,
@@ -21,7 +21,6 @@ local function preprocess(ch, name, defs)
    end
 
    local function parseHashLines(chunk)
-      local append = table.insert
       local pieces, s, args = chunk:find("^\n*#ARGS%s*(%b())[ \t]*\n")
       if not args or args:find("^%(%s*%)$") then
 	 pieces, s = {"return function(_put) ", n = 1}, s or 1
@@ -41,7 +40,7 @@ local function preprocess(ch, name, defs)
 	 s = e + 1
       end
       append(pieces, " end")
-      return table.concat(pieces)
+      return concat(pieces)
    end
 
    local ppenv
@@ -69,7 +68,7 @@ end
 
 local function read_file(filename)
    local f = io.open(filename)
-   if not f then 
+   if not f then
       error(string.format('error opening template file %s', filename))
    end
    local content = f:read('*a')
@@ -86,7 +85,7 @@ local function process(name, defs)
    local code = {}
    local add = function(s) code[#code+1] = s end
    codegen(add)
-   return table.concat(code)
+   return concat(code)
 end
 
 local function template_error(code, filename, err)
@@ -108,4 +107,3 @@ M.process = process
 M.load = load
 
 return M
-
