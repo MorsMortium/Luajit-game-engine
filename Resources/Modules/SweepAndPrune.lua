@@ -1,5 +1,6 @@
 return function(args)
   local AllDevices = args[1]
+  local PossibleCollisions = {}
   local GiveBack = {}
 
   function GiveBack.Reload(args)
@@ -9,100 +10,88 @@ return function(args)
   function GiveBack.DetectCollisions()
     local InvBroadPhaseAxes, BroadPhaseAxes =
     AllDevices.Space.InvBroadPhaseAxes, AllDevices.Space.BroadPhaseAxes
-    local PossibleCollisions, BroadCollisions = {}, {}
-    --ActiveList is a linked list (list[a] = b) with objects to check with the
-    --Recent Object
-    --Head is the first element in ActiveList
-    local ActiveList, Head = {}, BroadPhaseAxes[1][1]
+    local BroadCollisions = {}
+    for ak,av in pairs(PossibleCollisions) do
+      for bk,bv in pairs(av) do
+        av[bk] = 0
+      end
+    end
+    --No collisions without objects
+    if not BroadPhaseAxes[1][1] then return {} end
+
+    InvBroadPhaseAxes[1][BroadPhaseAxes[1][1]] = 1
+    local ActiveFirst = 1
 
     --Loop that goes through every Object in first axis
-    for ak=1,#BroadPhaseAxes[1] do
-
+    for ak=2,#BroadPhaseAxes[1] do
+      local av = BroadPhaseAxes[1][ak]
       --Helper for keeping axes up to date with main list of Objects/Devices
-      InvBroadPhaseAxes[1][BroadPhaseAxes[1][ak]] = ak
+      InvBroadPhaseAxes[1][av] = ak
 
-      --Current is the Object to test with the Recent Object given by the loop
-      --It goes from Head to the last Object in ActiveList
-      local Current = Head
-
-      --Loop that goes through every Object in ActiveList
-      while ActiveList[Current] do
-
-        --If they are not overlapping on the axis, then Head is set to the next
-        --Object (Removing from ActiveList)
-        if Current.Max[1] < BroadPhaseAxes[1][ak].Min[1] then
-          Head = ActiveList[Head]
-        elseif PossibleCollisions[Current] then
-        --Adds overlapping pair in PossibleCollisions[ObjectA][ObjectB] = 1 style
-        PossibleCollisions[Current][BroadPhaseAxes[1][ak]] = 1
+      for bk=ActiveFirst,ak - 1 do
+        local bv = BroadPhaseAxes[1][bk]
+        --If they are not overlapping on the axis,
+        --then ActiveFirst is set to the next object
+        if bv.Max[1] < av.Min[1] then
+          ActiveFirst = ActiveFirst + 1
+        elseif PossibleCollisions[bv] then
+          --Adds overlapping pair in PossibleCollisions[ObjectA][ObjectB] = 1 style
+          PossibleCollisions[bv][av] = 1
         else
-          PossibleCollisions[Current] = {[BroadPhaseAxes[1][ak]] = 1}
+          PossibleCollisions[bv] = {[av] = 1}
         end
-        Current = ActiveList[Current]
       end
-      ActiveList[Current] = BroadPhaseAxes[1][ak + 1]
     end
 
-    ActiveList, Head = {}, BroadPhaseAxes[2][1]
+    InvBroadPhaseAxes[2][BroadPhaseAxes[2][1]] = 1
+    ActiveFirst = 1
 
     --Loop that goes through every Object in second axis
-    for ak=1,#BroadPhaseAxes[2] do
-
+    for ak=2,#BroadPhaseAxes[2] do
+      local av = BroadPhaseAxes[2][ak]
       --Helper for keeping axes up to date with main list of Objects/Devices
-      InvBroadPhaseAxes[2][BroadPhaseAxes[2][ak]] = ak
+      InvBroadPhaseAxes[2][av] = ak
 
-      --Current is the Object to test with the Recent Object given by the loop
-      --It goes from Head to the last Object in ActiveList
-      local Current = Head
-
-      --Loop that goes through every Object in ActiveList
-      while ActiveList[Current] do
-
-        --If they are not overlapping on the axis, then Head is set to the next
-        --Object (Removing from ActiveList)
-        if Current.Max[2] < BroadPhaseAxes[2][ak].Min[2] then
-          Head = ActiveList[Head]
-        elseif PossibleCollisions[Current] and PossibleCollisions[Current][BroadPhaseAxes[2][ak]] then
+      for bk=ActiveFirst,ak - 1 do
+        local bv = BroadPhaseAxes[2][bk]
+        --If they are not overlapping on the axis,
+        --then ActiveFirst is set to the next object
+        if bv.Max[2] < av.Min[2] then
+          ActiveFirst = ActiveFirst + 1
+        elseif PossibleCollisions[bv] and PossibleCollisions[bv][av] == 1 then
           --if theres already a pair, it sets it to two
-          PossibleCollisions[Current][BroadPhaseAxes[2][ak]] = 2
-        elseif PossibleCollisions[BroadPhaseAxes[2][ak]] and PossibleCollisions[BroadPhaseAxes[2][ak]][Current] then
-          PossibleCollisions[BroadPhaseAxes[2][ak]][Current] = 2
+          PossibleCollisions[bv][av] = 2
+        elseif PossibleCollisions[av] and PossibleCollisions[av][bv] == 1 then
+          PossibleCollisions[av][bv] = 2
         end
-        Current = ActiveList[Current]
       end
-      ActiveList[Current] = BroadPhaseAxes[2][ak + 1]
     end
 
-    ActiveList, Head = {}, BroadPhaseAxes[3][1]
+    InvBroadPhaseAxes[3][BroadPhaseAxes[3][1]] = 1
+    ActiveFirst = 1
 
     --Finds collisions present on all axes
     --Loop that goes through every Object in third axis
-    for ak=1,#BroadPhaseAxes[3] do
+    for ak=2,#BroadPhaseAxes[3] do
+      local av = BroadPhaseAxes[3][ak]
+      --Helper for keeping axes up to date with main list of Objects/Devices
+      InvBroadPhaseAxes[3][av] = ak
 
-      --Helper for keeping axes up to date with main list of Objects
-      InvBroadPhaseAxes[3][BroadPhaseAxes[3][ak]] = ak
-
-      --Current is the Object to test with the Recent Object given by the loop
-      --It goes from Head to the last Object in ActiveList
-      local Current = Head
-
-      --Loop that goes through every Object in ActiveList
-      while ActiveList[Current] do
-
-        --If they are not overlapping on the axis, then Head is set to the next
-        --value
-        if Current.Max[3] < BroadPhaseAxes[3][ak].Min[3] then
-          Head = ActiveList[Head]
-        elseif PossibleCollisions[Current] and PossibleCollisions[Current][BroadPhaseAxes[3][ak]] == 2 or
-        PossibleCollisions[BroadPhaseAxes[3][ak]] and PossibleCollisions[BroadPhaseAxes[3][ak]][Current] == 2 then
+      for bk=ActiveFirst,ak - 1 do
+        local bv = BroadPhaseAxes[3][bk]
+        --If they are not overlapping on the axis,
+        --then ActiveFirst is set to the next object
+        if bv.Max[3] < av.Min[3] then
+          ActiveFirst = ActiveFirst + 1
+        elseif (PossibleCollisions[bv] and PossibleCollisions[bv][av] == 2) or
+        (PossibleCollisions[av] and PossibleCollisions[av][bv] == 2) then
           --if there's a pair with a value of 2 it puts it in BroadCollisions in
           --BroadCollisions[#BroadCollisions + 1] = {ObjectA, ObjectB} style
           --TODO: Smaller if statement
-          BroadCollisions[#BroadCollisions + 1] = {Current, BroadPhaseAxes[3][ak]}
+          BroadCollisions[#BroadCollisions + 1] = bv
+          BroadCollisions[#BroadCollisions + 1] = av
         end
-        Current = ActiveList[Current]
       end
-      ActiveList[Current] = BroadPhaseAxes[3][ak + 1]
     end
     return BroadCollisions
   end

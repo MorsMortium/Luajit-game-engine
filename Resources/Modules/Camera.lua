@@ -1,15 +1,17 @@
 return function(args)
-	local General, CameraRender, lgsl, Globals = args[1], args[2], args[3], args[4]
+	local Math, CameraRender, Globals, CTypes = args[1], args[2], args[3], args[4]
 	local Globals = Globals.Library.Globals
-	local IsVector3, type, gsl = General.Library.IsVector3, Globals.type,
-	lgsl.Library.gsl
+	local IsVector3, type, SetIdentity, SetZero, float = Math.Library.IsVector3,
+	Globals.type, Math.Library.SetIdentity, Math.Library.SetZero,
+	CTypes.Library.Types["float[?]"].Type
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		General, CameraRender, lgsl, Globals = args[1], args[2], args[3], args[4]
+		Math, CameraRender, Globals, CTypes = args[1], args[2], args[3], args[4]
 		Globals = Globals.Library.Globals
-		IsVector3, type, gsl = General.Library.IsVector3, Globals.type,
-		lgsl.Library.gsl
+		IsVector3, type, SetIdentity, SetZero, float = Math.Library.IsVector3,
+		Globals.type, Math.Library.SetIdentity, Math.Library.SetZero,
+		CTypes.Library.Types["float[?]"].Type
   end
 
 	--Creates and returns one Camera
@@ -17,12 +19,12 @@ return function(args)
 		--Creating the Camera table
 		local Camera = {}
 
-		Camera.ViewMatrix = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_set_identity(Camera.ViewMatrix)
-		Camera.ProjectionMatrix = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_set_zero(Camera.ProjectionMatrix)
-		Camera.ProjectionMatrix.data[11] = -1
-		Camera.ViewProjectionMatrix = gsl.gsl_matrix_alloc(4, 4)
+		Camera.ViewMatrix = float(16)
+		SetIdentity(Camera.ViewMatrix)
+		Camera.ProjectionMatrix = float(16)
+		SetZero(Camera.ProjectionMatrix)
+		Camera.ProjectionMatrix[11] = -1
+		Camera.ViewProjectionMatrix = float(16)
 		--The translation in the world, Default: origin
 		Camera.Translation = {0,1,0}
 
@@ -128,9 +130,6 @@ return function(args)
 
 	--Destroys a Camera, freeing up all it's matrices, then clearing the other data
 	function GiveBack.Destroy(GotCamera)
-		gsl.gsl_matrix_free(GotCamera.ViewMatrix)
-		gsl.gsl_matrix_free(GotCamera.ProjectionMatrix)
-		gsl.gsl_matrix_free(GotCamera.ViewProjectionMatrix)
 	end
 	return GiveBack
 end

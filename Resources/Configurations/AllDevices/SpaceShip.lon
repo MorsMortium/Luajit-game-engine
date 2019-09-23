@@ -93,10 +93,10 @@ return{
 					["IfObject"] = true,
 					["Name"] = "Bullet",
 					["String"] = [[
-					local Created, Creator, General, Globals = ...
-					local Center, Point, v = Creator.Translation, {Creator.Transformated.data[0],
-					Creator.Transformated.data[1], Creator.Transformated.data[2]}, Created.Objects[1]
-					v.LinearVelocity = General.Library.VectorSubtraction(Point, Center)
+					local Created, Creator, Math, Globals = ...
+					local Center, Point, v = Creator.Translation, {Creator.Transformated[0],
+					Creator.Transformated[1], Creator.Transformated[2]}, Created.Objects[1]
+					v.LinearVelocity = Math.Library.VectorSubtraction(Point, Center)
 					for i=1,3 do
 						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
 						v.Rotation[i] = Creator.Rotation[i]
@@ -112,7 +112,7 @@ return{
 					["Active"] = false,
 					["Name"] = "Asteroid",
 					["String"] = [[
-					local Created, Creator, General, Globals = ...
+					local Created, Creator, Math, Globals = ...
 					local Center, v = Creator.Translation, Created.Objects[1]
 					for i=1,3 do
 						if Globals.random(1, 2) == 1 then
@@ -122,7 +122,7 @@ return{
 						end
 					end
 					local c1, c2 = Creator.Translation, v.Translation
-					local Move = General.Library.VectorSubtraction(c1, c2)
+					local Move = Math.Library.VectorSubtraction(c1, c2)
 					for i=1,3 do
 						v.LinearVelocity[i] = Move[i]/10000
 						v.AngularVelocity[i + 1] = Globals.random()/300

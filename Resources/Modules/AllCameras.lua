@@ -72,8 +72,9 @@ return function(args)
   --Deletes every Camera
   function GiveBack.Stop()
     for ak=1,#Space.OpenGLCameras do
-      OpenGL.glDeleteRenderbuffers(1, Space.OpenGLCameras[ak].DBO)
-      OpenGL.glDeleteTextures(1, Space.OpenGLCameras[ak].Texture)
+      local av = Space.OpenGLCameras[ak]
+      OpenGL.glDeleteRenderbuffers(1, av.DBO)
+      OpenGL.glDeleteTextures(1, av.Texture)
     end
     for ak=1,#Space.SoftwareCameras do
       SDL.freeSurface(Space.SoftwareCameras[ak].Surface)

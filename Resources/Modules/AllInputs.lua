@@ -4,8 +4,9 @@ return function(args)
 	args[8], args[9], args[10]
 	local SDL, Inputs, Types, Globals = SDL.Library, Input.Library.Inputs,
 	CTypes.Library.Types, Globals.Library.Globals
-	local SDL_Event, pcall, remove, type, loadstring, write = Types["SDL_Event"].Type,
-	Globals.pcall, Globals.remove, Globals.type, Globals.loadstring, Globals.write
+	local SDL_Event, pcall, remove, type, loadstring, write, string =
+	Types["SDL_Event"].Type, Globals.pcall, Globals.remove, Globals.type,
+	Globals.loadstring, Globals.write, ffi.Library.string
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
@@ -14,8 +15,9 @@ return function(args)
 		args[8], args[9], args[10]
 		SDL, Inputs, Types, Globals = SDL.Library, Input.Library.Inputs,
 		CTypes.Library.Types, Globals.Library.Globals
-		SDL_Event, pcall, remove, type, loadstring, write = Types["SDL_Event"].Type,
-		Globals.pcall, Globals.remove, Globals.type, Globals.loadstring, Globals.write
+		SDL_Event, pcall, remove, type, loadstring, write, string =
+		Types["SDL_Event"].Type, Globals.pcall, Globals.remove, Globals.type,
+		Globals.loadstring, Globals.write, ffi.Library.string
 	end
 
 	--Sets up inputs based on button presses and releases
@@ -33,7 +35,7 @@ return function(args)
 			if Space.Event.type == SDL.QUIT then
 				return true
 			elseif Space.Event.type == SDL.TEXTINPUT then
-				Space.Text = Space.Text .. ffi.Library.string(Space.Event.text.text)
+				Space.Text = Space.Text .. string(Space.Event.text.text)
 				write(Space.Text, "\n")
 			elseif Space.Event.type == SDL.WINDOWEVENT then
 				if Space.Event.window.event == SDL.WINDOWEVENT_CLOSE then
@@ -57,8 +59,7 @@ return function(args)
 					end
 				end
 			elseif Space.Event.type == SDL.KEYDOWN then
-				local Key = ffi.Library.string(
-				SDL.getKeyName(Space.Event.key.keysym.sym))
+				local Key = string(SDL.getKeyName(Space.Event.key.keysym.sym))
 				if Inputs.Down[Key] then
 					if Inputs.Down[Key](Space) then
 						return true
@@ -71,8 +72,7 @@ return function(args)
 					end
 				end
 			elseif Space.Event.type == SDL.KEYUP then
-				local Key = ffi.Library.string(
-				SDL.getKeyName(Space.Event.key.keysym.sym))
+				local Key = string(SDL.getKeyName(Space.Event.key.keysym.sym))
 				if Inputs.Up[Key] then
 					if Inputs.Up[Key](Space) then
 						return true

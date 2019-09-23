@@ -1,9 +1,7 @@
 return function(args)
-  local General = args[1]
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    General = args[1]
   end
 
   --This script is responds to collisions detected by CollisionDetection.lua

@@ -37,30 +37,32 @@ return function(args)
   --Each renderer from ObjectRenders.lua and renders them
   function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP)
     for ak=1,#AllDevices.Space.BroadPhaseAxes[1] do
-      if SameLayer(CameraObject.VisualLayers, CameraObject.VLayerKeys, AllDevices.Space.BroadPhaseAxes[1][ak].VisualLayers, AllDevices.Space.BroadPhaseAxes[1][ak].VLayerKeys) then
-        local ObjectRenderer = ObjectRender.Library.ObjectRenders[AllDevices.Space.BroadPhaseAxes[1][ak].ObjectRenderer]
+      local av = AllDevices.Space.BroadPhaseAxes[1][ak]
+      if SameLayer(CameraObject.VisualLayers, CameraObject.VLayerKeys, av.VisualLayers, av.VLayerKeys) then
+        local ObjectRenderer = ObjectRender.Library.ObjectRenders[av.ObjectRenderer]
         local GetTransformatedMatrix = ObjectRenderer.GetTransformatedMatrix
         local GetRenderData = ObjectRenderer.GetRenderData
-        local ORA = Space.NumberPerType[AllDevices.Space.BroadPhaseAxes[1][ak].ObjectRenderer]
+        local ORA = Space.NumberPerType[av.ObjectRenderer]
         ORA.TransformatedMatrices[#ORA.TransformatedMatrices + 1],
         ORA.VertexLength, ORA.VertexType =
-        GetTransformatedMatrix(AllDevices.Space.BroadPhaseAxes[1][ak].Transformated.data)
+        GetTransformatedMatrix(av.Transformated)
         ORA.RenderData[#ORA.RenderData + 1],
         ORA.RenderDataLength, ORA.RenderDataType =
-        GetRenderData(AllDevices.Space.BroadPhaseAxes[1][ak].RenderData)
+        GetRenderData(av.RenderData)
       end
     end
     for ak1=1,#Space.ORenderKeys do
       local ak2 = Space.ORenderKeys[ak1]
       local av = Space.NumberPerType[ak2]
+      local av2 = ObjectRender.Library.ObjectRenders[ak2]
       if #av.TransformatedMatrices ~= 0 then
-        local Render = ObjectRender.Library.ObjectRenders[ak2].Render
+        local Render = av2.Render
         av.FullTransformatedMatrix =
         ConcatenateCArrays(av.TransformatedMatrices, av.VertexLength, av.VertexType)
         av.FullRenderData =
         ConcatenateCArrays(av.RenderData, av.RenderDataLength, av.RenderDataType)
         Render(VBO, RDBO, av.FullTransformatedMatrix, MVP, #av.TransformatedMatrices,
-        av.Elements, av.FullRenderData, ObjectRender.Library.ObjectRenders[ak2].Space)
+        av.Elements, av.FullRenderData, av2.Space)
         av.TransformatedMatrices = {}
         av.RenderData = {}
       end

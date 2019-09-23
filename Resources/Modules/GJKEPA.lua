@@ -1,24 +1,24 @@
 return function(args)
-  local General, Globals = args[1], args[2]
+  local Math, Globals = args[1], args[2]
   local Globals = Globals.Library.Globals
   local VectorSubtraction, DotProduct, VectorScale,
   VectorAddition, CrossProduct, Normalise, VectorZero, VectorEqual, write =
-  General.Library.VectorSubtraction, General.Library.DotProduct,
-  General.Library.VectorScale, General.Library.VectorAddition,
-  General.Library.CrossProduct, General.Library.Normalise,
-  General.Library.VectorZero, General.Library.VectorEqual, Globals.write
+  Math.Library.VectorSubtraction, Math.Library.DotProduct,
+  Math.Library.VectorScale, Math.Library.VectorAddition,
+  Math.Library.CrossProduct, Math.Library.Normalise,
+  Math.Library.VectorZero, Math.Library.VectorEqual, Globals.write
 
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    General, Globals = args[1], args[2]
+    Math, Globals = args[1], args[2]
     Globals = Globals.Library.Globals
     VectorSubtraction, DotProduct, VectorScale,
     VectorAddition, CrossProduct, Normalise, VectorZero, VectorEqual, write =
-    General.Library.VectorSubtraction, General.Library.DotProduct,
-    General.Library.VectorScale, General.Library.VectorAddition,
-    General.Library.CrossProduct, General.Library.Normalise,
-    General.Library.VectorZero, General.Library.VectorEqual, Globals.write
+    Math.Library.VectorSubtraction, Math.Library.DotProduct,
+    Math.Library.VectorScale, Math.Library.VectorAddition,
+    Math.Library.CrossProduct, Math.Library.Normalise,
+    Math.Library.VectorZero, Math.Library.VectorEqual, Globals.write
   end
 
   local function VectorCopy(c, o)
@@ -157,7 +157,7 @@ return function(args)
     --to just one of the faces, maybe test it later.
   end
   local function Support(Object, dir)
-    local TData = Object.Transformated.data
+    local TData = Object.Transformated
     local max = {TData[0], TData[1], TData[2]}
     local maxdot = DotProduct(max, dir)
     for ak=1,3 do

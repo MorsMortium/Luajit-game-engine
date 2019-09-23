@@ -1,22 +1,25 @@
 return function(args)
-	local General, ffi, ObjectRender, lgsl, Globals = args[1], args[2], args[3],
-	args[4], args[5]
+	local General, ffi, ObjectRender, Globals, Math, CTypes = args[1], args[2], args[3],
+	args[4], args[5], args[6]
 	local Globals = Globals.Library.Globals
 	local IsVector3, EulerToQuaternion, GoodTypesOfTable, UpdateObject, IsMatrix4,
-	ObjectRenders, gsl, huge, type = General.Library.IsVector3,
-	General.Library.EulerToQuaternion, General.Library.GoodTypesOfTable,
-	General.Library.UpdateObject, General.Library.IsMatrix4,
-	ObjectRender.Library.ObjectRenders, lgsl.Library.gsl, Globals.huge, Globals.type
+	ObjectRenders, huge, type, SetIdentity, SetZero, MatrixCopy, double =
+	Math.Library.IsVector3, Math.Library.EulerToQuaternion,
+	General.Library.GoodTypesOfTable, General.Library.UpdateObject,
+	Math.Library.IsMatrix4, ObjectRender.Library.ObjectRenders, Globals.huge,
+	Globals.type, Math.Library.SetIdentity, Math.Library.SetZero,
+	Math.Library.MatrixCopy, CTypes.Library.Types["double[?]"].Type
 	local GiveBack = {}
 	function GiveBack.Reload(args)
-		General, ffi, ObjectRender, lgsl, Globals = args[1], args[2], args[3],
-		args[4], args[5]
+		local General, ffi, ObjectRender, Globals, Math, CTypes = args[1], args[2], args[3],
+		args[4], args[5], args[6]
 		Globals = Globals.Library.Globals
 		IsVector3, EulerToQuaternion, GoodTypesOfTable, UpdateObject, IsMatrix4,
-		ObjectRenders, gsl, huge, type = General.Library.IsVector3,
-		General.Library.EulerToQuaternion, General.Library.GoodTypesOfTable,
-		General.Library.UpdateObject, General.Library.IsMatrix4,
-		ObjectRender.Library.ObjectRenders, lgsl.Library.gsl, Globals.huge, Globals.type
+		ObjectRenders, huge, type, SetIdentity, SetZero, MatrixCopy = Math.Library.IsVector3,
+		Math.Library.EulerToQuaternion, General.Library.GoodTypesOfTable,
+		General.Library.UpdateObject, Math.Library.IsMatrix4,
+		ObjectRender.Library.ObjectRenders, Globals.huge, Globals.type,
+		Math.Library.SetIdentity, Math.Library.SetZero, Math.Library.MatrixCopy
   end
 
 	--Creates and returns one Object. Objects are parts of a Device
@@ -29,28 +32,28 @@ return function(args)
 		--Default data for an Object
 		-- The coordinates of each Point, specifies the shape of the tetrahedron
 		-- Default shape: All Point is perpendicular to the last
-		Object.Points = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_set_identity(Object.Points)
-		Object.Points.data[3], Object.Points.data[7], Object.Points.data[11] = 1, 1, 1
+		Object.Points = double(16)
+		SetIdentity(Object.Points)
+		Object.Points[3], Object.Points[7], Object.Points[11] = 1, 1, 1
 
 		--The transformated points of the object, scaled, rotated and translated
-		Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
+		Object.Transformated = double(16)
 
 		--The matrices that will contains the transformations
 		--Init for less calculations
-		Object.ScaleMatrix = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_set_zero(Object.ScaleMatrix)
-		Object.ScaleMatrix.data[15] = 1
-		Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_set_zero(Object.RotationMatrix)
-		Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_set_identity(Object.TranslationMatrix)
+		Object.ScaleMatrix = double(16)
+		SetZero(Object.ScaleMatrix)
+		Object.ScaleMatrix[15] = 1
+		Object.RotationMatrix = double(16)
+		SetZero(Object.RotationMatrix)
+		Object.TranslationMatrix = double(16)
+		SetIdentity(Object.TranslationMatrix)
 
 		--The BufferMatrix contains the multiplication of the first two transformations
-		Object.BufferMatrix = gsl.gsl_matrix_alloc(4, 4)
+		Object.BufferMatrix = double(16)
 
 		--The ModelMatrix contains the final transformation matrix
-		Object.ModelMatrix = gsl.gsl_matrix_alloc(4, 4)
+		Object.ModelMatrix = double(16)
 
 		--Flags for upgrading the matrices
 		Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = true, true,
@@ -143,12 +146,12 @@ return function(args)
 				Object.AngularAcceleration = EulerToQuaternion(GotObject.AngularAcceleration)
 			end
 
-			--If the points it got is a 4x4 matrix, then it iterates through it
-			--Storing it in a gsl matrix
+			--If the points it got is a 4x4 matrix, then it iterates through it, and
+			--Copies it in a 1D matrix
 			if IsMatrix4(GotObject.Points) then
 				for ak=0,3 do
 					for bk=0,3 do
-						Object.Points.data[ak * 4 + bk] = GotObject.Points[ak + 1][bk + 1]
+						Object.Points[ak * 4 + bk] = GotObject.Points[ak + 1][bk + 1]
 					end
 				end
 			end
@@ -207,14 +210,14 @@ return function(args)
 		--TODO: Putting this into General as function, which can be triggered
 		--By a flag from UpdateObject
 		for ak = 0, 2 do
-			local center = (Object.Points.data[ak] +
-			Object.Points.data[ak + 4] +
-			Object.Points.data[ak + 8] +
-			Object.Points.data[ak + 12])/4
+			local center = (Object.Points[ak] +
+			Object.Points[ak + 4] +
+			Object.Points[ak + 8] +
+			Object.Points[ak + 12])/4
 			if center ~= 0 then
 				for bk = 0, 3 do
-					Object.Points.data[bk * 4 + ak] =
-					Object.Points.data[bk * 4 + ak] - center
+					Object.Points[bk * 4 + ak] =
+					Object.Points[bk * 4 + ak] - center
 				end
 			end
 		end
@@ -230,18 +233,18 @@ return function(args)
 	function GiveBack.Copy(GotObject, Parent)
 		local Object = {}
 		Object.Parent = Parent
-		Object.Points = gsl.gsl_matrix_alloc(4, 4)
-		Object.ScaleMatrix = gsl.gsl_matrix_alloc(4, 4)
-		Object.RotationMatrix = gsl.gsl_matrix_alloc(4, 4)
-		Object.TranslationMatrix = gsl.gsl_matrix_alloc(4, 4)
-		Object.BufferMatrix = gsl.gsl_matrix_alloc(4, 4)
-		Object.ModelMatrix = gsl.gsl_matrix_alloc(4, 4)
-		Object.Transformated = gsl.gsl_matrix_alloc(4, 4)
-		gsl.gsl_matrix_memcpy(Object.Points, GotObject.Points)
-		gsl.gsl_matrix_memcpy(Object.ScaleMatrix, GotObject.ScaleMatrix)
-		gsl.gsl_matrix_memcpy(Object.RotationMatrix, GotObject.RotationMatrix)
-		gsl.gsl_matrix_memcpy(Object.TranslationMatrix, GotObject.TranslationMatrix)
-		gsl.gsl_matrix_memcpy(Object.Transformated, GotObject.Transformated)
+		Object.Points = double(16)
+		Object.ScaleMatrix = double(16)
+		Object.RotationMatrix = double(16)
+		Object.TranslationMatrix = double(16)
+		Object.BufferMatrix = double(16)
+		Object.ModelMatrix = double(16)
+		Object.Transformated = double(16)
+		MatrixCopy(Object.Points, GotObject.Points)
+		MatrixCopy(Object.ScaleMatrix, GotObject.ScaleMatrix)
+		MatrixCopy(Object.RotationMatrix, GotObject.RotationMatrix)
+		MatrixCopy(Object.TranslationMatrix, GotObject.TranslationMatrix)
+		MatrixCopy(Object.Transformated, GotObject.Transformated)
 
 		Object.ScaleCalc, Object.RotationCalc, Object.TranslationCalc = false, false,
 		false
@@ -326,13 +329,6 @@ return function(args)
 
 	--Destroys an Object, freeing up all it's matrices, then clearing the other data
 	function GiveBack.Destroy(Object)
-		gsl.gsl_matrix_free(Object.Transformated)
-		gsl.gsl_matrix_free(Object.Points)
-		gsl.gsl_matrix_free(Object.ScaleMatrix)
-		gsl.gsl_matrix_free(Object.RotationMatrix)
-		gsl.gsl_matrix_free(Object.TranslationMatrix)
-		gsl.gsl_matrix_free(Object.BufferMatrix)
-		gsl.gsl_matrix_free(Object.ModelMatrix)
 	end
 	return GiveBack
 end
