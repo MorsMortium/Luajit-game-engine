@@ -1,31 +1,31 @@
 return function(args)
-  local Space, General, Device, lgsl, AllDevices, ffi, Globals = args[1],
+  local Space, General, Device, AllDevices, ffi, Globals, Math = args[1],
   args[2], args[3], args[4], args[5], args[6], args[7]
   local Globals = Globals.Library.Globals
   local SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
   VectorAddition, VectorScale, QuaternionMultiplication, Slerp,
   QuaternionInverse, cos, sin, pcall, type, loadstring, pairs, write =
-  General.Library.SameLayer, General.Library.VectorLength,
-  General.Library.VectorSubtraction, General.Library.Normalise,
-  General.Library.VectorSign, General.Library.VectorAddition,
-  General.Library.VectorScale, General.Library.QuaternionMultiplication,
-  General.Library.Slerp, General.Library.QuaternionInverse, Globals.cos,
+  General.Library.SameLayer, Math.Library.VectorLength,
+  Math.Library.VectorSubtraction, Math.Library.Normalise,
+  Math.Library.VectorSign, Math.Library.VectorAddition,
+  Math.Library.VectorScale, Math.Library.QuaternionMultiplication,
+  Math.Library.Slerp, Math.Library.QuaternionInverse, Globals.cos,
   Globals.sin, Globals.pcall, Globals.type, Globals.loadstring, Globals.pairs,
   Globals.write
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Space, General, Device, lgsl, AllDevices, ffi, Globals = args[1],
+    Space, General, Device, AllDevices, ffi, Globals, Math = args[1],
     args[2], args[3], args[4], args[5], args[6], args[7]
     Globals = Globals.Library.Globals
     SameLayer, VectorLength, VectorSubtraction, Normalise, VectorSign,
     VectorAddition, VectorScale, QuaternionMultiplication, Slerp,
     QuaternionInverse, cos, sin, pcall, type, loadstring, pairs, write =
-    General.Library.SameLayer, General.Library.VectorLength,
-    General.Library.VectorSubtraction, General.Library.Normalise,
-    General.Library.VectorSign, General.Library.VectorAddition,
-    General.Library.VectorScale, General.Library.QuaternionMultiplication,
-    General.Library.Slerp, General.Library.QuaternionInverse, Globals.cos,
+    General.Library.SameLayer, Math.Library.VectorLength,
+    Math.Library.VectorSubtraction, Math.Library.Normalise,
+    Math.Library.VectorSign, Math.Library.VectorAddition,
+    Math.Library.VectorScale, Math.Library.QuaternionMultiplication,
+    Math.Library.Slerp, Math.Library.QuaternionInverse, Globals.cos,
     Globals.sin, Globals.pcall, Globals.type, Globals.loadstring, Globals.pairs,
     Globals.write
   end
@@ -117,11 +117,11 @@ return function(args)
   function Thruster.Use(Devices, Device, Object, Power, Time)
     if not Object.Fixed then
       local p =
-      {Object.Transformated.data[(Power.Point-1) * 4],
-      Object.Transformated.data[(Power.Point-1) * 4 + 1],
-      Object.Transformated.data[(Power.Point-1) * 4 + 2]}
+      {Object.Transformated[(Power.Point-1) * 4],
+      Object.Transformated[(Power.Point-1) * 4 + 1],
+      Object.Transformated[(Power.Point-1) * 4 + 2]}
       local c = Object.Translation
-      local vfctp = General.Library.VectorSubtraction(p, c)
+      local vfctp = VectorSubtraction(p, c)
       Object.LinearAcceleration =
       VectorAddition(Object.LinearAcceleration, VectorScale(vfctp, Power.Force * Time))
     end
@@ -152,9 +152,9 @@ return function(args)
   function SelfRotate.Use(Devices, Device, Object, Power, Time)
     if not Object.Fixed then
       local p =
-      {Object.Transformated.data[(Power.Point-1) * 4],
-      Object.Transformated.data[(Power.Point-1) * 4 + 1],
-      Object.Transformated.data[(Power.Point-1) * 4 + 2]}
+      {Object.Transformated[(Power.Point-1) * 4],
+      Object.Transformated[(Power.Point-1) * 4 + 1],
+      Object.Transformated[(Power.Point-1) * 4 + 2]}
       local c = Object.Translation
       local vfctp = Normalise(VectorSubtraction(p, c))
       local Quaternion = AxisAngleToQuaternion(vfctp, Power.Angle * Time)
@@ -201,7 +201,7 @@ return function(args)
       Data.Command = DefaultDestroypara
     else
       Data.Command = loadstring(Power.String)
-      if not pcall(Data.Command, Devices, Device, Object, Power, General) then
+      if not pcall(Data.Command, Devices, Device, Object, Power, Math) then
         Data.Command = DefaultDestroypara
       end
     end
@@ -216,7 +216,7 @@ return function(args)
     return Data
   end
   function Destroypara.Use(Devices, Device, Object, Power, Time)
-    if Power.Command(Devices, Device, Object, Power, General) then
+    if Power.Command(Devices, Device, Object, Power, Math) then
       local DeviceID = 1
       for ak=1,#Devices do
         local av = Devices[ak]
@@ -304,7 +304,7 @@ return function(args)
       Data.Command = DefaultSummon
     else
       Data.Command = loadstring(Power.String)
-      if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], General, Globals) then
+      if not pcall(Data.Command, NewDevice, NewDevice.Objects[1], Math, Globals) then
         Data.Command = DefaultSummon
       end
     end

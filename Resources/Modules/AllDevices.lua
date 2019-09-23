@@ -1,6 +1,6 @@
 return function(args)
-	local Space, LON, General, Device, Object, Globals = args[1], args[2],
-	args[3], args[4], args[5], args[6]
+	local Space, LON, General, Device, Object, Globals, Math = args[1], args[2],
+	args[3], args[4], args[5], args[6], args[7]
 	local Globals = Globals.Library.Globals
 	local Copy, Merge, Create, Destroy, UpdateObject, GoodTypesOfTable, pcall,
 	remove, type = Device.Library.Copy, Device.Library.Merge, Device.Library.Create,
@@ -9,8 +9,8 @@ return function(args)
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, LON, General, Device, Object, Globals = args[1], args[2],
-		args[3], args[4], args[5], args[6]
+		Space, LON, General, Device, Object, Globals, Math = args[1], args[2],
+		args[3], args[4], args[5], args[6], args[7]
 		Globals = Globals.Library.Globals
 		Copy, Merge, Create, Destroy, UpdateObject, GoodTypesOfTable, pcall,
 		remove, type = Device.Library.Copy, Device.Library.Merge, Device.Library.Create,
@@ -35,7 +35,7 @@ return function(args)
 		Space.NumberOfObjects = Space.NumberOfObjects + #DeviceSource.Objects
 		local NewDevice = Copy(DeviceSource)
 		if ModifierForDevice then
-			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General, Globals)
+			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, Math, Globals)
 			for ak=1,#NewDevice.Objects do
 				local av = NewDevice.Objects[ak]
 				av.ScaleCalc, av.RotationCalc, av.TranslationCalc = true, true, true
@@ -61,7 +61,7 @@ return function(args)
 		Space.NumberOfObjects = Space.NumberOfObjects + #DeviceSource.Objects
 		local NewDevice = Copy(DeviceSource)
 		if ModifierForDevice then
-			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, General, Globals)
+			pcall(ModifierForDevice.Command, NewDevice, ModifierForDevice.Creator, Math, Globals)
 			for ak=1,#NewDevice.Objects do
 	    	local av = NewDevice.Objects[ak]
 				av.ScaleCalc, av.RotationCalc, av.TranslationCalc = true, true, true

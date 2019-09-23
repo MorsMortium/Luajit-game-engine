@@ -1,7 +1,7 @@
 # Luajit-Game-Engine
 3D game engine written in LuaJIT
 ## Prerequisites
-LuaJIT, OpenGL, GSL, SDL
+LuaJIT, OpenGL, SDL
 ## Features
 Rendering via SDL or OpenGL  
 Multiple cameras  

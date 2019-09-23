@@ -1,18 +1,20 @@
 return function(args)
-	local Space, OpenGL, OpenGLInit, CTypes, AllPrograms, General, SDL, ffi, Globals =
+	local Space, OpenGL, OpenGLInit, CTypes, AllPrograms, Math, SDL, ffi, Globals =
 	args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
 	local Globals = Globals.Library.Globals
-	local OpenGL, Types, ffi, type, pairs = OpenGL.Library, CTypes.Library.Types,
-	ffi.Library, Globals.type, Globals.pairs
+	local OpenGL, Types, ffi, type, pairs, IsMatrix4 = OpenGL.Library,
+	CTypes.Library.Types, ffi.Library, Globals.type, Globals.pairs,
+	Math.Library.IsMatrix4
 	local double, doubleSize = Types["double[?]"].Type, Types["double[?]"].Size
 	local GiveBack = {}
 
 	function GiveBack.Reload(args)
-		Space, OpenGL, OpenGLInit, CTypes, AllPrograms, General, SDL, ffi, Globals =
+		Space, OpenGL, OpenGLInit, CTypes, AllPrograms, Math, SDL, ffi, Globals =
 		args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
 		Globals = Globals.Library.Globals
-		OpenGL, Types, ffi, type, pairs = OpenGL.Library, CTypes.Library.Types,
-		ffi.Library, Globals.type, Globals.pairs
+		OpenGL, Types, ffi, type, pairs, IsMatrix4 = OpenGL.Library,
+		CTypes.Library.Types, ffi.Library, Globals.type, Globals.pairs,
+		Math.Library.IsMatrix4
 		double, doubleSize = Types["double[?]"].Type, Types["double[?]"].Size
   end
 
@@ -28,7 +30,7 @@ return function(args)
 		1, 1, 1, 1,
 		1, 1, 1, 1,
 		1, 1, 1, 1)
-		if General.Library.IsMatrix4(GotData) then
+		if IsMatrix4(GotData) then
 			for ak=0,3 do
 				for bk=0,3 do
 					RenderData.Color[ak * 4 + bk] = GotData[ak + 1][bk + 1]/255
@@ -95,7 +97,7 @@ return function(args)
 		1, 1, 1, 1,
 		1, 1, 1, 1,
 		1, 1, 1, 1)
-		if General.Library.IsMatrix4(GotData) then
+		if IsMatrix4(GotData) then
 			for ak=0,3 do
 				for bk=0,3 do
 					RenderData.Color[ak * 4 + bk] = GotData[ak + 1][bk + 1]/255
@@ -162,7 +164,7 @@ return function(args)
 		1, 1, 1, 1,
 		1, 1, 1, 1,
 		1, 1, 1, 1)
-		if General.Library.IsMatrix4(GotData) then
+		if IsMatrix4(GotData) then
 			for ak=0,3 do
 				for bk=0,3 do
 					RenderData.Color[ak * 4 + bk] = GotData[ak + 1][bk + 1]/255

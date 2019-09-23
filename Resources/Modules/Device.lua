@@ -1,12 +1,12 @@
 return function(args)
-  local Object, General, Globals = args[1], args[2], args[3]
+  local Object, Globals = args[1], args[2]
   local Globals = Globals.Library.Globals
   local Create, Destroy, Copy, type, loadstring = Object.Library.Create,
   Object.Library.Destroy, Object.Library.Copy, Globals.type, Globals.loadstring
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Object, General, Globals = args[1], args[2], args[3]
+    Object, Globals = args[1], args[2]
     Globals = Globals.Library.Globals
     Create, Destroy, Copy, type, loadstring = Object.Library.Create,
     Object.Library.Destroy, Object.Library.Copy, Globals.type, Globals.loadstring

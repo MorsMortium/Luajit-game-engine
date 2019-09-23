@@ -1,30 +1,30 @@
 return function(args)
-  local Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender, AllCameras,
-  CTypes, Globals = args[1], args[2], args[3], args[4], args[5], args[6],
-  args[7], args[8], args[9], args[10]
+  local Space, OpenGL, AllDevices, Math, SDL, CameraRender, AllCameras,
+  Globals = args[1], args[2], args[3], args[4], args[5], args[6],
+  args[7], args[8]
   local Globals = Globals.Library.Globals
   local DotProduct, CrossProduct, Normalise, VectorSubtraction, VectorLength,
-  VectorAddition, VectorScale, gsl, OpenGL, SDL, VectorEqual, pi, tan =
-  General.Library.DotProduct, General.Library.CrossProduct,
-  General.Library.Normalise, General.Library.VectorSubtraction,
-  General.Library.VectorLength, General.Library.VectorAddition,
-  General.Library.VectorScale, lgsl.Library.gsl, OpenGL.Library, SDL.Library,
-  General.Library.VectorEqual, Globals.pi, Globals.tan
+  VectorAddition, VectorScale, OpenGL, SDL, VectorEqual, pi, tan,
+  MatrixMultiplication4x4 = Math.Library.DotProduct, Math.Library.CrossProduct,
+  Math.Library.Normalise, Math.Library.VectorSubtraction, Math.Library.VectorLength,
+  Math.Library.VectorAddition, Math.Library.VectorScale, OpenGL.Library,
+  SDL.Library, Math.Library.VectorEqual, Globals.pi, Globals.tan,
+  Math.Library.MatrixMultiplication4x4
 
   local GiveBack = {}
 
   function GiveBack.Reload(args)
-    Space, OpenGL, AllDevices, lgsl, General, SDL, CameraRender, AllCameras,
-    CTypes, Globals = args[1], args[2], args[3], args[4], args[5], args[6],
-    args[7], args[8], args[9], args[10]
+    Space, OpenGL, AllDevices, Math, SDL, CameraRender, AllCameras,
+    Globals = args[1], args[2], args[3], args[4], args[5], args[6],
+    args[7], args[8]
     Globals = Globals.Library.Globals
     DotProduct, CrossProduct, Normalise, VectorSubtraction, VectorLength,
-    VectorAddition, VectorScale, gsl, OpenGL, SDL, VectorEqual, pi, tan =
-    General.Library.DotProduct, General.Library.CrossProduct,
-    General.Library.Normalise, General.Library.VectorSubtraction,
-    General.Library.VectorLength, General.Library.VectorAddition,
-    General.Library.VectorScale, lgsl.Library.gsl, OpenGL.Library, SDL.Library,
-    General.Library.VectorEqual, Globals.pi, Globals.tan
+    VectorAddition, VectorScale, OpenGL, SDL, VectorEqual, pi, tan,
+    MatrixMultiplication4x4 = Math.Library.DotProduct, Math.Library.CrossProduct,
+    Math.Library.Normalise, Math.Library.VectorSubtraction, Math.Library.VectorLength,
+    Math.Library.VectorAddition, Math.Library.VectorScale, OpenGL.Library,
+    SDL.Library, Math.Library.VectorEqual, Globals.pi, Globals.tan,
+    Math.Library.MatrixMultiplication4x4
   end
 
   --Creates a Camera's projection matrix
@@ -34,7 +34,7 @@ return function(args)
     local YScale = 1 / tan(D2R * FieldOfView / 2)
     local XScale = YScale / Aspect
     local MDMMD = MinimumDistance - MaximumDistance
-    local m = ProjectionMatrix.data
+    local m = ProjectionMatrix
     m[0], m[5], m[10], m[14] =
     XScale, YScale, (MaximumDistance + MinimumDistance) / MDMMD,
     2 * MaximumDistance * MinimumDistance / MDMMD
@@ -45,7 +45,7 @@ return function(args)
     local Z = Normalise(VectorSubtraction(Translation, Direction))
     local X = Normalise(CrossProduct(UpVector, Z))
     local Y = CrossProduct(Z, X)
-    local m = ViewMatrix.data
+    local m = ViewMatrix
     m[0], m[1], m[2], m[3],
     m[4], m[5], m[6], m[7],
     m[8], m[9], m[10], m[11] =
@@ -60,13 +60,13 @@ return function(args)
     AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject] then
       local FollowObject =
       AllDevices.Space.Devices[av.FollowDevice].Objects[av.FollowObject]
-      local Points = FollowObject.Points.data
+      local Points = FollowObject.Points
       local Translationv = {Points[(av.FollowPoint-1) * 4],
                             Points[(av.FollowPoint-1) * 4 + 1],
                             Points[(av.FollowPoint-1) * 4 + 2]}
       local Length = av.FollowDistance/VectorLength(Translationv)
       local Center = FollowObject.Translation
-      local Transformated = FollowObject.Transformated.data
+      local Transformated = FollowObject.Transformated
       local PointUp = {Transformated[(av.FollowPointUp-1) * 4],
                       Transformated[(av.FollowPointUp-1) * 4 + 1],
                       Transformated[(av.FollowPointUp-1) * 4 + 2]}
@@ -100,9 +100,7 @@ return function(args)
       av.MaximumDistance, av.ProjectionMatrix)
     end
     if av.ViewMatrixCalc or av.ProjectionMatrixCalc then
-      av.ViewProjectionMatrix = av.ProjectionMatrix * av.ViewMatrix
-      gsl.gsl_blas_dgemm(gsl.CblasNoTrans, gsl.CblasNoTrans, 1,
-      av.ProjectionMatrix, av.ViewMatrix, 0, av.ViewProjectionMatrix)
+      MatrixMultiplication4x4(av.ProjectionMatrix, av.ViewMatrix, av.ViewProjectionMatrix)
       av.ViewMatrixCalc, av.ProjectionMatrixCalc = false, false
     end
   end
@@ -111,7 +109,7 @@ return function(args)
   function GiveBack.RenderAllCameras()
     for ak=1,#AllCameras.Space.OpenGLCameras do
       local av = AllCameras.Space.OpenGLCameras[ak]
-      UpdateCamera(av, lgsl, General, AllDevices)
+      UpdateCamera(av)
       OpenGL.glFramebufferRenderbuffer(OpenGL.GL_FRAMEBUFFER,
       OpenGL.GL_DEPTH_ATTACHMENT, OpenGL.GL_RENDERBUFFER, av.DBO[0])
       OpenGL.glBindFramebuffer(OpenGL.GL_FRAMEBUFFER, AllCameras.Space.FBO[0])
@@ -121,16 +119,13 @@ return function(args)
         OpenGL.glViewport(0,0,av.HorizontalResolution,av.VerticalResolution)
       end
       Space.LastCamera = ak
-      for bk=0,15 do
-        Space.ViewProjectionMatrix[bk] = av.ViewProjectionMatrix.data[bk]
-      end
       local CRender = CameraRender.Library.CameraRenders[av.CameraRenderer]
       CRender[av.Type].Render(AllCameras.Space.VBO, AllCameras.Space.RDBO, av,
-      Space.ViewProjectionMatrix, CRender.Space)
+      av.ViewProjectionMatrix, CRender.Space)
     end
     for ak=1,#AllCameras.Space.SoftwareCameras do
       local av = AllCameras.Space.SoftwareCameras[ak]
-      UpdateCamera(av, lgsl, General, AllDevices)
+      UpdateCamera(av)
       local CRender = CameraRender.Library.CameraRenders[av.CameraRenderer]
       CRender[av.Type].Render(av, Space.Renderer, CRender.Space)
       SDL.upperBlitScaled(Space.RendererSurface, nil, av.Surface, nil)
@@ -140,7 +135,6 @@ return function(args)
     Space.LastCamera = 0
     Space.RendererSurface = SDL.createRGBSurface(0, 640, 480, 32, 0, 0, 0, 0)
     Space.Renderer = SDL.createSoftwareRenderer(Space.RendererSurface)
-    Space.ViewProjectionMatrix = CTypes.Library.Types["float[?]"].Type(16)
   end
   function GiveBack.Stop()
     SDL.destroyRenderer(Space.Renderer)

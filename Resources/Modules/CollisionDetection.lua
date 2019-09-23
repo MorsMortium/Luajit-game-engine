@@ -15,11 +15,11 @@ return function(args)
     local BroadCollisions = DetectCollisions()
     --Finds collisions that are in the same layers and are approved by GJK
     local RealCollisions = {}
-    for ak=1,#BroadCollisions do
-      local av, mtv = BroadCollisions[ak], {}
-      if SameLayer(av[1].PhysicsLayers, av[1].PLayerKeys, av[2].PhysicsLayers, av[2].PLayerKeys) and
-      GJK(av[1], av[2], mtv) then
-        RealCollisions[#RealCollisions + 1] = {av[1], av[2], mtv}
+    for ak=1,#BroadCollisions, 2 do
+      local av, bv, mtv = BroadCollisions[ak], BroadCollisions[ak + 1], {}
+      if SameLayer(av.PhysicsLayers, av.PLayerKeys, bv.PhysicsLayers, bv.PLayerKeys) and
+      GJK(av, bv, mtv) then
+        RealCollisions[#RealCollisions + 1] = {av, bv, mtv}
       end
     end
     return RealCollisions

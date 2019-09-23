@@ -83,11 +83,11 @@ return function(args)
 			end
 
 			--Positions can be numbers or SDL constants, hence the function
-			local X = unpack(SDLNumberOrString({GotWindow.X}, SDL, General))
+			local X = unpack(SDLNumberOrString({GotWindow.X}, SDL))
 			if X then
 				Window.X = X
 			end
-			local Y = unpack(SDLNumberOrString({GotWindow.Y}, SDL, General))
+			local Y = unpack(SDLNumberOrString({GotWindow.Y}, SDL))
 			if Y then
 				Window.Y = Y
 			end
