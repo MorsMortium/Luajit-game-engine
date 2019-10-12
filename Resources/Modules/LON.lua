@@ -8,10 +8,9 @@ tostring, pairs, pcall, io.open, io.write, loadstring, table.sort
 
 --Loads a file, returns its content or nil, in case of error
 local function ReadFile(Name)
-  local Content = ""
-  local File = open(Path .. tostring(Name), "r" )
-  if (File) then
-    Content = File:read("*a")
+  local File = open(Path .. tostring(Name))
+  if File then
+    local Content = File:read("*a")
     File:close()
     return Content
   end
@@ -34,7 +33,7 @@ local function RemoveAllSpaces(Table)
   end
 end
 
---Loads file, checks, if it begins with return, runs it, and gives back the table
+--Loads file, checks if it begins with return, runs it, and gives back the table
 --Doesn't raise an error, instead prints it and returns nil
 function GiveBack.DecodeFromFile(Name)
   local String = ReadFile(Name)
@@ -48,19 +47,18 @@ function GiveBack.DecodeFromFile(Name)
           return DataOrError
         elseif type(DataOrError) == "string" then
           return rtrim(DataOrError)
-        else
-          return DataOrError
         end
+        return DataOrError
       else
-        write("LON error in file: ", Path .. tostring(Name), "\n")
+        write(("LON error in file: %s%s\n"):format(Path, tostring(Name)))
         write(DataOrError, "\n")
       end
     else
-      write("LON error in file: ", Path .. tostring(Name), "\n")
+      write(("LON error in file: %s%s\n"):format(Path, tostring(Name)))
       write("Return statement not first\n")
     end
   else
-    write("LON error in file: ", Path .. tostring(Name), "\n")
+    write(("LON error in file: %s%s\n"):format(Path, tostring(Name)))
     write("File not found\n")
   end
 end
@@ -71,9 +69,8 @@ local function KeySort(Key1, Key2)
     return Key1 < Key2
   elseif tonumber(Key1) ~= nil and tonumber(Key2) ~= nil then
     return tonumber(Key1) < tonumber(Key2)
-  else
-    return tostring(Key1) < tostring(Key2)
   end
+  return tostring(Key1) < tostring(Key2)
 end
 
 --Converts a table into a string
@@ -100,10 +97,10 @@ local function ToString(Table, Tab)
     local ak = Keys[_]
     local av = Table[ak]
     if type(av) ~= "function" then
-      if not NumKeysOnly then Result = Result .. string.rep("\t", Tabs) end
+      if not NumKeysOnly then Result = Result .. ("\t"):rep(Tabs) end
       --Check the key type (ignore any numerical keys - assume its an array)
       if type(ak) == "string" then
-        Result = Result .. "[\"" .. ak .. "\"] = "
+        Result = ("%s[\"%s\"] = "):format(Result, ak)
       end
       --Check the value type
       if type(av) == "table" then
@@ -111,26 +108,28 @@ local function ToString(Table, Tab)
       elseif type(av) == "boolean" then
         Result = Result .. tostring(av)
       elseif type(av) == "string" then
-        if string.match(av, "\n") then
-          if string.sub(av, -1) == "]" then
-            Result = Result .. "[[" .. av .. " ]]"
+        if av:match("\n") then
+          if av:sub(-1) == "]" then
+            Result = ("%s[[%s ]]"):format(Result, av)
           else
-            Result = Result .. "[[" .. av .. "]]"
+            Result = ("%s[[%s]]"):format(Result, av)
           end
         else
-          Result = Result .. "\"" .. av .. "\""
+          Result = ("%s\"%s\""):format(Result, av)
         end
       else
         Result = Result .. av
       end
-      if NumKeysOnly then Result = Result .. ", " else Result = Result .. ",\n" end
+      if NumKeysOnly then
+        Result = Result .. ", " else Result = Result .. ",\n"
+      end
     end
   end
   --Remove leading commas from the Result
   if Result ~= "" then
     Result = Result:sub(1, Result:len()-2)
     if not NumKeysOnly then
-      Result = Result .. "\n" .. string.rep("\t", Tabs - 1)
+      Result = ("%s\n%s"):format(Result, ("\t"):rep(Tabs - 1))
     end
   end
   return Result .. "}"
@@ -139,18 +138,19 @@ end
 --Handles, if it's not a table but another type, that has been passed
 local function FullString(Data)
   if type(Data) == "table" then
-    return "return" .. ToString(Data) .. "\n"
+    return ("return%s\n"):format(ToString(Data))
   elseif type(Data) == "function" then
     return "return\n"
   elseif type(Data) == "string" then
-    if string.match(Data, "\n") then
-      return "return [[ " .. Data .. " ]]\n"
-    else
-      return "return \""..Data.."\"\n"
+    if Data:match("\n") then
+      if Data:sub(-1) == "]" then
+        return ("return [[%s ]]\n"):format(Data)
+      end
+      return ("return [[%s]]\n"):format(Data)
     end
-  else
-    return "return " .. tostring(Data) .. "\n"
+    return ("return \"%s\"\n"):format(Data)
   end
+  return ("return %s\n"):format(tostring(Data))
 end
 
 --Saves string into file
@@ -168,7 +168,7 @@ end
 function GiveBack.EncodeToFile(Name, Data)
   local String = FullString(Data)
   if not SaveFile(Name, String) then
-    write("LON error in file: ", tostring(GiveBack.Path) .. tostring(Name), "\n")
+    write(("LON error in file: %s%s\n"):format(Path, tostring(Name)))
     write("Access denied\n")
   end
 end

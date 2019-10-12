@@ -2,17 +2,10 @@ return function(args)
   local Space, General, CTypes, ObjectRender, AllDevices, Globals = args[1],
   args[2], args[3], args[4], args[5], args[6]
   local Globals = Globals.Library.Globals
-  local SameLayer, ConcatenateCArrays, pairs =
-  General.Library.SameLayer, General.Library.ConcatenateCArrays, Globals.pairs
-  local GiveBack = {}
+  local ConcatCArrays, pairs = General.Library.ConcatCArrays,
+  Globals.pairs
 
-  function GiveBack.Reload(args)
-    Space, General, CTypes, ObjectRender, AllDevices, Globals = args[1],
-    args[2], args[3], args[4], args[5], args[6]
-    Globals = Globals.Library.Globals
-    SameLayer, ConcatenateCArrays, pairs =
-    General.Library.SameLayer, General.Library.ConcatenateCArrays, Globals.pairs
-  end
+  local GiveBack = {}
 
   --Thist script is responsible for drawing every Device to a Camera
   --GLuint Is for the Elements of the Devices
@@ -25,7 +18,8 @@ return function(args)
       Space.NumberPerType[ak] = {}
       Space.NumberPerType[ak].TransformatedMatrices = {}
       Space.NumberPerType[ak].RenderData = {}
-      Space.NumberPerType[ak].Elements = av.MakeElements(AllDevices.Space.MaxNumberOfObjects, Space.GLuint)
+      Space.NumberPerType[ak].Elements =
+      av.MakeElements(AllDevices.Space.MaxObjects, Space.GLuint)
     end
   end
   function GiveBack.Stop()
@@ -35,21 +29,20 @@ return function(args)
   --Then puts its vertex data and rendering data in arrays
   --After that it merges the arrays into two C arrays, creates the elements for
   --Each renderer from ObjectRenders.lua and renders them
-  function GiveBack.RenderAllDevices(VBO, RDBO, CameraObject, MVP)
-    for ak=1,#AllDevices.Space.BroadPhaseAxes[1] do
-      local av = AllDevices.Space.BroadPhaseAxes[1][ak]
-      if SameLayer(CameraObject.VisualLayers, CameraObject.VLayerKeys, av.VisualLayers, av.VLayerKeys) then
-        local ObjectRenderer = ObjectRender.Library.ObjectRenders[av.ObjectRenderer]
-        local GetTransformatedMatrix = ObjectRenderer.GetTransformatedMatrix
-        local GetRenderData = ObjectRenderer.GetRenderData
-        local ORA = Space.NumberPerType[av.ObjectRenderer]
-        ORA.TransformatedMatrices[#ORA.TransformatedMatrices + 1],
-        ORA.VertexLength, ORA.VertexType =
-        GetTransformatedMatrix(av.Transformated)
-        ORA.RenderData[#ORA.RenderData + 1],
-        ORA.RenderDataLength, ORA.RenderDataType =
-        GetRenderData(av.RenderData)
-      end
+  function GiveBack.RenderAllDevices(VBO, RDBO, Camera, MVP)
+    for ak=1,#Camera.Objects do
+      local av = Camera.Objects[ak]
+      local ObjectRenderer =
+      ObjectRender.Library.ObjectRenders[av.ObjectRenderer]
+      local GetTransformatedMatrix = ObjectRenderer.GetTransformatedMatrix
+      local GetRenderData = ObjectRenderer.GetRenderData
+      local ORA = Space.NumberPerType[av.ObjectRenderer]
+      ORA.TransformatedMatrices[#ORA.TransformatedMatrices + 1],
+      ORA.VertexLength, ORA.VertexType =
+      GetTransformatedMatrix(av.Transformated)
+      ORA.RenderData[#ORA.RenderData + 1],
+      ORA.RenderDataLength, ORA.RenderDataType =
+      GetRenderData(av.RenderData)
     end
     for ak1=1,#Space.ORenderKeys do
       local ak2 = Space.ORenderKeys[ak1]
@@ -58,11 +51,11 @@ return function(args)
       if #av.TransformatedMatrices ~= 0 then
         local Render = av2.Render
         av.FullTransformatedMatrix =
-        ConcatenateCArrays(av.TransformatedMatrices, av.VertexLength, av.VertexType)
+        ConcatCArrays(av.TransformatedMatrices, av.VertexLength, av.VertexType)
         av.FullRenderData =
-        ConcatenateCArrays(av.RenderData, av.RenderDataLength, av.RenderDataType)
-        Render(VBO, RDBO, av.FullTransformatedMatrix, MVP, #av.TransformatedMatrices,
-        av.Elements, av.FullRenderData, av2.Space)
+        ConcatCArrays(av.RenderData, av.RenderDataLength, av.RenderDataType)
+        Render(VBO, RDBO, av.FullTransformatedMatrix, MVP,
+        #av.TransformatedMatrices, av.Elements, av.FullRenderData, av2.Space)
         av.TransformatedMatrices = {}
         av.RenderData = {}
       end

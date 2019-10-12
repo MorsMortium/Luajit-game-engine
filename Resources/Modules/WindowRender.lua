@@ -7,14 +7,6 @@ return function(args)
 
 	local GiveBack = {}
 
-	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, OpenGL, OpenGLInit, AllCameras, Globals = args[1],
-		args[2], args[3], args[4], args[5], args[6], args[7]
-		Globals = Globals.Library.Globals
-		OpenGL, SDL, type, pairs = OpenGL.Library, SDL.Library, Globals.type,
-		Globals.pairs
-  end
-
 	--Different Window rendering scripts are stored here
 	GiveBack.WindowRenders = {}
 

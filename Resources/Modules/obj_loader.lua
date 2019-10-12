@@ -52,11 +52,11 @@ end
 
 function loader.parse(object)
 	local obj = {
-		v	= {}, -- List of vertices - x, y, z, [w]=1.0
-		vt	= {}, -- Texture coordinates - u, v, [w]=0
-		vn	= {}, -- Normals - x, y, z
-		vp	= {}, -- Parameter space vertices - u, [v], [w]
-		f	= {}, -- Faces
+		v	= {}, --List of vertices - x, y, z, [w]=1.0
+		vt	= {}, --Texture coordinates - u, v, [w]=0
+		vn	= {}, --Normals - x, y, z
+		vp	= {}, --Parameter space vertices - u, [v], [w]
+		f	= {}, --Faces
 	}
 	
 	for _=1,#object do
@@ -121,7 +121,7 @@ local function file_exists(file)
 	return f ~= nil
 end
 
--- http://wiki.interfaceware.com/534.html
+--http://wiki.interfaceware.com/534.html
 local function string_split(s, d)
 	local t = {}
 	local i = 0

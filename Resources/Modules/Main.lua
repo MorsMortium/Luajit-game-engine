@@ -1,22 +1,28 @@
 return function(args)
-	local Physics = args[1]
+	local Physics, AllCameraRenders, AllWindowRenders, AllDevices = args[1],
+	args[2], args[3], args[4]
+	local Physics, RenderAllCameras, RenderAllWindows, ClearObjectChanges =
+	Physics.Library.Physics, AllCameraRenders.Library.RenderAllCameras,
+	AllWindowRenders.Library.RenderAllWindows,
+	AllDevices.Library.ClearObjectChanges
+
 	local GiveBack = {}
 
-	function GiveBack.Reload(args)
-		Physics = args[1]
-  end
-
-	function GiveBack.Main(Time)
-		Physics.Library.Physics(Time)
+	function GiveBack.Main(Time, Number)
+		Physics(Time)
+		RenderAllCameras()
+		if RenderAllWindows(Number) then
+			--return true --Performance benchmark
+		end
+		ClearObjectChanges()
 		--[[
-		local modulesta = {}
-		modulesta[1] = {}
-		modulesta[1].Path = "General"
-		modulesta[1].Name = "General"
-		if Tessst then
-			Tessst = false
-			return false, true, modulesta
-			--body...
+		local Modules = {}
+		Modules[1] = {}
+		Modules[1].Path = "General"
+		Modules[1].Name = "General"
+		if Test then
+			Test = nil
+			return false, true, Modules
 		end
 		--]]
 		return false

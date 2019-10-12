@@ -60,27 +60,26 @@ return{
 					["Type"] = "Command"
 				}, {
 					["Active"] = false,
-					["IfObject"] = false,
 					["String"] = "return true",
 					["Type"] = "Destroypara"
 				}, {
 					["Active"] = false,
-					["Angle"] = -9e-06,
+					["Angle"] = -0.00003,
 					["Point"] = 2,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = 9e-06,
+					["Angle"] = 0.00003,
 					["Point"] = 2,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = -9e-06,
+					["Angle"] = -0.00003,
 					["Point"] = 3,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = 9e-06,
+					["Angle"] = 0.00003,
 					["Point"] = 3,
 					["Type"] = "SelfRotate"
 				}, {
@@ -94,15 +93,16 @@ return{
 					["Name"] = "Bullet",
 					["String"] = [[
 					local Created, Creator, Math, Globals = ...
-					local Center, Point, v = Creator.Translation, {Creator.Transformated[0],
-					Creator.Transformated[1], Creator.Transformated[2]}, Created.Objects[1]
-					v.LinearVelocity = Math.Library.VectorSubtraction(Point, Center)
-					for i=1,3 do
+					local Center, v = Creator.Translation, Created.Objects[1]
+					Math.BuffVect[0], Math.BuffVect[1], Math.BuffVect[2] =
+					Creator.Transformated[0], Creator.Transformated[1], Creator.Transformated[2]
+					Math.VectorSub(Math.BuffVect, Center, v.LinearVelocity)
+					for i=0,2 do
 						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
 						v.Rotation[i] = Creator.Rotation[i]
 						v.Translation[i] = Center[i]
 					end
-					v.Rotation[4] = Creator.Rotation[4] ]],
+					v.Rotation[3] = Creator.Rotation[3] ]],
 					["Type"] = "Summon"
 				}, {
 					["Active"] = true,
@@ -114,7 +114,7 @@ return{
 					["String"] = [[
 					local Created, Creator, Math, Globals = ...
 					local Center, v = Creator.Translation, Created.Objects[1]
-					for i=1,3 do
+					for i=0,2 do
 						if Globals.random(1, 2) == 1 then
 							v.Translation[i] = Center[i] + Globals.random(30, 50)
 						else
@@ -122,9 +122,9 @@ return{
 						end
 					end
 					local c1, c2 = Creator.Translation, v.Translation
-					local Move = Math.Library.VectorSubtraction(c1, c2)
-					for i=1,3 do
-						v.LinearVelocity[i] = Move[i]/10000
+					Math.VectorSub(c1, c2, Math.BuffVect)
+					for i=0,2 do
+						v.LinearVelocity[i] = Math.BuffVect[i]/10000
 						v.AngularVelocity[i + 1] = Globals.random()/300
 					end ]],
 					["Type"] = "Summon"

@@ -1,8 +1,6 @@
 return function(args)
+  
   local GiveBack = {}
-
-  function GiveBack.Reload(args)
-  end
 
   --This script is responds to collisions detected by CollisionDetection.lua
   function GiveBack.ResponseCollisions(RealCollision)
@@ -18,6 +16,7 @@ return function(args)
         if bv then
           Powers[bk].Active = true
           Powers[bk].Device = Parent
+          Powers[bk].Object = av[2]
           Powers[bk].Contact = av[3]
         end
       end
@@ -30,6 +29,7 @@ return function(args)
         if bv then
           Powers[bk].Active = true
           Powers[bk].Device = Parent
+          Powers[bk].Object = av[1]
           Powers[bk].Contact = av[3]
         end
       end

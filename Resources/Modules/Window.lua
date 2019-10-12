@@ -6,17 +6,8 @@ return function(args)
 	CTypes.Library.Types, SDL.Library, General.Library.DataFromKeys,
 	Globals.remove, Globals.bor, Globals.type, Globals.unpack
 	local int = Types["int[?]"].Type
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		SDL, SDLInit, General, CTypes, WindowRender, Globals = args[1], args[2],
-		args[3], args[4], args[5], args[6]
-		Globals = Globals.Library.Globals
-		Types, SDL, DataFromKeys, remove, bor, type, unpack =
-		CTypes.Library.Types, SDL.Library, General.Library.DataFromKeys,
-		Globals.remove, Globals.bor, Globals.type, Globals.unpack
-		int = Types["int[?]"].Type
-  end
 
 	--This script creates a Window
 	--Gets a library and an array of strings or numbers.

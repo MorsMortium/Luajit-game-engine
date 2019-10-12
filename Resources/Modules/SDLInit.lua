@@ -1,12 +1,10 @@
 return function(args)
-	local Space, SDL, ffi, General = args[1], args[2], args[3], args[4]
-	local ffi, SDL = ffi.Library, SDL.Library
-	local GiveBack = {}
+	local Space, SDL, ffi, General, Globals = args[1], args[2], args[3], args[4],
+	args[5]
+	local ffi, SDL, write = ffi.Library, SDL.Library,
+	Globals.Library.Globals.write
 
-	function GiveBack.Reload(args)
-		Space, SDL, ffi, General = args[1], args[2], args[3], args[4]
-		ffi, SDL = ffi.Library, SDL.Library
-  end
+	local GiveBack = {}
 
 	--Inits the SDL system, and it's subsystems if needed
 	function GiveBack.Start(Configurations)
@@ -26,7 +24,7 @@ return function(args)
 					SDL.initSubSystem(SDL[av])
 					local Error = ffi.string(SDL.getError())
 					if Error ~= "" then
-						print(Error)
+						write(Error, "\n")
 					else
 						Space.SubSystems[av] = true
 					end

@@ -5,16 +5,8 @@ return function(args)
   CTypes.Library.Types, Globals.Library.Globals
   local GLuint, remove, type = Types["GLuint[?]"].Type, Globals.remove,
   Globals.type
+  
   local GiveBack = {}
-
-  function GiveBack.Reload(args)
-    Space, Camera, CTypes, OpenGL, SDL, Globals = args[1], args[2], args[3],
-    args[4], args[5], args[6]
-    OpenGL, SDL, Types, Globals = OpenGL.Library, SDL.Library,
-    CTypes.Library.Types, Globals.Library.Globals
-    GLuint, remove, type = Types["GLuint[?]"].Type, Globals.remove,
-    Globals.type
-  end
 
   --Adds one Camera to the Game
   function GiveBack.Add(CameraData)

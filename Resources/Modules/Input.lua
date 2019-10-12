@@ -1,14 +1,10 @@
 return function(args)
 	local AllWindowRenders, Globals = args[1], args[2]
 	local Globals = Globals.Library.Globals
-	local pcall, loadstring, write = Globals.pcall, Globals.loadstring, Globals.write
-	local GiveBack = {}
+	local pcall, loadstring, write = Globals.pcall, Globals.loadstring,
+	Globals.write
 
-	function GiveBack.Reload(args)
-		AllWindowRenders, Globals = args[1], args[2]
-		Globals = Globals.Library.Globals
-		pcall, loadstring, write = Globals.pcall, Globals.loadstring, Globals.write
-  end
+	local GiveBack = {}
 
 	GiveBack.Inputs = {}
 	GiveBack.Inputs.Up = {}

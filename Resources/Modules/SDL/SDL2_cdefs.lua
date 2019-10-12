@@ -1,7 +1,7 @@
--- Cut and paste from the C preprocessor output
--- Removed inline/defined functions which are not supported by luajit
--- Instead, those are defined into defines.lua
--- Note there are some tests here and there to stay cross-platform
+--Cut and paste from the C preprocessor output
+--Removed inline/defined functions which are not supported by luajit
+--Instead, those are defined into defines.lua
+--Note there are some tests here and there to stay cross-platform
 
 local ffi = require 'ffi'
 
@@ -2393,7 +2393,7 @@ void SDL_Quit(void);
 
 ]]
 
--- sdl
+--sdl
 
 ffi.cdef[[
 enum {
@@ -2408,7 +2408,7 @@ SDL_INIT_NOPARACHUTE    = 0x00100000,
 SDL_INIT_EVERYTHING     = ( SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER )
 };
 ]]
--- audio
+--audio
 
 ffi.cdef[[
 enum {
@@ -2447,7 +2447,7 @@ SDL_MIX_MAXVOLUME = 128
 
 ]]
 
--- events
+--events
 
 ffi.cdef[[
 enum {
@@ -2460,7 +2460,7 @@ SDL_ENABLE   = 1
 };
 ]]
 
--- haptic
+--haptic
 
 ffi.cdef[[
 enum {
@@ -2487,7 +2487,7 @@ SDL_HAPTIC_INFINITY   = 4294967295U
 };
 ]]
 
--- joystick
+--joystick
 
 ffi.cdef[[
 enum {
@@ -2503,7 +2503,7 @@ SDL_HAT_LEFTDOWN    = (SDL_HAT_LEFT|SDL_HAT_DOWN)
 };
 ]]
 
--- keycode
+--keycode
 
 ffi.cdef[[
 enum {
@@ -2515,7 +2515,7 @@ SDL_KMOD_GUI = (SDL_KMOD_LGUI|SDL_KMOD_RGUI)
 };
 ]]
 
--- main
+--main
 if ffi.os == 'Windows' then
    ffi.cdef[[
 int SDL_RegisterApp(char *name, Uint32 style,
@@ -2524,7 +2524,7 @@ void SDL_UnregisterApp(void);
    ]]
 end
 
--- mouse
+--mouse
 
 ffi.cdef[[
 enum {
@@ -2541,7 +2541,7 @@ SDL_BUTTON_X2MASK   = 1 << (SDL_BUTTON_X2-1),
 };
 ]]
 
--- mutex
+--mutex
 
 ffi.cdef[[
 enum {
@@ -2550,7 +2550,7 @@ SDL_MUTEX_MAXWAIT = (~(Uint32)0)
 };
 ]]
 
--- pixels
+--pixels
 
 ffi.cdef[[
 enum {
@@ -2559,7 +2559,7 @@ SDL_ALPHA_TRANSPARENT = 0
 };
 ]]
 
--- rwops
+--rwops
 ffi.cdef[[
 enum {
 SDL_RWOPS_UNKNOWN   = 0,
@@ -2571,7 +2571,7 @@ SDL_RWOPS_MEMORY_RO = 5
 };
 ]]
 
--- shape
+--shape
 ffi.cdef[[
 enum {
 SDL_NONSHAPEABLE_WINDOW = -1,
@@ -2580,7 +2580,7 @@ SDL_WINDOW_LACKS_SHAPE = -3
 };
 ]]
 
--- surface
+--surface
 ffi.cdef[[
 enum {
 SDL_SWSURFACE       = 0,
@@ -2590,7 +2590,7 @@ SDL_DONTFREE        = 0x00000004
 };
 ]]
 
--- video
+--video
 ffi.cdef[[
 enum {
 SDL_WINDOWPOS_UNDEFINED_MASK = 0x1FFF0000,

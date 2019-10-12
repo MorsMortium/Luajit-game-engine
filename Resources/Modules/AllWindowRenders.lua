@@ -2,13 +2,8 @@ return function(args)
 	local Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1],
 	args[2], args[3], args[4], args[5], args[6]
 	local SDL, WindowRenders = SDL.Library, WindowRender.Library.WindowRenders
-	local GiveBack = {}
 
-	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, AllWindows, WindowRender, OpenGLInit = args[1],
-		args[2], args[3], args[4], args[5], args[6]
-		SDL, WindowRenders = SDL.Library, WindowRender.Library.WindowRenders
-	end
+	local GiveBack = {}
 
 	function GiveBack.Start(Configurations)
 		Space.LastTime = 0
@@ -38,6 +33,7 @@ return function(args)
 				SDL.renderPresent(av.Renderer)
 			end
 		end
+		if Space.FramesPerSecond < 24 and Number > 1000 then return true end
 	end
 	return GiveBack
 end
