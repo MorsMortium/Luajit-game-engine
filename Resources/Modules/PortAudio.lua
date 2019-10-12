@@ -275,9 +275,9 @@ local function newStream()
   return ffi.new("PaStream*[1]")
 end
 
----- Blocking stream
--- Better performance than callback-based, but likely requires multi-threading
--- to obtain user input.
+----Blocking stream
+--Better performance than callback-based, but likely requires multi-threading
+--to obtain user input.
 
 local function blocking(sampleRate, framesPerBuffer, numChannels, audiofun)
   assert(type(sampleRate) == "number", "Bad arg#1: sampleRate (number)")
@@ -316,9 +316,9 @@ local function blocking(sampleRate, framesPerBuffer, numChannels, audiofun)
   die()
 end
 
----- Callback-based stream
--- Nicer for Lua since it is single-threaded, but has has lower performance
--- than blocking stream
+----Callback-based stream
+--Nicer for Lua since it is single-threaded, but has has lower performance
+--than blocking stream
 
 local function callback(sampleRate, framesPerBuffer, numChannels, audiofun, waitfun)
 

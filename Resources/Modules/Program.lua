@@ -6,17 +6,8 @@ return function(args)
 	AllShaders.Space.Shaders, CTypes.Library.Types, Globals.type, Globals.write
 	local char, GLint, int = Types["char[?]"].Type, Types["GLint[?]"].Type,
 	Types["int[?]"].Type
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		AllShaders, OpenGL, ffi, CTypes, Globals = args[1], args[2], args[3],
-		args[4], args[5]
-		Globals = Globals.Library.Globals
-		ffi, OpenGL, Shaders, Types, type, write = ffi.Library, OpenGL.Library,
-		AllShaders.Space.Shaders, CTypes.Library.Types, Globals.type, Globals.write
-		char, GLint, int = Types["char[?]"].Type, Types["GLint[?]"].Type,
-		Types["int[?]"].Type
-  end
 
 	--This script creates a shader program from different shaders
 	function GiveBack.Create(GotProgram)
@@ -36,8 +27,8 @@ return function(args)
 			OpenGL.glAttachShader(Program.ProgramID, Shaders[av].ShaderID)
 		end
 
-		-- Link the Program
-		write("Linking Program: "..GotProgram.Name, "\n")
+		--Link the Program
+		write("Linking Program: ", GotProgram.Name, "\n")
 		OpenGL.glLinkProgram(Program.ProgramID)
 
 		--Prepare error handling

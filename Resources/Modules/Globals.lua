@@ -1,12 +1,8 @@
 return function(args)
   local Space = args[1]
   local type, pairs = type, pairs
-  local GiveBack = {}
 
-  function GiveBack.Reload(args)
-    local Space = args[1]
-    type, pairs = type, pairs
-  end
+  local GiveBack = {}
 
   GiveBack.Globals = {["type"] = type, ["pairs"] = pairs}
 

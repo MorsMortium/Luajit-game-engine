@@ -1,18 +1,11 @@
 return function(args)
-	local Space, SDL, SDLInit, OpenGL, Globals = args[1], args[2], args[3], args[4],
-	args[5]
+	local Space, SDL, SDLInit, OpenGL, Globals = args[1], args[2], args[3],
+	args[4], args[5]
 	local Globals = Globals.Library.Globals
 	local SDL, OpenGL, bor, type = SDL.Library, OpenGL.Library, Globals.bor,
 	Globals.type
-	local GiveBack = {}
 
-	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, OpenGL, Globals = args[1], args[2], args[3], args[4],
-		args[5]
-		Globals = Globals.Library.Globals
-		SDL, OpenGL, bor, type = SDL.Library, OpenGL.Library, Globals.bor,
-		Globals.type
-  end
+	local GiveBack = {}
 
 	--Inits the OpenGL system, and glew, if needed.
 	--Creates a dummy window, sets OpenGL version, and

@@ -1,16 +1,10 @@
 return function(args)
   local Object, Globals = args[1], args[2]
   local Globals = Globals.Library.Globals
-  local Create, Destroy, Copy, type, loadstring = Object.Library.Create,
-  Object.Library.Destroy, Object.Library.Copy, Globals.type, Globals.loadstring
-  local GiveBack = {}
+  local Create, Copy, type, loadstring = Object.Library.Create,
+  Object.Library.Copy, Globals.type, Globals.loadstring
 
-  function GiveBack.Reload(args)
-    Object, Globals = args[1], args[2]
-    Globals = Globals.Library.Globals
-    Create, Destroy, Copy, type, loadstring = Object.Library.Create,
-    Object.Library.Destroy, Object.Library.Copy, Globals.type, Globals.loadstring
-  end
+  local GiveBack = {}
 
   --Creates and returns one Device. Devices contain multiple objects, take input
   --from buttons and in the future contain constraints
@@ -134,11 +128,5 @@ return function(args)
     Device1.BDownKeys = NewBDownKeys
   end
 
-  --Destroys a Device
-  function GiveBack.Destroy(Device)
-    for ak=1,#Device.Objects do
-      Destroy(Device.Objects[ak])
-    end
-  end
   return GiveBack
 end

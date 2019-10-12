@@ -6,17 +6,8 @@ return function(args)
 	CTypes.Library.Types, Globals.open, Globals.write
 	local char, GLint, int, constcharp = Types["char[?]"].Type,
 	Types["GLint[?]"].Type, Types["int[?]"].Type, Types["const char *[?]"].Type
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		OpenGL, OpenGLInit, ffi, CTypes, Globals = args[1], args[2], args[3],
-		args[4], args[5]
-		Globals = Globals.Library.Globals
-		ffi, OpenGL, Types, open, write = ffi.Library, OpenGL.Library,
-		CTypes.Library.Types, Globals.open, Globals.write
-		char, GLint, int, constcharp = Types["char[?]"].Type,
-		Types["GLint[?]"].Type, Types["int[?]"].Type, Types["const char *[?]"].Type
-  end
 
 	--If IfPath true, then String is a Path
 	--othervise it is a lua String filled with the Shadersourcecode
@@ -51,7 +42,7 @@ return function(args)
 		local Result = GLint(1, OpenGL.GL_FALSE)
 		local InfoLogLength = int(1)
 
-		write("Compiling Shader: "..GotShader.Name, "\n")
+		write("Compiling Shader: ", GotShader.Name, "\n")
 
 		--Load source into OpenGL
 		local SourcePointer = constcharp(1, ShaderCodeC)

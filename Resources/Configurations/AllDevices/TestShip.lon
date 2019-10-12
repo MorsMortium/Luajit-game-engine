@@ -41,7 +41,7 @@ return{
 			["Type"] = "Up"
 		}, {
 			["Button"] = "Left Alt",
-			["String"] = "local Device = ... Device.Objects[1].Powers[7].Active = true",
+			["String"] = "local Device = ... Device.Objects[1].Powers[8].Active = true",
 			["Type"] = "Down"
 		}},
 	["Name"] = "TestShip",
@@ -49,32 +49,30 @@ return{
 			["Fixed"] = false,
 			["Mass"] = 1,
 			["ObjectRenderer"] = "WireFrame",
-			["OnCollisionPowers"] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, true},
 			["PhysicsLayers"] = {"None"},
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = false,
-					["IfObject"] = false,
 					["String"] = "return true",
 					["Type"] = "Destroypara"
 				}, {
 					["Active"] = false,
-					["Angle"] = -9e-06,
+					["Angle"] = -0.00003,
 					["Point"] = 2,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = 9e-06,
+					["Angle"] = 0.00003,
 					["Point"] = 2,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = -9e-06,
+					["Angle"] = -0.00003,
 					["Point"] = 3,
 					["Type"] = "SelfRotate"
 				}, {
 					["Active"] = false,
-					["Angle"] = 9e-06,
+					["Angle"] = 0.00003,
 					["Point"] = 3,
 					["Type"] = "SelfRotate"
 				}, {
@@ -83,89 +81,72 @@ return{
 					["Point"] = 1,
 					["Type"] = "Thruster"
 				}, {
-					["Active"] = false,
-					["Name"] = "BulletNeverDies",
-					["String"] = [[
-					local Created, Creator, Math, Globals = ...
-					local Center, Point, v = Creator.Translation, {Creator.Transformated[0],
-					Creator.Transformated[1], Creator.Transformated[2]}, Created.Objects[1]
-					v.LinearVelocity = Math.Library.VectorSubtraction(Point, Center)
-					for i=1,3 do
-						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
-						v.Rotation[i] = Creator.Rotation[i]
-						v.Translation[i] = Center[i]
-					end
-					v.Rotation[4] = Creator.Rotation[4] ]],
-					["Type"] = "Summon"
-				}, {
 					["Active"] = true,
 					["Rate"] = 0.005,
 					["Type"] = "SelfSlow"
 				}, {
 					["Active"] = false,
-					["Name"] = "Asteroid",
+					["Name"] = "BulletNeverDies",
 					["String"] = [[
 					local Created, Creator, Math, Globals = ...
 					local Center, v = Creator.Translation, Created.Objects[1]
-					for i=1,3 do
-						if Globals.random(1, 2) == 1 then
-							v.Translation[i] = Center[i] + Globals.random(30, 50)
-						else
-							v.Translation[i] = Creator.Translation[i] - Globals.random(30, 50)
-						end
+					Math.BuffVect[0], Math.BuffVect[1], Math.BuffVect[2] =
+					Creator.Transformated[0], Creator.Transformated[1], Creator.Transformated[2]
+					Math.VectorSub(Math.BuffVect, Center, v.LinearVelocity)
+					for i=0,2 do
+						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
+						v.Rotation[i] = Creator.Rotation[i]
+						v.Translation[i] = Center[i]
 					end
-					local c1, c2 = Creator.Translation, v.Translation
-					local Move = Math.Library.VectorSubtraction(c1, c2)
-					for i=1,3 do
-						v.LinearVelocity[i] = Move[i]/10000
-						v.AngularVelocity[i] = Globals.random()/100
-					end
-					v.AngularVelocity[4] = Globals.random()/100 ]],
+					v.Rotation[3] = Creator.Rotation[3] ]],
 					["Type"] = "Summon"
 				}, {
 					["Active"] = false,
 					["Name"] = "BulletNeverDies",
 					["String"] = [[
 					local Created, Creator, Math, Globals = ...
-					local Center, Point, v = Creator.Translation, {Creator.Transformated[4],
-					Creator.Transformated[5], Creator.Transformated[6]}, Created.Objects[1]
-					v.LinearVelocity = Math.Library.VectorSubtraction(Point, Center)
-					for i=1,3 do
+					local Center, v = Creator.Translation, Created.Objects[1]
+					Math.BuffVect[0], Math.BuffVect[1], Math.BuffVect[2] =
+					Creator.Transformated[4], Creator.Transformated[5], Creator.Transformated[6]
+					Math.VectorSub(Math.BuffVect, Center, v.LinearVelocity)
+					for i=0,2 do
 						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
 						v.Rotation[i] = Creator.Rotation[i]
 						v.Translation[i] = Center[i]
 					end
-					v.Rotation[4] = Creator.Rotation[4] ]],
+					v.Rotation[3] = Creator.Rotation[3] ]],
 					["Type"] = "Summon"
 				}, {
 					["Active"] = false,
 					["Name"] = "BulletNeverDies",
 					["String"] = [[
 					local Created, Creator, Math, Globals = ...
-					local Center, Point, v = Creator.Translation, {Creator.Transformated[8],
-					Creator.Transformated[9], Creator.Transformated[10]}, Created.Objects[1]
-					v.LinearVelocity = Math.Library.VectorSubtraction(Point, Center)
-					for i=1,3 do
+					local Center, v = Creator.Translation, Created.Objects[1]
+					Math.BuffVect[0], Math.BuffVect[1], Math.BuffVect[2] =
+					Creator.Transformated[8], Creator.Transformated[9], Creator.Transformated[10]
+					Math.VectorSub(Math.BuffVect, Center, v.LinearVelocity)
+					for i=0,2 do
 						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
 						v.Rotation[i] = Creator.Rotation[i]
 						v.Translation[i] = Center[i]
 					end
-					v.Rotation[4] = Creator.Rotation[4] ]],
+					v.Rotation[3] = Creator.Rotation[3] ]],
 					["Type"] = "Summon"
 				}, {
 					["Active"] = false,
 					["Name"] = "BulletNeverDies",
 					["String"] = [[
 					local Created, Creator, Math, Globals = ...
-					local Center, Point, v = Creator.Translation, {Creator.Transformated[12],
-					Creator.Transformated[13], Creator.Transformated[14]}, Created.Objects[1]
-					v.LinearVelocity = Math.Library.VectorSubtraction(Point, Center)
-					for i=1,3 do
+					local Center, v = Creator.Translation, Created.Objects[1]
+					Math.BuffVect[0], Math.BuffVect[1], Math.BuffVect[2] =
+					Creator.Transformated[12], Creator.Transformated[13], Creator.Transformated[14]
+					Math.VectorSub(Math.BuffVect, Center, v.LinearVelocity)
+					for i=0,2 do
 						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
 						v.Rotation[i] = Creator.Rotation[i]
 						v.Translation[i] = Center[i]
 					end
-					v.Rotation[4] = Creator.Rotation[4] ]],
+					v.Rotation[3] = Creator.Rotation[3] ]],
 					["Type"] = "Summon"
 				}, {
 					["Active"] = true,
@@ -174,8 +155,9 @@ return{
 					if Power.SumTime then
 						Power.SumTime = Power.SumTime + Time
 						if Power.SumTime > 100 then
-							Object.Powers[7].Active, Object.Powers[10].Active, Object.Powers[11].Active,
-							Object.Powers[12].Active = true, true, true, true
+							Object.Powers[8].Active, Object.Powers[9].Active,
+							Object.Powers[10].Active, Object.Powers[11].Active =
+							true, true, true, true
 							Power.SumTime = Power.SumTime - 100
 						end
 					else
@@ -195,24 +177,6 @@ return{
 						Power.DeviceNumber = #Devices
 					end ]],
 					["Type"] = "Command"
-				}, {
-					["Active"] = false,
-					["String"] = [[
-					--local Devices, Device, Object, Power, Time, Globals = ...
-					--if Power.Contact and not Power.Once then
-					--	Power.Once = true
-					--	Object.Powers[16].Active = true
-					--	Object.Powers[16].Command =
-					--	Globals.loadstring('local Created = ... local T = Created.Objects[1].Translation T[1], T[2], T[3] = '
-					--	.. Power.Contact[3][1] .. ', ' .. Power.Contact[3][2].. ', ' .. Power.Contact[3][3])
-					--	Power.Active = false
-					--end ]],
-					["Type"] = "Command"
-				}, {
-					["Active"] = false,
-					["Name"] = "Default",
-					["String"] = "",
-					["Type"] = "Summon"
 				}},
 			["RenderData"] = {{0, 0, 255, 255}, {0, 0, 255, 255}, {0, 0, 255, 255}, {0, 0, 255, 255}},
 			["Rotation"] = {0, 0, 0},

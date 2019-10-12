@@ -4,15 +4,8 @@ return function(args)
 	local Globals = Globals.Library.Globals
 	local SDL, OpenGL, bor, type, pairs = SDL.Library, OpenGL.Library, Globals.bor,
 	Globals.type, Globals.pairs
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		BigSpace, SDL, SDLInit, OpenGL, OpenGLInit, AllDeviceRenders, Globals =
-		args[1], args[2], args[3], args[4], args[5], args[6], args[7]
-		Globals = Globals.Library.Globals
-		SDL, OpenGL, bor, type, pairs = SDL.Library, OpenGL.Library, Globals.bor,
-		Globals.type, Globals.pairs
-  end
 
 	--Different Camera rendering scripts are stored here
 	GiveBack.CameraRenders = {}

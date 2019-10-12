@@ -3,10 +3,10 @@ return{
 	["ModulePath"] = "./Resources/Modules/?.lua;./Resources/Modules/?;",
 	["Modules"] = {{
 			["Name"] = "ffi",
-			["Path"] = "ffi",
+			["Path"] = "ffi"
 		}, {
 			["Name"] = "PortAudio",
-			["Path"] = "PortAudio",
+			["Path"] = "PortAudio"
 		}, {
 			["Name"] = "Audio",
 			["Path"] = "Audio",
@@ -19,7 +19,7 @@ return{
 		}, {
 			["Name"] = "Main",
 			["Path"] = "Main",
-			["Requirements"] = {"Physics"}
+			["Requirements"] = {"Physics", "AllCameraRenders", "AllWindowRenders", "AllDevices"}
 		}, {
 			["Name"] = "General",
 			["Path"] = "General",
@@ -29,13 +29,13 @@ return{
 			["Path"] = "SDL2",
 		}, {
 			["Name"] = "OpenGL",
-			["Path"] = "luaglew",
+			["Path"] = "luaglew"
 		}, {
 			["Configuration"] = "SDLData.lon",
 			["Name"] = "SDLInit",
 			["Path"] = "SDLInit",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"SDL", "ffi", "General"}
+			["Requirements"] = {"SDL", "ffi", "General", "Globals"}
 		}, {
 			["Configuration"] = "OpenGLData.lon",
 			["Name"] = "OpenGLInit",
@@ -108,7 +108,7 @@ return{
 			["Name"] = "Physics",
 			["Path"] = "Physics",
 			["Requirements"] =
-			{"AllDevices", "General", "AllPowers", "CollisionDetection", "CollisionResponse", "UpdateAxes"}
+			{"AllDevices", "General", "AllPowers", "CollisionDetection", "CollisionResponse", "SAP"}
 		}, {
 			["Configuration"] = "AllCameras.lon",
 			["Name"] = "AllCameras",
@@ -129,15 +129,16 @@ return{
 			["Name"] = "Power",
 			["Path"] = "Power",
 			["StartStopSpace"] = true,
-			["Requirements"] = {"General", "Device", "AllDevices", "ffi", "Globals", "Math"}
+			["Requirements"] = {"General", "Device", "AllDevices", "ffi", "Globals", "Math", "CTypes"}
 		}, {
 			["Name"] = "AllPowers",
 			["Path"] = "AllPowers",
+			["StartStopSpace"] = true,
 			["Requirements"] = {"Power", "AllDevices", "Globals"}
 		}, {
 			["Name"] = "CollisionDetection",
 			["Path"] = "CollisionDetection",
-			["Requirements"] = {"General", "SweepAndPrune", "GJKEPA"}
+			["Requirements"] = {"General", "GJKEPA", "AllDevices", "Globals"}
 		}, {
 			["Name"] = "CollisionResponse",
 			["Path"] = "CollisionResponse"
@@ -159,7 +160,7 @@ return{
 			["Path"] = "AllCameraRenders",
 			["StartStopSpace"] = true,
 			["Requirements"] =
-			{"OpenGL", "AllDevices", "Math", "SDL", "CameraRender", "AllCameras", "Globals"}
+			{"OpenGL", "AllDevices", "Math", "SDL", "CameraRender", "AllCameras", "Globals", "CTypes", "General"}
 		}, {
 			["Configuration"] = "CTypes.lon",
 			["Name"] = "CTypes",
@@ -167,17 +168,13 @@ return{
 			["StartStopSpace"] = true,
 			["Requirements"] = {"ffi", "OpenGL", "SDL", "Globals"}
 		}, {
-			["Name"] = "UpdateAxes",
-			["Path"] = "UpdateAxes",
+			["Name"] = "SAP",
+			["Path"] = "SAP",
 			["Requirements"] = {"AllDevices", "Globals"}
-		}, {
-			["Name"] = "SweepAndPrune",
-			["Path"] = "SweepAndPrune",
-			["Requirements"] = {"AllDevices"}
 		}, {
 			["Name"] = "GJKEPA",
 			["Path"] = "GJKEPA",
-			["Requirements"] = {"Math", "Globals"}
+			["Requirements"] = {"Math", "Globals", "CTypes"}
 		}, {
 			["Name"] = "Globals",
 			["Path"] = "Globals",
@@ -185,6 +182,6 @@ return{
 		}, {
 			["Name"] = "Math",
 			["Path"] = "Math",
-			["Requirements"] = {"Globals"}
+			["Requirements"] = {"Globals", "CTypes"}
 		}}
 }

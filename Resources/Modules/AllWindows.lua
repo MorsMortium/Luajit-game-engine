@@ -4,15 +4,8 @@ return function(args)
 	local Globals = Globals.Library.Globals
 	local SDL, Create, Destroy, remove, type = SDL.Library, Window.Library.Create,
 	Window.Library.Destroy, Globals.remove, Globals.type
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		Space, OpenGLInit, SDL, SDLInit, Window, Globals = args[1], args[2],
-		args[3], args[4], args[5], args[6]
-		Globals = Globals.Library.Globals
-		SDL, Create, Destroy, remove, type = SDL.Library, Window.Library.Create,
-		Window.Library.Destroy, Globals.remove, Globals.type
-  end
 
 	--This script manages Windows
 	--Loads data for every Window and creates them

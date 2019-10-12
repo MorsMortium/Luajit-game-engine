@@ -7,18 +7,8 @@ return function(args)
 	local SDL_Event, pcall, remove, type, loadstring, write, string =
 	Types["SDL_Event"].Type, Globals.pcall, Globals.remove, Globals.type,
 	Globals.loadstring, Globals.write, ffi.Library.string
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		Space, SDL, SDLInit, ffi, Window, AllWindows, AllDevices, Input, CTypes,
-		Globals = args[1], args[2], args[3], args[4], args[5], args[6], args[7],
-		args[8], args[9], args[10]
-		SDL, Inputs, Types, Globals = SDL.Library, Input.Library.Inputs,
-		CTypes.Library.Types, Globals.Library.Globals
-		SDL_Event, pcall, remove, type, loadstring, write, string =
-		Types["SDL_Event"].Type, Globals.pcall, Globals.remove, Globals.type,
-		Globals.loadstring, Globals.write, ffi.Library.string
-	end
 
 	--Sets up inputs based on button presses and releases
 	function GiveBack.Start(Configurations)

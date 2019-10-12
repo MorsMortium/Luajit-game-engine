@@ -1,12 +1,12 @@
--- Function definitions which were not output by
--- the C preprocessor
+--Function definitions which were not output by
+--the C preprocessor
 
 local bit = bit
 local sdl
 
 local function registerdefines(sdl)
 
-   -- audio
+   --audio
 
    function sdl.AUDIO_BITSIZE(x)
       return bit.band(x, sdl.AUDIO_MASK_BITSIZE)
@@ -40,7 +40,7 @@ local function registerdefines(sdl)
       return sdl.loadWAV_RW(sdl.RWFromFile(file, "rb"), 1, spec, audio_buf, audio_len)
    end
 
-   -- surface
+   --surface
    sdl.blitSurface = sdl.upperBlit
 
    function sdl.MUSTLOCK(S)

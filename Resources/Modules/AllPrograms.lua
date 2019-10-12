@@ -3,14 +3,8 @@ return function(args)
 	local Globals = Globals.Library.Globals
 	local Create, Destroy, type = Program.Library.Create, Program.Library.Destroy,
 	Globals.type
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		Space, Program, Globals = args[1], args[2], args[3]
-		Globals = Globals.Library.Globals
-		Create, Destroy, type = Program.Library.Create, Program.Library.Destroy,
-		Globals.type
-	end
 
 	--Creates every Program with Program.lua from shaders loaded by AllShaders.lua
 	function GiveBack.Start(Configurations)

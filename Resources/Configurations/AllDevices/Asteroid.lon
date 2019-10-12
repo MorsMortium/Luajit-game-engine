@@ -9,20 +9,16 @@ return{
 			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
 			["Powers"] = {{
 					["Active"] = true,
-					["IfObject"] = false,
-					["String"] = [[ local Devices, Device, Object, Power, General = ...
-					if Devices then local Own, Other = Object.Translation,
-					Devices[1].Objects[1].Translation
-					if General.Library.VectorLength(General.Library.VectorSubtraction(Other, Own)) > 100 then
-							return true
-					else
-						return false
-						end
+					["String"] = [[ local Devices, Device, Object, Power, Math = ...
+					if Devices then
+						local Own, Other =
+						Object.Translation, Devices[1].Objects[1].Translation
+						Math.VectorSub(Other, Own, Math.BuffVect)
+						return Math.VectorLength(Math.BuffVect) > 100
 					end ]],
 					["Type"] = "Destroypara"
 				}, {
 					["Active"] = false,
-					["IfObject"] = false,
 					["String"] = "return true",
 					["Type"] = "Destroypara"
 				}, {

@@ -26,7 +26,8 @@ function GiveBack.LoadModules(Modules, Data)
       package.loaded[av.Path] = nil
       Ran, LibraryOrError = pcall(require, av.Path)
       if Ran and type(LibraryOrError) == "function" then
-        Ran, LibraryOrError = pcall(LibraryOrError, RequCalc(Data, Data[av.Name]))
+        Ran, LibraryOrError =
+				pcall(LibraryOrError, RequCalc(Data, Data[av.Name]))
       end
       if Ran and LibraryOrError then
         Data[av.Name].Library = LibraryOrError
@@ -35,8 +36,8 @@ function GiveBack.LoadModules(Modules, Data)
     --Lazy method, might become slow on higher number of modules
     --TODO: Speed it up by only reloading needed modules
     for ak,av in pairs(Data) do
-      if type(av.Library) == "table" and type(av.Library.Reload) == "function" then
-        av.Library.Reload(RequCalc(Data, av))
+      if type(av.Function) == "function" then
+        av.Library = av.Function(RequCalc(Data, av))
       end
     end
 	end
@@ -109,78 +110,11 @@ local function CompareLists(List1, List2)
 		end
 	end
 end
-function GiveBack.StartAll(Data, Modules)
-	local Configurations = LoadConfigurations(Modules, Data.LON)
-	local Pending
-	local Change = true
-	while Change do
-		Pending = false
-		Change = false
-		for ak=1,#Modules do
-			local av = Modules[ak]
-			if not Data[av.Name] then
-				local Allrequisgood = true
-				if type(av.Requirements) == "table" then
-					for bk=1,#av.Requirements do
-						local bv = av.Requirements[bk]
-						if Data[bv] == nil then
-							Allrequisgood = false
-						end
-					end
-				end
-				if Allrequisgood then
-					local Ran, LibraryOrError
-          Data[av.Name] = {}
-          Data[av.Name].StartStopSpace = av.StartStopSpace
-          if av.StartStopSpace then
-            Data[av.Name].Space = {}
-          end
-          if av.Requirements then
-            Data[av.Name].Requirements = av.Requirements
-          end
-          Ran, LibraryOrError = pcall(require, av.Path)
-          if Ran and type(LibraryOrError) == "function" then
-            Ran, LibraryOrError = pcall(LibraryOrError, RequCalc(Data, Data[av.Name]))
-          end
-					if Ran and LibraryOrError then
-						Data[av.Name].Library = LibraryOrError
-						local AllRequIsStarted = true
-						if type(av.Requirements) == "table" then
-							for bk=1,#av.Requirements do
-								local bv = av.Requirements[bk]
-								if type(Data[bv]) == "table" and not Data[bv].Started then
-									AllRequIsStarted = false
-								end
-							end
-						end
-						if AllRequIsStarted then
-							Order[#Order + 1] = av.Name
-							Change = true
-							Data[av.Name].Started = true
-							if av.StartStopSpace then
-								Data[av.Name].Library.Start(Configurations[av.Name])
-							end
-							write(av.Name, " Started\n")
-						else
-							Pending = true
-						end
-					else
-						write(LibraryOrError, "\n")
-						Pending = true
-					end
-				else
-					Pending = true
-				end
-			end
-		end
-	end
-	return Pending
-end
-function GiveBack.PrintBadModules(Data)
+local function PrintBadModules(Data)
 	local NotLoaded = {}
 	write("Error, not loaded Modules:\n")
 	for ak, av in pairs(Data) do
-		if av.Started == nil then
+		if not av.Started then
 			NotLoaded[#NotLoaded + 1] = ak
 			write(ak, "\n")
 		end
@@ -202,7 +136,7 @@ function GiveBack.PrintBadModules(Data)
 		end
 	end
 end
-function GiveBack.PrintCauses(Data)
+local function PrintCauses(Data)
 	write("Caused by:\n")
 	for ak,av in pairs(Data) do
 		if type(av.Library) == "table" and av.Requirements then
@@ -231,6 +165,68 @@ function GiveBack.PrintCauses(Data)
 		end
 	end
 end
+function GiveBack.StartAll(Data, Modules)
+	local Configurations = LoadConfigurations(Modules, Data.LON)
+	local Pending
+	local Change = true
+	while Change do
+		Pending = false
+		Change = false
+		for ak=1,#Modules do
+			local av = Modules[ak]
+			if not Data[av.Name] then
+				Data[av.Name] = {}
+				Data[av.Name].StartStopSpace = av.StartStopSpace
+				Data[av.Name].Requirements = av.Requirements
+				if Data[av.Name].StartStopSpace then
+					Data[av.Name].Space = {}
+				end
+			end
+			if not Data[av.Name].Started then
+				local AllRequIsStarted = true
+				if type(Data[av.Name].Requirements) == "table" then
+					for bk=1,#Data[av.Name].Requirements do
+						local bv = Data[av.Name].Requirements[bk]
+						if Data[bv] == nil or
+						(type(Data[bv]) == "table" and not Data[bv].Started) then
+							AllRequIsStarted = false
+						end
+					end
+				end
+				if AllRequIsStarted then
+					local Ran, LibraryOrError = pcall(require, av.Path)
+					if Ran and type(LibraryOrError) == "function" then
+						Data[av.Name].Function = LibraryOrError
+						Ran, LibraryOrError =
+						pcall(LibraryOrError, RequCalc(Data, Data[av.Name]))
+						if Ran and LibraryOrError then
+							Data[av.Name].Library = LibraryOrError
+						end
+					elseif Ran then
+						Data[av.Name].Library = LibraryOrError
+					end
+					if Ran then
+						Order[#Order + 1] = av.Name
+						Change = true
+						Data[av.Name].Started = true
+						if av.StartStopSpace then
+							Data[av.Name].Library.Start(Configurations[av.Name])
+						end
+						write(av.Name, " Started\n")
+					else
+						Pending = true
+					end
+				else
+					Pending = true
+				end
+			end
+		end
+	end
+	if Pending then
+		PrintBadModules(Data)
+		PrintCauses(Data)
+	end
+end
 function GiveBack.StopAll(Data)
 	for ak=(#Order),1,-1 do
 		local av = Order[ak]
@@ -243,13 +239,23 @@ function GiveBack.StopAll(Data)
 		write(av, " Stopped\n")
 	end
 end
+local function CreateErrorMessage(Name, Command)
+	local name, command = Name, Command
+	local function ErrorMessage()
+		if not _G[name .. command] then
+			_G[name .. command] = true
+			write(("%s and %s not found\n"):format(name, command))
+		end
+		return true
+	end
+	return ErrorMessage
+end
 function GiveBack.LoadLibrary(Name, Command, Data)
-	local LauncherUtilities = Data.LauncherUtilities.Library
-	if type(Data[Name]) == "table" and Data[Name].Started then
+	if Data[Name] and Data[Name].Started and
+	Data[Name].Library and Data[Name].Library[Command] then
 		return Data[Name].Library[Command]
 	end
-	return loadstring("if not no" .. Name .. "print then io.write('" .. Name ..
-	"' .. ' not found\n') no" .. Name .. "print = true return true end"), {}
+	return CreateErrorMessage(Name, Command)
 end
 
 return GiveBack

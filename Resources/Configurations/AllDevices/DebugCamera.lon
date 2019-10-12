@@ -1,0 +1,106 @@
+return{
+	["Inputs"] = {{
+			["Button"] = "Left",
+			["String"] = "local Device = ... Device.Objects[1].Powers[1].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Left",
+			["String"] = "local Device = ... Device.Objects[1].Powers[1].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Right",
+			["String"] = "local Device = ... Device.Objects[1].Powers[2].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Right",
+			["String"] = "local Device = ... Device.Objects[1].Powers[2].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Up",
+			["String"] = "local Device = ... Device.Objects[1].Powers[3].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Up",
+			["String"] = "local Device = ... Device.Objects[1].Powers[3].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Down",
+			["String"] = "local Device = ... Device.Objects[1].Powers[4].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Down",
+			["String"] = "local Device = ... Device.Objects[1].Powers[4].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Left Ctrl",
+			["String"] = "local Device = ... Device.Objects[1].Powers[5].Active = true",
+			["Type"] = "Down"
+		}, {
+			["Button"] = "Left Ctrl",
+			["String"] = "local Device = ... Device.Objects[1].Powers[5].Active = false",
+			["Type"] = "Up"
+		}, {
+			["Button"] = "Left Alt",
+			["String"] = "local Device = ... Device.Objects[1].Powers[7].Active = true",
+			["Type"] = "Down"
+		}},
+	["Name"] = "DebugCamera",
+	["Objects"] = {{
+			["Fixed"] = false,
+			["Mass"] = 1,
+			["ObjectRenderer"] = "Default",
+			["PhysicsLayers"] = {"None"},
+			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
+			["Powers"] = {{
+					["Active"] = false,
+					["Angle"] = -0.0002,
+					["Point"] = 2,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Angle"] = 0.0002,
+					["Point"] = 2,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Angle"] = -0.0002,
+					["Point"] = 3,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Angle"] = 0.0002,
+					["Point"] = 3,
+					["Type"] = "SelfRotate"
+				}, {
+					["Active"] = false,
+					["Force"] = 0.0003,
+					["Point"] = 1,
+					["Type"] = "Thruster"
+				}, {
+					["Active"] = true,
+					["Rate"] = 0.05,
+					["Type"] = "SelfSlow"
+				}, {
+					["Active"] = false,
+					["IfObject"] = false,
+					["Name"] = "Rubber",
+					["String"] = [[
+					local Created, Creator, Math, Globals = ...
+					local Center, Point, v = Creator.Translation, Creator.Transformated,
+					Created.Objects[1]
+					Math.VectorSub(Point, Center, v.LinearVelocity)
+					for i=0,2 do
+						v.LinearVelocity[i] = v.LinearVelocity[i] / 30
+						v.Rotation[i] = Creator.Rotation[i]
+						v.Translation[i] = Center[i]
+					end
+					v.Rotation[3] = Creator.Rotation[3] ]],
+					["Type"] = "Summon"
+				}},
+			["RenderData"] = {{0, 0, 255, 255}, {0, 0, 255, 255}, {0, 0, 255, 255}, {0, 0, 255, 255}},
+			["Rotation"] = {0, 0, 0},
+			["Scale"] = {1, 1, 1},
+			["Translation"] = {0, 0, -2},
+			["VisualLayers"] = {"None"}
+		}}
+}

@@ -6,17 +6,8 @@ return function(args)
 	CTypes.Library.Types, ffi.Library, Globals.type, Globals.pairs,
 	Math.Library.IsMatrix4
 	local double, doubleSize = Types["double[?]"].Type, Types["double[?]"].Size
+	
 	local GiveBack = {}
-
-	function GiveBack.Reload(args)
-		Space, OpenGL, OpenGLInit, CTypes, AllPrograms, Math, SDL, ffi, Globals =
-		args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]
-		Globals = Globals.Library.Globals
-		OpenGL, Types, ffi, type, pairs, IsMatrix4 = OpenGL.Library,
-		CTypes.Library.Types, ffi.Library, Globals.type, Globals.pairs,
-		Math.Library.IsMatrix4
-		double, doubleSize = Types["double[?]"].Type, Types["double[?]"].Size
-  end
 
 	--Different Object rendering scripts are stored here
 	GiveBack.ObjectRenders = {}

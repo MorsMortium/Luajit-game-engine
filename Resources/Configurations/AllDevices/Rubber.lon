@@ -1,0 +1,23 @@
+return{
+	["Name"] = "Rubber",
+	["Objects"] = {{
+			["Fixed"] = false,
+			["Mass"] = 1,
+			["ObjectRenderer"] = "WireFrame",
+			["OnCollisionPowers"] = {true, false},
+			["PhysicsLayers"] = {"Rubber"},
+			["Points"] = {{1, 1, 1, 1}, {1, -1, -1, 1}, {-1, 1, -1, 1}, {-1, -1, 1, 1}},
+			["Powers"] = {{
+					["Active"] = false,
+					["Type"] = "Pong"
+				}, {
+					["Active"] = true,
+					["Type"] = "SelfSlow"
+				}},
+			["RenderData"] = {{0, 255, 0, 255}, {0, 255, 0, 255}, {0, 255, 0, 255}, {0, 255, 0, 255}},
+			["Rotation"] = {0, 0, 0},
+			["Scale"] = {0.5, 0.5, 0.5},
+			["Translation"] = {2, 0, 0},
+			["VisualLayers"] = {"All"}
+		}}
+}

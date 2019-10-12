@@ -1,24 +1,18 @@
 return function(args)
 	local Math, CameraRender, Globals, CTypes = args[1], args[2], args[3], args[4]
 	local Globals = Globals.Library.Globals
-	local IsVector3, type, SetIdentity, SetZero, float = Math.Library.IsVector3,
-	Globals.type, Math.Library.SetIdentity, Math.Library.SetZero,
-	CTypes.Library.Types["float[?]"].Type
-	local GiveBack = {}
+	local IsVector3, type, SetIdentity, SetZero, float, double =
+	Math.Library.IsVector3, Globals.type, Math.Library.SetIdentity,
+	Math.Library.SetZero, CTypes.Library.Types["float[?]"].Type,
+	CTypes.Library.Types["double[?]"].Type
 
-	function GiveBack.Reload(args)
-		Math, CameraRender, Globals, CTypes = args[1], args[2], args[3], args[4]
-		Globals = Globals.Library.Globals
-		IsVector3, type, SetIdentity, SetZero, float = Math.Library.IsVector3,
-		Globals.type, Math.Library.SetIdentity, Math.Library.SetZero,
-		CTypes.Library.Types["float[?]"].Type
-  end
+	local GiveBack = {}
 
 	--Creates and returns one Camera
 	function GiveBack.Create(GotCamera)
 		--Creating the Camera table
 		local Camera = {}
-
+		Camera.Objects = {}
 		Camera.ViewMatrix = float(16)
 		SetIdentity(Camera.ViewMatrix)
 		Camera.ProjectionMatrix = float(16)
@@ -26,17 +20,16 @@ return function(args)
 		Camera.ProjectionMatrix[11] = -1
 		Camera.ViewProjectionMatrix = float(16)
 		--The translation in the world, Default: origin
-		Camera.Translation = {0,1,0}
+		Camera.Translation = double(4, 0, 0, 0)
 
 		--The direction the Camera faces
-		Camera.Direction = {0,-1,0}
+		Camera.Direction = double(4, 0, -1, 0)
 
-		--The vector that points to the top of the Camera
-		Camera.UpVector = {0,1,0}
+		--The Vector that points to the top of the Camera
+		Camera.UpVector = double(4, 0, 1, 0)
 
 		--Defines, which of the Objects it can see, Default: All
 		Camera.VisualLayers = {}
-		Camera.VLayerKeys = {}
 		--Closest vertices it renders
 		Camera.MinimumDistance = 1
 
@@ -63,25 +56,29 @@ return function(args)
 		--Creating the Camera from the actual data
 		if type(GotCamera) == "table" then
 			if IsVector3(GotCamera.Translation) then
-				Camera.Translation = GotCamera.Translation
+				Camera.Translation[0], Camera.Translation[1], Camera.Translation[2] =
+				GotCamera.Translation[1], GotCamera.Translation[2], GotCamera.Translation[3]
 			end
 			if IsVector3(GotCamera.Direction) then
-				Camera.Direction = GotCamera.Direction
+				Camera.Direction[0], Camera.Direction[1], Camera.Direction[2] =
+				GotCamera.Direction[1], GotCamera.Direction[2], GotCamera.Direction[3]
 			end
 			if IsVector3(GotCamera.UpVector) then
-				Camera.UpVector = GotCamera.UpVector
+				Camera.UpVector[0], Camera.UpVector[1], Camera.UpVector[2] =
+				GotCamera.UpVector[1], GotCamera.UpVector[2], GotCamera.UpVector[3]
 			end
 
 			for ak=1,#GotCamera.VisualLayers do
 				local av = GotCamera.VisualLayers[ak]
 				Camera.VisualLayers[av] = true
-				Camera.VLayerKeys[ak] = av
+				Camera.VisualLayers[ak] = av
 			end
 
-			if Camera.VLayerKeys[1] == nil then
-				Camera.VisualLayers["All"] = true
-				Camera.VLayerKeys[1] = "All"
+			if Camera.VisualLayers[1] == nil then
+				Camera.VisualLayers.All = true
+				Camera.VisualLayers[1] = "All"
 			end
+
 
 			if type(GotCamera.MinimumDistance) == "number" then
 				Camera.MinimumDistance = GotCamera.MinimumDistance
@@ -106,7 +103,7 @@ return function(args)
 			end
 
 			--The Camera is able to follow a Device's Object from any distance with
-			--One of it's vertices as direction and up vector
+			--One of it's vertices as direction and up Vector
 			if type(GotCamera.FollowDevice) == "number" then
 				Camera.FollowDevice = GotCamera.FollowDevice
 				if type(GotCamera.FollowObject) == "number" then
@@ -128,8 +125,5 @@ return function(args)
 		return Camera
 	end
 
-	--Destroys a Camera, freeing up all it's matrices, then clearing the other data
-	function GiveBack.Destroy(GotCamera)
-	end
 	return GiveBack
 end
